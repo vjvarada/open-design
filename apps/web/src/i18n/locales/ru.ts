@@ -297,7 +297,7 @@ export const ru: Dict = {
   'settings.amrActivationOpen': 'Открыть страницу входа',
   'settings.amrCancelSignIn': 'Отменить вход',
   'settings.amrAccountStatus': 'Статус аккаунта AMR',
-  'settings.amrConsole': 'Консоль AMR',
+  'settings.amrConsole': 'Управление',
   'settings.amrLoginErrorCompact': 'Не удалось войти в AMR.',
   'settings.advanced': 'Дополнительно',
   'settings.amrLogin': 'Войти',

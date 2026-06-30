@@ -297,7 +297,7 @@ export const it: Dict = {
   'settings.amrActivationOpen': 'Apri la pagina di accesso',
   'settings.amrCancelSignIn': 'Annulla accesso',
   'settings.amrAccountStatus': 'Stato account AMR',
-  'settings.amrConsole': 'Console AMR',
+  'settings.amrConsole': 'Gestisci',
   'settings.amrLoginErrorCompact': 'Accesso AMR non riuscito.',
   'settings.advanced': 'Avanzate',
   'settings.amrLogin': 'Accedi',

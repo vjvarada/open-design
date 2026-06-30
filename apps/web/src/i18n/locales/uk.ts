@@ -297,7 +297,7 @@ export const uk: Dict = {
   'settings.amrActivationOpen': 'Відкрити сторінку входу',
   'settings.amrCancelSignIn': 'Скасувати вхід',
   'settings.amrAccountStatus': 'Статус облікового запису AMR',
-  'settings.amrConsole': 'Консоль AMR',
+  'settings.amrConsole': 'Керувати',
   'settings.amrLoginErrorCompact': 'Не вдалося ввійти в AMR.',
   'settings.advanced': 'Розширені',
   'settings.amrLogin': 'Увійти',

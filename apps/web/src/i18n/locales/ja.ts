@@ -297,7 +297,7 @@ export const ja: Dict = {
   'settings.amrActivationOpen': 'サインインページを開く',
   'settings.amrCancelSignIn': 'サインインをキャンセル',
   'settings.amrAccountStatus': 'AMR アカウントの状態',
-  'settings.amrConsole': 'AMR コンソール',
+  'settings.amrConsole': '管理',
   'settings.amrLoginErrorCompact': 'AMR へのサインインに失敗しました。',
   'settings.advanced': '詳細設定',
   'settings.amrLogin': 'サインイン',

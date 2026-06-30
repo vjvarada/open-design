@@ -297,7 +297,7 @@ export const ko: Dict = {
   'settings.amrActivationOpen': '로그인 페이지 열기',
   'settings.amrCancelSignIn': '로그인 취소',
   'settings.amrAccountStatus': 'AMR 계정 상태',
-  'settings.amrConsole': 'AMR 콘솔',
+  'settings.amrConsole': '관리',
   'settings.amrLoginErrorCompact': 'AMR 로그인에 실패했습니다.',
   'settings.advanced': '고급',
   'settings.amrLogin': '로그인',

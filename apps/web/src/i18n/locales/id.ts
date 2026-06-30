@@ -297,7 +297,7 @@ export const id: Dict = {
   'settings.amrActivationOpen': 'Buka halaman masuk',
   'settings.amrCancelSignIn': 'Batalkan proses masuk',
   'settings.amrAccountStatus': 'Status akun AMR',
-  'settings.amrConsole': 'Konsol AMR',
+  'settings.amrConsole': 'Kelola',
   'settings.amrLoginErrorCompact': 'Proses masuk AMR gagal.',
   'settings.advanced': 'Lanjutan',
   'settings.amrLogin': 'Masuk',

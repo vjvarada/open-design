@@ -297,7 +297,7 @@ export const de: Dict = {
   'settings.amrActivationOpen': 'Anmeldeseite öffnen',
   'settings.amrCancelSignIn': 'Anmeldung abbrechen',
   'settings.amrAccountStatus': 'AMR-Kontostatus',
-  'settings.amrConsole': 'AMR-Konsole',
+  'settings.amrConsole': 'Verwalten',
   'settings.amrLoginErrorCompact': 'AMR-Anmeldung fehlgeschlagen.',
   'settings.advanced': 'Erweitert',
   'settings.amrLogin': 'Anmelden',

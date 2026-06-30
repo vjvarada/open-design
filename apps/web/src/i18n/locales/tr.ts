@@ -297,7 +297,7 @@ export const tr: Dict = {
   'settings.amrActivationOpen': 'Oturum açma sayfasını aç',
   'settings.amrCancelSignIn': 'Oturum açmayı iptal et',
   'settings.amrAccountStatus': 'AMR hesap durumu',
-  'settings.amrConsole': 'AMR Konsolu',
+  'settings.amrConsole': 'Yönet',
   'settings.amrLoginErrorCompact': 'AMR oturum açma başarısız oldu.',
   'settings.advanced': 'Gelişmiş',
   'settings.amrLogin': 'Oturum aç',

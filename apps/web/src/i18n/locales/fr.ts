@@ -297,7 +297,7 @@ export const fr: Dict = {
   'settings.amrActivationOpen': 'Ouvrir la page de connexion',
   'settings.amrCancelSignIn': 'Annuler la connexion',
   'settings.amrAccountStatus': 'Statut du compte AMR',
-  'settings.amrConsole': 'Console AMR',
+  'settings.amrConsole': 'Gérer',
   'settings.amrLoginErrorCompact': 'Échec de la connexion AMR.',
   'settings.advanced': 'Avancé',
   'settings.amrLogin': 'Se connecter',

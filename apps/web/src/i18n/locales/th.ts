@@ -297,7 +297,7 @@ export const th: Dict = {
   'settings.amrActivationOpen': 'เปิดหน้าเข้าสู่ระบบ',
   'settings.amrCancelSignIn': 'ยกเลิกการลงชื่อเข้าใช้',
   'settings.amrAccountStatus': 'สถานะบัญชี AMR',
-  'settings.amrConsole': 'AMR Console',
+  'settings.amrConsole': 'จัดการ',
   'settings.amrLoginErrorCompact': 'การลงชื่อเข้าใช้ AMR ล้มเหลว',
   'settings.advanced': 'ขั้นสูง',
   'settings.amrLogin': 'ลงชื่อเข้าใช้',

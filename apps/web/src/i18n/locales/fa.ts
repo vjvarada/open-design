@@ -297,7 +297,7 @@ export const fa: Dict = {
   'settings.amrActivationOpen': 'باز کردن صفحهٔ ورود',
   'settings.amrCancelSignIn': 'لغو ورود',
   'settings.amrAccountStatus': 'وضعیت حساب AMR',
-  'settings.amrConsole': 'کنسول AMR',
+  'settings.amrConsole': 'مدیریت',
   'settings.amrLoginErrorCompact': 'ورود به AMR ناموفق بود.',
   'settings.advanced': 'پیشرفته',
   'settings.amrLogin': 'ورود',

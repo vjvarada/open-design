@@ -297,7 +297,7 @@ export const esES: Dict = {
   'settings.amrActivationOpen': 'Abrir página de inicio de sesión',
   'settings.amrCancelSignIn': 'Cancelar inicio de sesión',
   'settings.amrAccountStatus': 'Estado de la cuenta AMR',
-  'settings.amrConsole': 'Consola AMR',
+  'settings.amrConsole': 'Gestionar',
   'settings.amrLoginErrorCompact': 'Error al iniciar sesión en AMR.',
   'settings.advanced': 'Avanzado',
   'settings.amrLogin': 'Iniciar sesión',

@@ -297,7 +297,7 @@ export const ptBR: Dict = {
   'settings.amrActivationOpen': 'Abrir página de login',
   'settings.amrCancelSignIn': 'Cancelar login',
   'settings.amrAccountStatus': 'Status da conta AMR',
-  'settings.amrConsole': 'Console AMR',
+  'settings.amrConsole': 'Gerenciar',
   'settings.amrLoginErrorCompact': 'Falha no login do AMR.',
   'settings.advanced': 'Avançado',
   'settings.amrLogin': 'Entrar',
