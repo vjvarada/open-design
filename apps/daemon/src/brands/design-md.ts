@@ -1,8 +1,9 @@
 // brandToDesignMd — render a Brand as a DESIGN.md the design-systems registry
 // can parse. The frontmatter carries a `colors:` map (so the picker shows
 // swatches) plus name/category/surface; the body opens with an `# <name>` H1
-// (the registry's title source) followed by Color Palette, Typography, Voice &
-// Tone, Imagery, and Layout sections.
+// (the registry's title source) followed by Context, Color Palette, Typography,
+// Voice & Tone, Imagery, Layout, Components, Motion, and Anti-patterns sections
+// (the headings the package audit's validateDesignRules requires).
 //
 // This is the body passed to createUserDesignSystem so a brand becomes an
 // applyable, swatch-listed user design system.
@@ -86,6 +87,19 @@ export function brandToDesignMd(brand: Brand): string {
 
   sections.push(
     [
+      '## Context',
+      '',
+      `- **Brand:** ${brand.name}${brand.tagline ? ` — ${brand.tagline}` : ''}`,
+      `- **Source:** ${brand.sourceUrl || '—'}`,
+      '- **Surface:** web',
+      `- **Posture:** ${brand.layout.radius} radius, ${brand.layout.borderWeight} borders, ${brand.layout.spacing} base spacing.`,
+      '',
+      `This document is the single source of truth for ${brand.name}. Bind the palette, typography, spacing, and radius below; where a live site and this document disagree, this document wins.`,
+    ].join('\n'),
+  );
+
+  sections.push(
+    [
       '## Color Palette',
       '',
       '| Role | Name | Hex | Usage |',
@@ -145,6 +159,38 @@ export function brandToDesignMd(brand: Brand): string {
       bulletList(brand.layout.postureRules),
     ].join('\n'),
   );
+
+  sections.push(
+    [
+      '## Components',
+      '',
+      `Component kit — states: default · hover · active · focus · disabled. Corners ${brand.layout.radius}, borders ${brand.layout.borderWeight}.`,
+      '',
+      bulletList(brand.layout.postureRules),
+    ].join('\n'),
+  );
+
+  sections.push(
+    [
+      '## Motion',
+      '',
+      '- **Durations:** ~120ms for hover/press, ~200ms for toggles and menus, ~300ms for reveals.',
+      '- **Easing:** one decisive ease; no bounce or elastic.',
+      '- **Restraint:** animate state changes and disclosure only — no parallax, autoplaying carousels, or decorative looping. Honor `prefers-reduced-motion`.',
+    ].join('\n'),
+  );
+
+  const antiPatterns = [
+    'Stay on the registered palette. The accent is high-signal — use it sparingly, never as a large background wash.',
+    `Keep the posture consistent: ${brand.layout.radius} radius, ${brand.layout.borderWeight} borders. Do not mix in a different corner or elevation style.`,
+  ];
+  if (brand.voice.vocabulary.avoid.length > 0) {
+    antiPatterns.push(`Avoid this wording: ${brand.voice.vocabulary.avoid.join(', ')}.`);
+  }
+  if (brand.imagery.avoid.length > 0) {
+    antiPatterns.push(`Avoid this imagery: ${brand.imagery.avoid.join(', ')}.`);
+  }
+  sections.push(['## Anti-patterns', '', bulletList(antiPatterns)].join('\n'));
 
   return `${frontmatter}\n\n${sections.join('\n\n')}\n`;
 }

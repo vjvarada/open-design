@@ -228,30 +228,36 @@ export function tag(opts: { label: string; color?: string }): string {
 
 type AlertType = "success" | "info" | "warning" | "error";
 
+// Inline Lucide icons so the static kit matches preview/components-buttons.html
+// (Lucide) with no JS dependency. currentColor inherits the status accent.
+function lucideIcon(inner: string): string {
+  return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block">${inner}</svg>`;
+}
+
 const ALERT_FACE: Record<AlertType, { bg: string; border: string; accent: string; icon: string }> = {
   success: {
     bg: varRef("colorSuccessBg"),
     border: varRef("colorSuccessBorder"),
     accent: varRef("colorSuccess"),
-    icon: "&#10003;",
+    icon: lucideIcon('<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>'),
   },
   info: {
     bg: varRef("colorInfoBg"),
     border: varRef("colorInfoBorder"),
     accent: varRef("colorInfo"),
-    icon: "&#8505;",
+    icon: lucideIcon('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>'),
   },
   warning: {
     bg: varRef("colorWarningBg"),
     border: varRef("colorWarningBorder"),
     accent: varRef("colorWarning"),
-    icon: "&#9888;",
+    icon: lucideIcon('<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>'),
   },
   error: {
     bg: varRef("colorErrorBg"),
     border: varRef("colorErrorBorder"),
     accent: varRef("colorError"),
-    icon: "&#10005;",
+    icon: lucideIcon('<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>'),
   },
 };
 
@@ -264,20 +270,14 @@ export function alert(opts: {
 
   const icon = `<span style="${style([
     "flex:0 0 auto",
-    "margin-top:2px",
+    "margin-top:1px",
     "color:" + face.accent,
-    "font-size:" + varRef("fontSizeLG"),
-    "line-height:1",
   ])}">${face.icon}</span>`;
 
-  const desc = opts.description
-    ? `<div style="${style([
-        "margin-top:" + varRef("sizeXXS"),
-        "font-size:" + varRef("fontSize"),
-        "color:" + varRef("colorTextSecondary"),
-        "line-height:" + varRef("lineHeight"),
-      ])}">${esc(opts.description)}</div>`
-    : "";
+  // Inline bold title + description, matching preview .fk-alert
+  // (`<span class="alert-title">Title.</span> body`).
+  const title = `<span style="font-weight:${varRef("fontWeightStrong")}">${esc(opts.message)}</span>`;
+  const desc = opts.description ? " " + esc(opts.description) : "";
 
   return `<div style="${style([
     "display:flex",
@@ -287,13 +287,13 @@ export function alert(opts: {
     "font-family:" + varRef("fontFamily"),
     "background:" + face.bg,
     "border:" + varRef("lineWidth") + " solid " + face.border,
-    "border-radius:" + varRef("borderRadiusLG"),
-  ])}">${icon}<div style="flex:1"><div style="${style([
+    "border-radius:" + varRef("borderRadius"),
+  ])}">${icon}<div style="${style([
+    "flex:1",
     "font-size:" + varRef("fontSize"),
-    "font-weight:" + (opts.description ? varRef("fontWeightStrong") : "inherit"),
     "color:" + varRef("colorText"),
     "line-height:" + varRef("lineHeight"),
-  ])}">${esc(opts.message)}</div>${desc}</div></div>`;
+  ])}">${title}${desc}</div></div>`;
 }
 
 // ─────────────────────────── shared behaviour css ───────────────────────────
@@ -556,31 +556,58 @@ export function pagination(opts: { total: number; current: number }): string {
   )}${pages}${cell("&rsaquo;", false, current === total)}</div>`;
 }
 
-export function progress(opts: { percent: number }): string {
+export function progress(opts: {
+  percent: number;
+  label?: string;
+  variant?: "primary" | "success" | "warning" | "error";
+}): string {
   const pct = Math.min(100, Math.max(0, Math.round(opts.percent)));
-  const done = pct >= 100;
-  return `<div style="display:flex;align-items:center;gap:${varRef("sizeSM")};font-family:${varRef(
-    "fontFamily",
-  )};">
-    <div style="${style([
-      "flex:1",
-      "height:8px",
-      "border-radius:4px",
-      "background:" + varRef("colorFillSecondary"),
-      "overflow:hidden",
-    ])}"><div style="${style([
-      "width:" + pct + "%",
-      "height:100%",
-      "border-radius:4px",
-      "background:" + (done ? varRef("colorSuccess") : varRef("colorPrimary")),
-      "transition:width " + varRef("motionDurationSlow") + " " + varRef("motionEaseOut"),
-    ])}"></div></div>
-    <span style="${style([
-      "flex:0 0 auto",
-      "font-size:" + varRef("fontSizeSM"),
-      "color:" + (done ? varRef("colorSuccess") : varRef("colorTextSecondary")),
-    ])}">${done ? "&#10003;" : pct + "%"}</span>
-  </div>`;
+  const fill =
+    opts.variant === "success"
+      ? varRef("colorSuccess")
+      : opts.variant === "warning"
+        ? varRef("colorWarning")
+        : opts.variant === "error"
+          ? varRef("colorError")
+          : varRef("colorPrimary");
+  // Rounded pill track + fill, label | bar | value layout — matches preview .fk-progress.
+  const bar = `<span style="${style([
+    "flex:1",
+    "height:8px",
+    "border-radius:999px",
+    "background:" + varRef("colorFillSecondary"),
+    "overflow:hidden",
+    "display:block",
+  ])}"><span style="${style([
+    "display:block",
+    "width:" + pct + "%",
+    "height:100%",
+    "border-radius:999px",
+    "background:" + fill,
+    "transition:width " + varRef("motionDurationSlow") + " " + varRef("motionEaseOut"),
+  ])}"></span></span>`;
+  const value = `<span style="${style([
+    "flex:0 0 auto",
+    "min-width:44px",
+    "text-align:right",
+    "font-family:" + varRef("fontFamilyCode"),
+    "font-size:" + varRef("fontSizeSM"),
+    "color:" + varRef("colorTextSecondary"),
+  ])}">${pct}%</span>`;
+  const labelEl = opts.label
+    ? `<span style="${style([
+        "flex:0 0 auto",
+        "min-width:150px",
+        "font-size:" + varRef("fontSizeSM"),
+        "color:" + varRef("colorTextSecondary"),
+      ])}">${esc(opts.label)}</span>`
+    : "";
+  return `<div style="${style([
+    "display:flex",
+    "align-items:center",
+    "gap:" + varRef("sizeSM"),
+    "font-family:" + varRef("fontFamily"),
+  ])}">${labelEl}${bar}${value}</div>`;
 }
 
 export function steps(opts: {
@@ -1131,8 +1158,9 @@ export function renderKitPage(
     "margin-top:" + varRef("sizeXL"),
     "max-width:480px",
   ])}">
-    ${progress({ percent: 72 })}
-    ${progress({ percent: 100 })}
+    ${progress({ label: "Generation", percent: 72 })}
+    ${progress({ label: "Contrast budget", percent: 24, variant: "warning" })}
+    ${progress({ label: "Publish", percent: 100, variant: "success" })}
   </div>`;
 
   const palette = swatches(tokens);
