@@ -639,7 +639,7 @@ export function steps(opts: {
         "border:" + varRef("lineWidth") + " solid " + (state === "todo" ? varRef("colorBorder") : varRef("colorPrimary")),
         "background:" + (state === "todo" ? varRef("colorBgContainer") : varRef("colorPrimary")),
         "color:" + (state === "todo" ? varRef("colorTextTertiary") : "#fff"),
-      ])}">${state === "done" ? "&#10003;" : String(i + 1)}</span>`;
+      ])}">${state === "done" ? lucideIcon('<path d="m9 12 2 2 4-4"/>') : String(i + 1)}</span>`;
       const desc = item.description
         ? `<div style="${style([
             "margin-top:2px",
@@ -798,7 +798,7 @@ export function pricingCard(opts: {
         "color:" + varRef("colorTextSecondary"),
       ])}"><span style="color:${varRef("colorSuccess")};font-weight:${varRef(
         "fontWeightStrong",
-      )};flex:0 0 auto;">&#10003;</span><span>${esc(f)}</span></li>`,
+      )};flex:0 0 auto;">${lucideIcon('<path d="m9 12 2 2 4-4"/>', 14)}</span><span>${esc(f)}</span></li>`,
     )
     .join("");
   return `<div style="${style([
