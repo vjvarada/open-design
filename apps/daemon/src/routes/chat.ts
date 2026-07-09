@@ -10,18 +10,21 @@ import {
 import {
   BYOK_SENSEAUDIO_TOOLS,
   BYOK_AIHUBMIX_TOOLS,
+  BYOK_PROJECT_FILE_TOOLS,
   executeGenerateImage,
   executeGenerateSpeech,
   executeGenerateVideo,
   executeAIHubMixGenerateImage,
   executeAIHubMixGenerateSpeech,
   executeAIHubMixGenerateVideo,
+  executeProjectFileTool,
   isSenseAudioImageModel,
   isAIHubMixImageModel,
   isAIHubMixVideoModel,
   isAIHubMixSpeechModel,
   type BYOKToolContext,
   type ImageToolResult,
+  type ProjectFileToolResult,
 } from '../byok-tools.js';
 import {
   AIHUBMIX_DEFAULT_BASE_URL,
@@ -825,19 +828,32 @@ export function registerChatRoutes(app: Express, ctx: RegisterChatRoutesDeps) {
     ok: boolean;
     url?: string;
     error?: string;
-    kind?: 'image' | 'video' | 'speech';
+    kind?: 'image' | 'video' | 'speech' | 'file';
+    content?: string;
+    files?: string[];
   }): string => {
     if (result.ok) {
       if (result.kind === 'video')
         return `Video generated successfully. URL: ${result.url}. Reply to the user with a clickable markdown link, e.g. [▶ Play video](${result.url}). Do NOT use markdown image syntax — the chat renderer does not embed <video> tags.`;
       if (result.kind === 'speech')
         return `Speech generated successfully. URL: ${result.url}. Reply to the user with a clickable markdown link to the MP3, e.g. [▶ Play voiceover](${result.url}).`;
+      if (result.kind === 'file') {
+        if (result.content !== undefined) {
+          return `File read successfully. Content:\n\n${result.content}`;
+        }
+        if (Array.isArray(result.files)) {
+          return `Files listed successfully:\n${result.files.map((f) => `- ${f}`).join('\n')}`;
+        }
+        return `File operation succeeded. URL: ${result.url || '(written)'}`;
+      }
       return `Image generated successfully. URL: ${result.url}. Reply to the user with: ![generated image](${result.url})`;
     }
     if (result.kind === 'video')
       return `Video generation failed: ${result.error}. Apologize briefly and suggest a retry with a more specific prompt or a shorter duration.`;
     if (result.kind === 'speech')
       return `Speech generation failed: ${result.error}. Apologize briefly and suggest a retry with a shorter script or a valid voice id.`;
+    if (result.kind === 'file')
+      return `File operation failed: ${result.error}. Read the file first to get current content, then retry with the correct parameters.`;
     return `Image generation failed: ${result.error}. Apologize briefly and suggest a retry with a more specific prompt.`;
   };
 
@@ -899,7 +915,7 @@ export function registerChatRoutes(app: Express, ctx: RegisterChatRoutesDeps) {
     /** @type {Partial<ProxyStreamRequest>} */
     const proxyBody = req.body || {};
     if (rejectProxyPluginContext(proxyBody, res)) return;
-    const { baseUrl, apiKey, model, systemPrompt, messages, maxTokens } =
+    const { baseUrl, apiKey, model, systemPrompt, messages, maxTokens, projectId } =
       proxyBody;
     if (!baseUrl || !apiKey || !model) {
       return sendApiError(
@@ -929,10 +945,173 @@ export function registerChatRoutes(app: Express, ctx: RegisterChatRoutesDeps) {
     if (reasoningDenial) return sendReasoningEgressDenial(res, reasoningDenial);
 
     const url = appendVersionedApiPath(baseUrl, '/messages');
+    const hasProjectTools = typeof projectId === 'string' && projectId.trim().length > 0 && isSafeProjectId(projectId);
     console.log(
-      `[proxy:anthropic] ${req.method} ${validated.parsed!.hostname} model=${model}`,
+      `[proxy:anthropic] ${req.method} ${validated.parsed!.hostname} model=${model} project=${hasProjectTools ? projectId : 'none'} tools=${hasProjectTools ? 'file' : 'off'}`,
     );
 
+    // When a projectId is present, enable the tool loop with project file tools
+    // so the BYOK agent can read/write/edit/list project files.
+    if (hasProjectTools) {
+      const anthropicUrl = url;
+      const anthropicHeaders = { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' };
+      const projectTools = BYOK_PROJECT_FILE_TOOLS;
+      const anthropicTools = openaiToolsToAnthropic(projectTools);
+
+      // Build tool context for project file operations
+      const fileToolCtx: BYOKToolContext = {
+        projectRoot: ctx.paths.PROJECT_ROOT,
+        projectsRoot: ctx.paths.PROJECTS_DIR,
+        projectId: projectId!,
+        upstreamApiKey: apiKey,
+        upstreamBaseUrl: baseUrl,
+        requestInit: {},
+      };
+
+      let proxyDispatcher: ReturnType<typeof proxyDispatcherRequestInit> | null = null;
+      const sse = createSseResponse(res);
+      try {
+        proxyDispatcher = proxyDispatcherRequestInit();
+        fileToolCtx.requestInit = proxyDispatcher.requestInit;
+        sse.send('start', { model });
+
+        const anthMessages: any[] = Array.isArray(messages) ? [...messages] : [];
+        if (typeof systemPrompt === 'string' && systemPrompt) {
+          // System prompt goes in the top-level `system` field, not in messages
+        }
+
+        for (let loop = 0; loop < MAX_BYOK_TOOL_LOOPS; loop++) {
+          const payload: any = {
+            ...buildAnthropicChatPayload(model, systemPrompt, anthMessages, maxTokens),
+            tools: anthropicTools,
+            tool_choice: { type: 'auto' },
+          };
+          const response = await fetch(anthropicUrl, {
+            ...fileToolCtx.requestInit,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...anthropicHeaders },
+            body: JSON.stringify(payload),
+            redirect: 'error',
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error(
+              `[proxy:anthropic] upstream error: ${response.status} ${redactAuthTokens(errorText)}`,
+            );
+            sendProxyError(sse, `Upstream error: ${response.status}`, {
+              code: proxyErrorCode(response.status),
+              details: errorText,
+              retryable: response.status === 429 || response.status >= 500,
+            });
+            return sse.end();
+          }
+
+          const blocks: Record<number, { type: string; id?: string; name?: string; json: string }> = {};
+          let stopReason = '';
+          let providerError = '';
+          const guard = createDeltaGuard(sse);
+          await streamUpstreamSse(response, ({ event, data }: any) => {
+            if (!data) return false;
+            if (event === 'error' || data.type === 'error') {
+              providerError = data.error?.message || data.message || 'Anthropic upstream error';
+              return true;
+            }
+            if (event === 'content_block_start') {
+              const idx = typeof data.index === 'number' ? data.index : 0;
+              const cb = data.content_block || {};
+              blocks[idx] = { type: cb.type || 'text', id: cb.id, name: cb.name, json: '' };
+            } else if (event === 'content_block_delta') {
+              const idx = typeof data.index === 'number' ? data.index : 0;
+              const d = data.delta || {};
+              if (d.type === 'text_delta' && typeof d.text === 'string') {
+                guard.sendDelta(d.text);
+                if (guard.contaminated) {
+                  sse.send('end', {});
+                  return true;
+                }
+              } else if (d.type === 'input_json_delta' && typeof d.partial_json === 'string') {
+                if (!blocks[idx]) blocks[idx] = { type: 'tool_use', json: '' };
+                blocks[idx]!.json += d.partial_json;
+              }
+            }
+            if (event === 'message_delta') {
+              const d = data.delta || {};
+              if (typeof d.stop_reason === 'string' && d.stop_reason) {
+                stopReason = d.stop_reason;
+              }
+            }
+            return false;
+          });
+
+          if (providerError) {
+            sendProxyError(sse, `Provider error: ${providerError}`, { details: providerError });
+            return sse.end();
+          }
+
+          // Collect tool_use blocks
+          const toolUseBlocks = Object.values(blocks).filter(
+            (b) => b.type === 'tool_use' && b.name && b.json,
+          );
+
+          if (stopReason === 'end_turn' || (stopReason !== 'tool_use' && toolUseBlocks.length === 0)) {
+            sse.send('end', {});
+            return sse.end();
+          }
+
+          if (stopReason === 'tool_use' && toolUseBlocks.length > 0) {
+            // Build assistant message with tool_use content blocks
+            const assistantContent: any[] = [];
+            const toolResults: any[] = [];
+            for (const [idx, block] of Object.entries(blocks)) {
+              if (block.type === 'text' && block.json) {
+                // text blocks had their content streamed already
+              } else if (block.type === 'tool_use' && block.name && block.json) {
+                assistantContent.push({
+                  type: 'tool_use',
+                  id: block.id || `toolu_${idx}`,
+                  name: block.name,
+                  input: JSON.parse(block.json || '{}'),
+                });
+                // Execute the tool
+                const toolCall = {
+                  id: block.id || `toolu_${idx}`,
+                  function: { name: block.name, arguments: block.json },
+                };
+                const result = await executeProjectFileTool(toolCall, fileToolCtx);
+                const resultContent = buildToolResultContent({ ...result, kind: 'file' });
+                toolResults.push({
+                  type: 'tool_result',
+                  tool_use_id: block.id || `toolu_${idx}`,
+                  content: resultContent,
+                });
+              }
+            }
+            // Append assistant + tool results to messages
+            anthMessages.push({ role: 'assistant', content: assistantContent });
+            anthMessages.push({ role: 'user', content: toolResults });
+            continue; // loop for next turn
+          }
+
+          sse.send('end', {});
+          return sse.end();
+        }
+        console.warn(
+          `[proxy:anthropic] tool loop bounded at MAX_BYOK_TOOL_LOOPS=${MAX_BYOK_TOOL_LOOPS}`,
+        );
+        sse.send('end', {});
+        return sse.end();
+      } catch (err: any) {
+        console.error(`[proxy:anthropic] internal error: ${err.message}`);
+        sendProxyError(sse, err.message, { code: 'INTERNAL_ERROR' });
+        sse.end();
+      } finally {
+        await proxyDispatcher?.close();
+      }
+      return;
+    }
+
+    // No projectId — use the existing text-only stream
     return runAnthropicChatStream(res, {
       url,
       headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
@@ -1692,8 +1871,17 @@ export function registerChatRoutes(app: Express, ctx: RegisterChatRoutesDeps) {
     const executeOneTool = async (call: {
       id: string;
       function: { name: string; arguments: string };
-    }): Promise<{ ok: boolean; url?: string; error?: string; kind?: 'image' | 'video' | 'speech' }> => {
+    }): Promise<{ ok: boolean; url?: string; error?: string; kind?: 'image' | 'video' | 'speech' | 'file'; content?: string; files?: string[] }> => {
       const fnName = call?.function?.name ?? '';
+
+      // --- Project file tools (read_file, write_file, edit_file, list_files) ---
+      const FILE_TOOL_NAMES = new Set(['read_file', 'write_file', 'edit_file', 'list_files']);
+      if (FILE_TOOL_NAMES.has(fnName)) {
+        const result = await executeProjectFileTool(call, toolCtx);
+        return { ...result, kind: 'file' };
+      }
+
+      // --- Media tools (generate_image, generate_video, generate_speech) ---
       if (fnName !== 'generate_image' && fnName !== 'generate_video' && fnName !== 'generate_speech') {
         return {
           ok: false,
@@ -2187,7 +2375,7 @@ export function registerChatRoutes(app: Express, ctx: RegisterChatRoutesDeps) {
     providerId: 'senseaudio',
     logTag: 'proxy:senseaudio',
     defaultBaseUrl: 'https://api.senseaudio.cn',
-    tools: BYOK_SENSEAUDIO_TOOLS,
+    tools: [...BYOK_SENSEAUDIO_TOOLS, ...BYOK_PROJECT_FILE_TOOLS],
     buildHeaders: (apiKey) => ({ Authorization: `Bearer ${apiKey}` }),
     isImageModel: isSenseAudioImageModel,
     runImage: executeGenerateImage,
@@ -2206,7 +2394,7 @@ export function registerChatRoutes(app: Express, ctx: RegisterChatRoutesDeps) {
     providerId: 'aihubmix',
     logTag: 'proxy:aihubmix',
     defaultBaseUrl: AIHUBMIX_DEFAULT_BASE_URL,
-    tools: BYOK_AIHUBMIX_TOOLS,
+    tools: [...BYOK_AIHUBMIX_TOOLS, ...BYOK_PROJECT_FILE_TOOLS],
     buildHeaders: (apiKey) => aihubmixHeaders(apiKey),
     isImageModel: isAIHubMixImageModel,
     isVideoModel: isAIHubMixVideoModel,

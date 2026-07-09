@@ -13,7 +13,7 @@
 // since the BYOK chat session already authenticates with the same API key.
 
 import path from 'node:path';
-import { writeFile, readFile, readdir, stat } from 'node:fs/promises';
+import { writeFile, readFile, readdir, stat, mkdir } from 'node:fs/promises';
 import { randomBytes } from 'node:crypto';
 import { assertExternalAssetUrl, assertAndFetchExternalAsset } from './connectionTest.js';
 import { resolveProviderConfig } from './media/config.js';
@@ -1687,4 +1687,275 @@ export async function executeAIHubMixGenerateVideo(
     ok: true,
     url: `/api/projects/${encodeURIComponent(ctx.projectId)}/files/${filename}`,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Project file tools — exposed to BYOK chat sessions so API-mode agents can
+// read, write, edit, and list files inside the active project directory.
+// Every path is validated against the project root to prevent directory
+// traversal; file sizes are bounded to keep the tool loop affordable.
+// ---------------------------------------------------------------------------
+
+const MAX_READ_FILE_BYTES = 128 * 1024; // 128 KB — enough for any single source file
+const MAX_WRITE_FILE_BYTES = 512 * 1024; // 512 KB — generous for HTML/CSS/JS/MD
+const MAX_LIST_FILES_COUNT = 200;
+const MAX_LIST_NESTING_DEPTH = 4;
+
+function resolveProjectFilePath(
+  projectsRoot: string,
+  projectId: string,
+  relativePath: string,
+): string {
+  const projectDir = path.resolve(projectsRoot, projectId);
+  const resolved = path.resolve(projectDir, relativePath);
+  if (!resolved.startsWith(projectDir + path.sep) && resolved !== projectDir) {
+    throw new Error(`Path traversal blocked: ${relativePath}`);
+  }
+  return resolved;
+}
+
+async function safeReadFile(absPath: string): Promise<string> {
+  const st = await stat(absPath);
+  if (!st.isFile()) throw new Error('Not a regular file');
+  if (st.size > MAX_READ_FILE_BYTES) {
+    throw new Error(
+      `File too large (${st.size} bytes, max ${MAX_READ_FILE_BYTES})`,
+    );
+  }
+  return readFile(absPath, 'utf-8');
+}
+
+async function* walkProjectFiles(
+  dir: string,
+  depth: number,
+): AsyncGenerator<string> {
+  if (depth > MAX_LIST_NESTING_DEPTH) return;
+  let entries;
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  const dirs = entries.filter((e) => e.isDirectory()).sort((a, b) => a.name.localeCompare(b.name));
+  const files = entries.filter((e) => e.isFile()).sort((a, b) => a.name.localeCompare(b.name));
+  for (const entry of [...dirs, ...files]) {
+    if (entry.name.startsWith('.')) continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      yield* walkProjectFiles(full, depth + 1);
+    } else {
+      yield full;
+    }
+  }
+}
+
+/**
+ * OpenAI-compatible tool definitions for project file operations.
+ * Injected alongside media tools so BYOK agents can read, write, edit,
+ * and list project files — the same capabilities local CLI agents have.
+ */
+export const BYOK_PROJECT_FILE_TOOLS = [
+  {
+    type: 'function' as const,
+    function: {
+      name: 'read_file',
+      description:
+        'Read the contents of a file in the current project. Returns the full file text. Use this before editing a file or when you need to inspect existing project content (DESIGN.md, brand.json, system tokens, etc.). Always read a file before writing or editing it.',
+      parameters: {
+        type: 'object',
+        properties: {
+          path: {
+            type: 'string',
+            description:
+              'Project-relative path to the file (e.g. "DESIGN.md", "system/variables.css", "context/source-context.md"). Must be inside the current project directory.',
+          },
+        },
+        required: ['path'],
+      },
+    },
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'write_file',
+      description:
+        'Create a new file or overwrite an existing file in the current project. Use this to create missing package files (README.md, SKILL.md, colors_and_type.css, preview cards, ui_kits/app/*) or to update generated artifacts. Important: always read the file first with read_file if you are editing rather than creating from scratch.',
+      parameters: {
+        type: 'object',
+        properties: {
+          path: {
+            type: 'string',
+            description:
+              'Project-relative path for the new or updated file (e.g. "README.md", "preview/colors-primary.html"). Parent directories are created automatically.',
+          },
+          content: {
+            type: 'string',
+            description:
+              'Complete file contents to write. For HTML/CSS/JS/MD files, include the full source. Maximum 512 KB.',
+          },
+        },
+        required: ['path', 'content'],
+      },
+    },
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'edit_file',
+      description:
+        'Replace a specific string inside an existing project file. Provide the exact text to find (old_string) and the replacement text (new_string). The old_string must appear exactly once in the file — include enough surrounding context to make it unique. Always read the file first with read_file to get the current content before editing.',
+      parameters: {
+        type: 'object',
+        properties: {
+          path: {
+            type: 'string',
+            description:
+              'Project-relative path to the file to edit (e.g. "DESIGN.md", "system/variables.css").',
+          },
+          old_string: {
+            type: 'string',
+            description:
+              'Exact literal text to replace. Include at least 3 lines of surrounding context to ensure a unique match. Must appear exactly once in the file.',
+          },
+          new_string: {
+            type: 'string',
+            description:
+              'Replacement text to substitute in place of old_string. Must be different from old_string.',
+          },
+        },
+        required: ['path', 'old_string', 'new_string'],
+      },
+    },
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'list_files',
+      description:
+        'List files in the current project directory (up to 200 entries, 4 levels deep). Hidden files/directories (starting with ".") are excluded. Use this to discover what files exist before reading or editing them, especially when you need to understand the project structure.',
+      parameters: {
+        type: 'object',
+        properties: {
+          prefix: {
+            type: 'string',
+            description:
+              'Optional subdirectory prefix to filter results (e.g. "preview/", "system/", "ui_kits/"). Omit to list all project files.',
+          },
+        },
+        required: [],
+      },
+    },
+  },
+];
+
+export interface ProjectFileToolResult {
+  ok: boolean;
+  content?: string;
+  files?: string[];
+  url?: string;
+  error?: string;
+}
+
+export async function executeProjectFileTool(
+  call: { function: { name: string; arguments: string } },
+  ctx: BYOKToolContext,
+): Promise<ProjectFileToolResult> {
+  const fnName = call?.function?.name ?? '';
+  let args: any = {};
+  try {
+    args = JSON.parse(call.function.arguments || '{}');
+  } catch {
+    return { ok: false, error: 'tool arguments were not valid JSON' };
+  }
+
+  let dir: string;
+  try {
+    dir = await ensureProject(ctx.projectsRoot, ctx.projectId);
+  } catch (err) {
+    return {
+      ok: false,
+      error: `invalid projectId: ${err instanceof Error ? err.message : String(err)}`,
+    };
+  }
+
+  try {
+    switch (fnName) {
+      case 'read_file': {
+        const relativePath = typeof args.path === 'string' ? args.path.trim() : '';
+        if (!relativePath) return { ok: false, error: 'path is required' };
+        const absPath = resolveProjectFilePath(ctx.projectsRoot, ctx.projectId, relativePath);
+        const content = await safeReadFile(absPath);
+        return { ok: true, content };
+      }
+
+      case 'write_file': {
+        const relativePath = typeof args.path === 'string' ? args.path.trim() : '';
+        if (!relativePath) return { ok: false, error: 'path is required' };
+        const content = typeof args.content === 'string' ? args.content : '';
+        if (!content) return { ok: false, error: 'content is required (non-empty string)' };
+        if (Buffer.byteLength(content, 'utf-8') > MAX_WRITE_FILE_BYTES) {
+          return {
+            ok: false,
+            error: `content too large (max ${MAX_WRITE_FILE_BYTES} bytes)`,
+          };
+        }
+        const absPath = resolveProjectFilePath(ctx.projectsRoot, ctx.projectId, relativePath);
+        await mkdir(path.dirname(absPath), { recursive: true });
+        await writeFile(absPath, content, 'utf-8');
+        const url = `/api/projects/${encodeURIComponent(ctx.projectId)}/files/${encodeURIComponent(relativePath)}`;
+        return { ok: true, url };
+      }
+
+      case 'edit_file': {
+        const relativePath = typeof args.path === 'string' ? args.path.trim() : '';
+        if (!relativePath) return { ok: false, error: 'path is required' };
+        const oldStr = typeof args.old_string === 'string' ? args.old_string : '';
+        const newStr = typeof args.new_string === 'string' ? args.new_string : '';
+        if (!oldStr) return { ok: false, error: 'old_string is required (non-empty)' };
+        if (oldStr === newStr) return { ok: false, error: 'old_string and new_string must differ' };
+        const absPath = resolveProjectFilePath(ctx.projectsRoot, ctx.projectId, relativePath);
+        const currentContent = await safeReadFile(absPath);
+        const occurrences = currentContent.split(oldStr).length - 1;
+        if (occurrences === 0) {
+          return {
+            ok: false,
+            error: `old_string not found in ${relativePath}. Read the file first to get the exact current content, then try again with the correct old_string.`,
+          };
+        }
+        if (occurrences > 1) {
+          return {
+            ok: false,
+            error: `old_string matches ${occurrences} times in ${relativePath}. Include more surrounding context to make it unique.`,
+          };
+        }
+        const updated = currentContent.replace(oldStr, newStr);
+        await writeFile(absPath, updated, 'utf-8');
+        const url = `/api/projects/${encodeURIComponent(ctx.projectId)}/files/${encodeURIComponent(relativePath)}`;
+        return { ok: true, url };
+      }
+
+      case 'list_files': {
+        const prefix = typeof args.prefix === 'string' ? args.prefix.trim() : '';
+        const baseDir = prefix
+          ? resolveProjectFilePath(ctx.projectsRoot, ctx.projectId, prefix)
+          : dir;
+        const results: string[] = [];
+        let count = 0;
+        for await (const filePath of walkProjectFiles(baseDir, 0)) {
+          if (count >= MAX_LIST_FILES_COUNT) break;
+          results.push(path.relative(dir, filePath).split(path.sep).join('/'));
+          count++;
+        }
+        return { ok: true, files: results };
+      }
+
+      default:
+        return { ok: false, error: `unknown project file tool: ${fnName}` };
+    }
+  } catch (err) {
+    return {
+      ok: false,
+      error: `${fnName} failed: ${err instanceof Error ? err.message : String(err)}`,
+    };
+  }
 }

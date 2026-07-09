@@ -1003,6 +1003,12 @@ async function inspectDesktop(config: ToolDevConfig, target: string | undefined,
         { input: { action: options.updateAction ?? "status" }, type: SIDECAR_MESSAGES.UPDATE },
         { timeoutMs },
       );
+    case "show":
+      return await requestJsonIpc<{ accepted: boolean }>(
+        config.apps.desktop.ipcPath,
+        { type: SIDECAR_MESSAGES.SHOW },
+        { timeoutMs },
+      );
     case "click":
       if (options.selector == null) throw new Error("--selector is required for desktop click");
       return await requestJsonIpc<DesktopClickResult>(
