@@ -6,6 +6,18 @@ import type { OpenDesignHostUpdaterStatusSnapshot } from '@open-design/host';
 import { installMockOpenDesignHost } from '@open-design/host/testing';
 import { en } from '../../src/i18n/locales/en';
 
+function optionNames(container: HTMLElement): string[] {
+  return within(container).getAllByRole('option').map((option) => {
+    const labelledBy = option.getAttribute('aria-labelledby');
+    if (!labelledBy) return option.textContent?.trim() ?? '';
+    return labelledBy
+      .split(/\s+/)
+      .map((id) => document.getElementById(id)?.textContent?.trim() ?? '')
+      .filter(Boolean)
+      .join(' ');
+  });
+}
+
 const {
   playSoundMock,
   requestNotificationPermissionMock,
@@ -96,10 +108,16 @@ import { IntegrationsView } from '../../src/components/IntegrationsView';
 import type { AgentRefreshOptions, SettingsSection } from '../../src/components/SettingsDialog';
 import { reconcileAmrModelChoice } from '../../src/components/SettingsDialog';
 import { reconcileAmrProfileEnv } from '../../src/components/SettingsDialog';
+import { providerModelsCacheKey } from '../../src/components/providerModelsCache';
 import { I18nProvider } from '../../src/i18n';
 import { LOCALES } from '../../src/i18n/types';
 import { MAX_MAX_TOKENS, MIN_MAX_TOKENS } from '../../src/state/maxTokens';
-import type { AgentInfo, AppConfig, AppVersionInfo } from '../../src/types';
+import type {
+  AgentInfo,
+  AppConfig,
+  AppVersionInfo,
+  ProviderModelOption,
+} from '../../src/types';
 
 const baseConfig: AppConfig = {
   mode: 'api',
@@ -257,6 +275,7 @@ function renderSettingsDialog(
     onRefreshAgents?: OnRefreshAgents;
     initialSection?: SettingsSection;
     appVersionInfo?: AppVersionInfo | null;
+    providerModelsCache?: Record<string, ProviderModelOption[]>;
     welcome?: boolean;
   } = {},
 ) {
@@ -272,6 +291,7 @@ function renderSettingsDialog(
       daemonLive={options.daemonLive ?? true}
       appVersionInfo={options.appVersionInfo ?? null}
       initialSection={options.initialSection ?? 'execution'}
+      providerModelsCache={options.providerModelsCache}
       welcome={options.welcome}
       onPersist={onPersist}
       onPersistComposioKey={onPersistComposioKey}
@@ -432,6 +452,55 @@ beforeEach(() => {
 afterEach(() => {
   restoreOpenDesignHost?.();
   restoreOpenDesignHost = null;
+});
+
+describe('SettingsDialog privacy settings interactions', () => {
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+  });
+
+  it('preserves a pending privacy choice when an unrelated parent config update arrives', async () => {
+    const randomUUID = vi.fn(() => 'inst-new');
+    vi.stubGlobal('crypto', { randomUUID });
+    const initial: AppConfig = {
+      ...baseConfig,
+      mode: 'daemon',
+      agentId: null,
+      installationId: null,
+      privacyDecisionAt: 1778244000000,
+      telemetry: { metrics: false, content: false, artifactManifest: true },
+    };
+    const view = renderSettingsDialog(initial, { initialSection: 'privacy' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Share' }));
+
+    await waitFor(() => {
+      expect((screen.getByLabelText('Anonymous ID') as HTMLInputElement).value).toBe('inst-new');
+    });
+
+    view.rerender(
+      <SettingsDialog
+        initial={{ ...initial, agentId: 'codex' }}
+        agents={availableAgents}
+        daemonLive={true}
+        appVersionInfo={null}
+        initialSection="privacy"
+        onPersist={view.onPersist}
+        onPersistComposioKey={view.onPersistComposioKey}
+        onClose={view.onClose}
+        onRefreshAgents={view.onRefreshAgents}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Share' }).getAttribute('aria-pressed'))
+      .toBe('true');
+    expect((screen.getByLabelText('Anonymous ID') as HTMLInputElement).value).toBe('inst-new');
+    expect(screen.getByRole('button', { name: /Anonymous metrics/ }).getAttribute('aria-pressed'))
+      .toBe('true');
+    expect(screen.getByRole('button', { name: /Conversation and tool content/ }).getAttribute('aria-pressed'))
+      .toBe('true');
+  });
 });
 
 describe('SettingsDialog execution settings BYOK interactions', () => {
@@ -724,11 +793,33 @@ describe('SettingsDialog execution settings BYOK interactions', () => {
     expect((screen.getByLabelText('Base URL') as HTMLInputElement).value).toBe('https://api.deepseek.com');
   });
 
+  it('offers Atlas Cloud as an OpenAI-compatible gateway preset', () => {
+    renderSettingsDialog({
+      apiProtocol: 'openai',
+      baseUrl: 'https://api.openai.com/v1',
+      model: 'gpt-4o',
+      apiProviderBaseUrl: 'https://api.openai.com/v1',
+    });
+
+    fireEvent.click(screen.getByRole('tab', { name: 'OpenAI' }));
+    selectGatewayPreset('Atlas Cloud');
+
+    expect(screen.getByRole('combobox', { name: 'Model' }).textContent).toContain(
+      'qwen/qwen3.5-flash',
+    );
+    expect((screen.getByLabelText('Base URL') as HTMLInputElement).value).toBe(
+      'https://api.atlascloud.ai/v1',
+    );
+    expect(screen.getByRole('link', { name: 'Get key ↗' }).getAttribute('href')).toBe(
+      'https://atlascloud.ai/?utm_source=open_design&utm_medium=provider_preset&utm_campaign=atlascloud_byok',
+    );
+  });
+
   it('keeps Anthropic-compatible gateway presets selectable', () => {
     renderSettingsDialog();
 
     const providerPopover = openGatewayPresetPopover();
-    expect(within(providerPopover).getAllByRole('option').map((option) => option.textContent?.trim())).toEqual(
+    expect(optionNames(providerPopover)).toEqual(
       expect.arrayContaining([
         'Custom provider',
         'Anthropic (Claude)',
@@ -767,7 +858,7 @@ describe('SettingsDialog execution settings BYOK interactions', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: 'Ollama Cloud' }));
     const providerPopover = openGatewayPresetPopover();
-    expect(within(providerPopover).getAllByRole('option').map((option) => option.textContent?.trim())).toEqual([
+    expect(optionNames(providerPopover)).toEqual([
       'Custom provider',
       'Ollama Cloud (managed)',
       'Ollama Self-hosted (local)',
@@ -865,8 +956,11 @@ describe('SettingsDialog execution settings BYOK interactions', () => {
     });
 
     fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    // A non-http scheme is still rejected client-side. (An internal-IP URL is
+    // no longer rejected here — it is syntactically valid and the daemon owns
+    // the allowlist decision; see #3225.)
     fireEvent.change(screen.getByLabelText('Base URL'), {
-      target: { value: 'http://10.0.0.5:11434/v1' },
+      target: { value: 'ftp://api.example.com' },
     });
     expect(screen.getByRole('alert').textContent).toContain(
       'Use a public http:// or https:// URL.',
@@ -1047,9 +1141,7 @@ describe('SettingsDialog execution settings BYOK interactions', () => {
     const modelPicker = screen.getByRole('combobox', { name: 'Model' });
     fireEvent.click(modelPicker);
     const modelPopover = screen.getByTestId('settings-byok-model-popover');
-    expect(
-      within(modelPopover).getAllByRole('option').map((option) => option.textContent?.trim()),
-    ).toEqual(expect.arrayContaining([
+    expect(optionNames(modelPopover)).toEqual(expect.arrayContaining([
       'Account Model (gpt-account) · From your account',
       'gpt-4o · Suggested',
       'Custom (type below)…',
@@ -1386,9 +1478,7 @@ describe('SettingsDialog execution settings BYOK interactions', () => {
     const searchInput = within(modelPopover).getByTestId('settings-byok-model-search') as HTMLInputElement;
     fireEvent.change(searchInput, { target: { value: '5.5' } });
 
-    expect(
-      within(modelPopover).getAllByRole('option').map((option) => option.textContent?.trim()),
-    ).toEqual([
+    expect(optionNames(modelPopover)).toEqual([
       'gpt-4.1-mini · From your account',
       'gpt-5.5 · From your account',
       'Custom (type below)…',
@@ -1461,9 +1551,7 @@ describe('SettingsDialog execution settings BYOK interactions', () => {
     const modelPicker = screen.getByRole('combobox', { name: 'Model' });
     fireEvent.click(modelPicker);
     const modelPopover = screen.getByTestId('settings-byok-model-popover');
-    expect(
-      within(modelPopover).getAllByRole('option').map((option) => option.textContent?.trim()),
-    ).toEqual(expect.arrayContaining([
+    expect(optionNames(modelPopover)).toEqual(expect.arrayContaining([
       'Remote Alpha (remote-alpha) · From your account',
       'gpt-4o · From your account',
       'Custom (type below)…',
@@ -1496,6 +1584,43 @@ describe('SettingsDialog execution settings BYOK interactions', () => {
     await waitFor(() => {
       expect(screen.queryByText(/✓ Loaded \d+ models(?: from your account)?\./)).toBeNull();
     });
+  });
+
+  it('does not reuse discovered models for Anthropic full Messages endpoints', () => {
+    const messagesEndpoint = 'https://token-plan-cn.xiaomimimo.com/anthropic/v1/messages';
+    const staleDiscoveryKey = providerModelsCacheKey(
+      'anthropic',
+      messagesEndpoint,
+      'sk-mimo',
+      '',
+    );
+
+    renderSettingsDialog(
+      {
+        apiProtocol: 'anthropic',
+        apiKey: 'sk-mimo',
+        baseUrl: messagesEndpoint,
+        model: 'mimo-v2.5-pro',
+        apiProviderBaseUrl: null,
+      },
+      {
+        providerModelsCache: {
+          [staleDiscoveryKey]: [{ id: 'deepseek-chat', label: 'deepseek-chat' }],
+        },
+      },
+    );
+
+    fireEvent.click(screen.getByRole('combobox', { name: 'Model' }));
+    const modelPopover = screen.getByTestId('settings-byok-model-popover');
+
+    expect(optionNames(modelPopover)).not.toEqual(
+      expect.arrayContaining([expect.stringContaining('deepseek-chat')]),
+    );
+    expect(within(modelPopover).getByRole('option', { name: 'Custom (type below)…' })).toBeTruthy();
+    expect((screen.getByLabelText('Custom model id') as HTMLInputElement).value).toBe(
+      'mimo-v2.5-pro',
+    );
+    expect(fetchProviderModelsMock).not.toHaveBeenCalled();
   });
 
   it('renders automatic provider auth failures under the API key field', async () => {
@@ -1621,6 +1746,41 @@ describe('SettingsDialog execution settings BYOK interactions', () => {
       ([input]) => input.toString() === '/api/test/connection',
     );
     expect(testConnectionCalls).toHaveLength(1);
+  });
+
+  it('shows provider upstream detail for failed BYOK connection tests', async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = input.toString();
+      if (url === '/api/memory') {
+        return new Response(
+          JSON.stringify({ enabled: true, memories: [], extraction: null }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        );
+      }
+      expect(url).toBe('/api/test/connection');
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          kind: 'upstream_unavailable',
+          latencyMs: 42,
+          status: 400,
+          detail:
+            'The selected NVIDIA model instance is currently unavailable at the provider. Try a different model or retry later.',
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderSettingsDialog({ apiKey: 'sk-ant-test-provider' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Test' }));
+
+    expect(
+      await screen.findByText(
+        /Provider returned 400\. Try again in a moment\. The selected NVIDIA model instance is currently unavailable/,
+      ),
+    ).toBeTruthy();
   });
 
   it('blocks an obvious OpenAI key in the Anthropic tab before testing', async () => {
@@ -2105,14 +2265,14 @@ describe('SettingsDialog execution settings Local CLI interactions', () => {
   it('lets users switch to Local CLI, select an installed agent, and autosave', async () => {
     const installed = availableAgents[0]!;
     const unavailable: AgentInfo = {
-      id: 'gemini',
-      name: 'Gemini CLI',
-      bin: 'gemini',
+      id: 'kimi',
+      name: 'Kimi CLI',
+      bin: 'kimi',
       available: false,
       version: null,
       models: [],
-      installUrl: 'https://github.com/google-gemini/gemini-cli',
-      docsUrl: 'https://github.com/google-gemini/gemini-cli/blob/main/README.md',
+      installUrl: 'https://github.com/MoonshotAI/kimi-cli',
+      docsUrl: 'https://www.kimi.com/code/docs/en/kimi-cli/guides/getting-started.html?aff=open-design',
     };
     const { onPersist } = renderSettingsDialog(
       { mode: 'daemon', agentId: null },
@@ -2127,12 +2287,12 @@ describe('SettingsDialog execution settings Local CLI interactions', () => {
     expect(installGroupSummary.closest('details')?.hasAttribute('open')).toBe(false);
     const codexCard = screen.getByRole('button', { name: /Codex CLI/i }) as HTMLButtonElement;
     fireEvent.click(installGroupSummary);
-    const geminiGroup = screen.getByRole('group', { name: /Gemini CLI/i });
-    expect(within(geminiGroup).getByText('Google official CLI')).toBeTruthy();
+    const kimiGroup = screen.getByRole('group', { name: /Kimi CLI/i });
+    expect(within(kimiGroup).getByText('Moonshot Kimi CLI')).toBeTruthy();
     expect(
-      (within(geminiGroup).getByRole('link', { name: en['settings.agentInstall.install'] }) as HTMLAnchorElement).getAttribute('href'),
+      (within(kimiGroup).getByRole('link', { name: en['settings.agentInstall.install'] }) as HTMLAnchorElement).getAttribute('href'),
     ).toBe(
-      'https://github.com/google-gemini/gemini-cli',
+      'https://github.com/MoonshotAI/kimi-cli',
     );
     expect(
       screen.getByText(en['settings.agentInstall.stepAuth']),
@@ -2200,9 +2360,7 @@ describe('SettingsDialog execution settings Local CLI interactions', () => {
     fireEvent.change(searchInput, { target: { value: '5.5' } });
 
     const modelPopover = screen.getByTestId('settings-agent-model-popover-codex');
-    expect(
-      within(modelPopover).getAllByRole('option').map((option) => option.textContent?.trim()),
-    ).toEqual(['gpt-4.1-mini', 'gpt-5.5', 'Custom (type below)…']);
+    expect(optionNames(modelPopover)).toEqual(['gpt-4.1-mini', 'gpt-5.5', 'Custom (type below)…']);
   });
 
   it('labels live CLI model metadata in the model picker', () => {
@@ -2280,9 +2438,7 @@ describe('SettingsDialog execution settings Local CLI interactions', () => {
     expect(modelPickers[0]?.textContent).toContain('GLM 5');
     fireEvent.click(modelPickers[0]!);
     const modelPopover = screen.getByTestId('settings-agent-model-popover-amr');
-    expect(
-      within(modelPopover).getAllByRole('option').map((option) => option.textContent?.trim()),
-    ).toEqual(['GLM 5', 'GLM 5.1']);
+    expect(optionNames(modelPopover)).toEqual(['GLM 5', 'GLM 5.1']);
     expect(screen.queryByLabelText(en['settings.modelCustomLabel'])).toBeNull();
   });
 
@@ -2441,13 +2597,13 @@ describe('SettingsDialog execution settings Local CLI interactions', () => {
 
   it('rescans automatically when returning after opening an install link', async () => {
     const unavailable: AgentInfo = {
-      id: 'gemini',
-      name: 'Gemini CLI',
-      bin: 'gemini',
+      id: 'kimi',
+      name: 'Kimi CLI',
+      bin: 'kimi',
       available: false,
       version: null,
       models: [],
-      installUrl: 'https://github.com/google-gemini/gemini-cli',
+      installUrl: 'https://github.com/MoonshotAI/kimi-cli',
     };
     const onRefreshAgents = vi.fn(async () => availableAgents);
 
@@ -2574,7 +2730,7 @@ describe('SettingsDialog execution settings Local CLI interactions', () => {
     expect(screen.queryByText(/vela/i)).toBeNull();
     expect(screen.queryByText(/Not signed in/i)).toBeNull();
     expect(screen.getByText('Official')).toBeTruthy();
-    expect(screen.getByText('Lower cost')).toBeTruthy();
+    expect(screen.queryByText('Lower cost')).toBeNull();
     expect(screen.getByText('Many models')).toBeTruthy();
     expect(screen.queryByText('Limited bonus: +100%')).toBeNull();
     expect(await screen.findByRole('button', { name: 'Authorize' })).toBeTruthy();
@@ -2896,6 +3052,7 @@ describe('SettingsDialog execution settings Local CLI interactions', () => {
               email: 'signed-in@example.com',
               name: 'Signed In User',
             },
+            account: { plan: 'pro' },
             configPath: '/Users/test/.amr/config.json',
           }),
           { status: 200, headers: { 'content-type': 'application/json' } },
@@ -2914,12 +3071,63 @@ describe('SettingsDialog execution settings Local CLI interactions', () => {
 
     expect(await screen.findByRole('button', { name: 'Sign out' })).toBeTruthy();
     expect(screen.getByRole('button', { name: /^Open Design\b/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Plan pro/ })).toBeTruthy();
     expect(screen.getByText('signed-in@example.com')).toBeTruthy();
     expect(screen.queryByText(/AMR \(vela\)/i)).toBeNull();
     expect(screen.queryByText(/^vela$/i)).toBeNull();
   });
 
-  it('shows the Settings AMR wallet fallback balance for old Vela CLI status payloads', async () => {
+  it('keeps the AMR plan badge on the account row outside the clipped benefits row', async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = input.toString();
+      if (url === '/api/memory') {
+        return new Response(
+          JSON.stringify({ enabled: true, memories: [], extraction: null }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        );
+      }
+      if (url === '/api/integrations/vela/status') {
+        return new Response(
+          JSON.stringify({
+            loggedIn: true,
+            profile: 'local',
+            user: {
+              id: 'user-1',
+              email: 'signed-in@example.com',
+              name: 'Signed In User',
+            },
+            account: { plan: 'pro' },
+            configPath: '/Users/test/.amr/config.json',
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        );
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderSettingsDialog(
+      { mode: 'daemon', agentId: 'amr' },
+      { agents: [amrAgent] },
+    );
+
+    fireEvent.click(screen.getByRole('tab', { name: /Local CLI.*1 installed/i }));
+
+    const amrCardButton = await screen.findByRole('button', { name: /Plan pro/ });
+    const planBadge = within(amrCardButton).getByText('pro');
+    const benefits = amrCardButton.querySelector('.agent-card-benefits');
+    const planSlot = planBadge.closest('.agent-card-plan-badge-slot');
+    const accountRow = planBadge.closest('.agent-card-amr-email');
+
+    expect(benefits).toBeTruthy();
+    expect(planSlot).toBeTruthy();
+    expect(accountRow).toBeTruthy();
+    expect(accountRow?.textContent).toContain('signed-in@example.com');
+    expect(planSlot?.getAttribute('aria-hidden')).toBe('true');
+    expect(benefits?.contains(planBadge)).toBe(false);
+  });
+
+  it('loads the Settings AMR wallet fallback balance without a manual card refresh button', async () => {
     let walletCalls = 0;
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = input.toString();
@@ -4365,6 +4573,77 @@ describe('IntegrationsView skills tab', () => {
     });
     expect(screen.getByText('sales-deck')).toBeTruthy();
     expect(screen.queryByText('dashboard')).toBeNull();
+  });
+
+  it('updates skill filter counts from the current filter context', async () => {
+    fetchSkillsMock.mockResolvedValue([
+      {
+        id: 'product-image',
+        name: 'product-image',
+        description: 'Product image generation.',
+        mode: 'image',
+        category: 'marketing',
+        previewType: 'PNG',
+        source: 'built-in',
+      },
+      {
+        id: 'document-brief',
+        name: 'document-brief',
+        description: 'Document brief.',
+        mode: 'deck',
+        category: 'documents',
+        previewType: 'HTML',
+        source: 'built-in',
+      },
+      {
+        id: 'landing-page',
+        name: 'landing-page',
+        description: 'Landing page.',
+        mode: 'prototype',
+        category: 'marketing',
+        previewType: 'HTML',
+        source: 'built-in',
+      },
+    ]);
+
+    renderIntegrationsView(
+      { mode: 'daemon', agentId: 'codex' },
+      { initialTab: 'skills' },
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('product-image')).toBeTruthy();
+      expect(screen.getByText('document-brief')).toBeTruthy();
+    });
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Type' }), {
+      target: { value: 'image' },
+    });
+
+    const categorySelect = screen.getByRole('combobox', { name: 'Category' });
+    expect(
+      within(categorySelect).getByRole('option', { name: 'Documents (0)' }),
+    ).toBeTruthy();
+    expect(
+      within(categorySelect).getByRole('option', { name: 'Marketing (1)' }),
+    ).toBeTruthy();
+
+    fireEvent.change(categorySelect, {
+      target: { value: 'documents' },
+    });
+
+    expect(screen.getByText('No items match your search.')).toBeTruthy();
+    expect(
+      within(screen.getByRole('combobox', { name: 'Category' })).getByRole(
+        'option',
+        { name: 'Documents (0)' },
+      ),
+    ).toBeTruthy();
+    expect(
+      within(screen.getByRole('combobox', { name: 'Type' })).getByRole('option', {
+        name: 'image (0)',
+      }),
+    ).toBeTruthy();
   });
 
   it('opens a skill detail panel and persists disabled skills from toggle switches', async () => {

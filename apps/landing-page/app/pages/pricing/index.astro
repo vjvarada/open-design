@@ -22,8 +22,10 @@ import {
   fillTemplate,
   PREMIUM_MODELS,
   STANDARD_MODELS,
+  CREDIT_BONUS_PCT,
   type PlanTierId,
 } from '../../_lib/pricing-content';
+import EnterpriseLeadForm from '../../_components/enterprise-lead-form.astro';
 import {
   getStory,
   getFaqs,
@@ -57,15 +59,30 @@ const faqs = getFaqs(locale);
 const faqTitle = getFaqTitle(locale);
 const storyMoreHref = href('/stories/ikigai-one/');
 const enterprise = getEnterprise(locale);
+const LF = enterprise.leadForm;
 
 const SITE = Astro.site?.toString() ?? 'https://open-design.ai/';
 const title = 'Pricing — Open Design';
 const description =
-  'Open Design subscription plans. Plus, Pro, and Max tiers with monthly credits, one-click deployments, and auto top-up — one unified balance for every Open Design call.';
+  'Open Design subscription plans. Free, Plus, Pro, and Max tiers with monthly credits, one-click deployments, and auto top-up — one unified balance for every Open Design call.';
 
 const tiers: PlanTierConfig[] = PRICING_SNAPSHOT.tiers;
+
+// Free card model roster: trial-pool models lead the premium list, the rest
+// render greyed-out — mirrors the vela modal's Free column.
+const FREE_PREMIUM_MODELS = [...PREMIUM_MODELS].sort(
+  (a, b) => Number(b.trial === true) - Number(a.trial === true),
+);
 const usd = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 const renderCatalogLabel = (label: string) => fillTemplate(label, catalogLabelVars);
+
+// Displayed monthly credit = base grant × the limited-time bonus (Pro +20%,
+// Max +50%). The base grant stays the plans.json contract number; the bonus is
+// a promo surfaced as a badge next to the amount.
+function effectiveCreditUsd(t: PlanTierConfig): number {
+  const bonusPct = CREDIT_BONUS_PCT[t.tier as PlanTierId];
+  return bonusPct ? Math.round(t.monthly.grantUsd * (1 + bonusPct / 100)) : t.monthly.grantUsd;
+}
 
 // Build-time display values per tier (the inline script recomputes these from
 // the public plans.json using the same formulas + the same label templates).
@@ -79,6 +96,7 @@ function view(t: PlanTierConfig) {
       strike: usd(t.monthly.priceUsd),
       tag: fillTemplate(L.firstMonthTag, { pct: String(introPct) }),
       subline: fillTemplate(L.monthlyRenewal, { amountUsd: usd(t.monthly.priceUsd) }),
+      saveCta: fillTemplate(L.yearlySaveCta, { savingsUsd: usd(yearlySave) }),
     },
     yearly: {
       amount: usd(yearlyEquiv),
@@ -89,7 +107,8 @@ function view(t: PlanTierConfig) {
         savingsUsd: usd(yearlySave),
       }),
     },
-    credits: `${usd(t.monthly.grantUsd)}${L.perMonth}`,
+    credits: fillTemplate(L.creditBenefit, { amount: usd(effectiveCreditUsd(t)) }),
+    bonusPct: CREDIT_BONUS_PCT[t.tier as PlanTierId],
   };
 }
 
@@ -108,13 +127,22 @@ const jsonLd = [
     '@type': 'Product',
     name: 'Open Design Subscription',
     description,
-    offers: tiers.map((t) => ({
-      '@type': 'Offer',
-      name: `Open Design ${t.tier}`,
-      price: String(t.monthly.priceUsd),
-      priceCurrency: 'USD',
-      url: CLOUD_CONSOLE_URL,
-    })),
+    offers: [
+      {
+        '@type': 'Offer',
+        name: 'Open Design free',
+        price: '0',
+        priceCurrency: 'USD',
+        url: CLOUD_CONSOLE_URL,
+      },
+      ...tiers.map((t) => ({
+        '@type': 'Offer',
+        name: `Open Design ${t.tier}`,
+        price: String(t.monthly.priceUsd),
+        priceCurrency: 'USD',
+        url: CLOUD_CONSOLE_URL,
+      })),
+    ],
   },
 ];
 ---
@@ -126,14 +154,14 @@ const jsonLd = [
     <span aria-current="page">Pricing</span>
   </nav>
 
-  <article class="info-page pr-page" data-pricing-root data-interval="monthly">
+  <article class="info-page pr-page" data-pricing-root data-interval="yearly">
     <header class="pr-hero">
       <h1 class="pr-hero-heading">{L.heroTitle}</h1>
       <div class="pr-toggle" role="tablist" aria-label="Billing interval">
-        <button type="button" class="pr-toggle-btn is-active" role="tab" data-interval-btn="monthly" aria-selected="true">
+        <button type="button" class="pr-toggle-btn" role="tab" data-interval-btn="monthly" aria-selected="false">
           {L.monthly}
         </button>
-        <button type="button" class="pr-toggle-btn" role="tab" data-interval-btn="yearly" aria-selected="false">
+        <button type="button" class="pr-toggle-btn is-active" role="tab" data-interval-btn="yearly" aria-selected="true">
           {L.yearly}
           <span class="pr-toggle-save">{L.yearlySave}</span>
         </button>
@@ -141,6 +169,55 @@ const jsonLd = [
     </header>
 
     <section class="pr-grid" aria-label="Subscription plans">
+      {/* Free card — content-only (not part of the paid pricing contract).
+          The CTA points at the auth-gated cloud console: signed-in visitors
+          land on the console, signed-out visitors get the login page and
+          resume there after authenticating. */}
+      <article class="pr-card" data-tier="free">
+        <header class="pr-head">
+          <span class="pr-tier-name">Free</span>
+          <p class="pr-tagline">{content.free.tagline}</p>
+        </header>
+
+        <div class="pr-price">
+          <div class="pr-price-row">
+            <span class="pr-amount">$0</span>
+            <span class="pr-per">{L.perMonth}</span>
+          </div>
+          <p class="pr-subline">{L.freeForever}</p>
+        </div>
+
+        <a
+          class="btn btn-ghost pr-cta"
+          href={CLOUD_CONSOLE_URL}
+          data-pricing-cta
+          data-tier="free"
+        >
+          {content.free.ctaLabel}
+        </a>
+
+        <ul class="pr-feats">
+          <li class="pr-feat">{L.freeTrialCreditLabel}</li>
+          <li class="pr-feat">{content.free.concurrency}</li>
+          {content.free.features.map((f) => (
+            <li class="pr-feat">{renderCatalogLabel(f)}</li>
+          ))}
+        </ul>
+
+        <div class="pr-models">
+          <p class="pr-models-head">{L.premiumModels}</p>
+          <ul class="pr-model-list">
+            {FREE_PREMIUM_MODELS.map((m) => (
+              <li class={m.trial ? undefined : 'is-unavailable'}>{m.name}</li>
+            ))}
+          </ul>
+          <p class="pr-models-head">{L.standardModels}</p>
+          <ul class="pr-model-list">
+            {STANDARD_MODELS.map((m) => <li>{m}</li>)}
+          </ul>
+        </div>
+      </article>
+
       {tiers.map((t) => {
         const v = view(t);
         const plan = content.plans[t.tier as PlanTierId];
@@ -166,7 +243,13 @@ const jsonLd = [
                   <span class="pr-per">{L.perMonth}</span>
                   <span class="pr-tag" data-od-tag>{v.monthly.tag}</span>
                 </div>
-                <p class="pr-subline" data-od-subline>{v.monthly.subline}</p>
+                <p class="pr-subline">
+                  <span data-od-subline>{v.monthly.subline}</span>
+                  <button type="button" class="pr-yearly-nudge" data-goto-yearly>
+                    <span data-od-yearly-cta>{v.monthly.saveCta}</span>
+                    <span class="pr-yearly-nudge-arrow" aria-hidden="true">→</span>
+                  </button>
+                </p>
               </div>
               <div class="pr-when" data-when="yearly">
                 <div class="pr-price-row">
@@ -179,42 +262,44 @@ const jsonLd = [
               </div>
             </div>
 
-            <div class="pr-metrics">
-              <div class="pr-metric">
-                <span class="pr-metric-label">{L.modelCredits}</span>
-                <span class="pr-metric-val" data-od-credit>{v.credits}</span>
-              </div>
-              <div class="pr-metric">
-                <span class="pr-metric-label">{L.deliverablesLabel}</span>
-                <span class="pr-metric-val">{plan.deliverablesValue}</span>
-              </div>
-            </div>
-
-            <p class="pr-anchor">{plan.costAnchor}</p>
-
             <a
               class={t.recommended ? 'btn btn-primary pr-cta' : 'btn btn-ghost pr-cta'}
-              href={cloudSubscribeUrl(t.tier, 'monthly')}
+              href={cloudSubscribeUrl(t.tier, 'yearly')}
               data-pricing-cta
               data-tier={t.tier}
             >
-              {plan.ctaLabel}
+              {/* CTA carries the selected billing interval (mirrors the vela
+                  modal's "升级 Plus · 年付"); the interval CSS swaps the spans. */}
+              <span data-when="monthly">{plan.ctaLabel} · {L.monthly}</span>
+              <span data-when="yearly">{plan.ctaLabel} · {L.yearly}</span>
             </a>
 
+            {/* Fully-expanded benefits — credit + concurrency lead the list,
+                then every included benefit; no "includes all <tier>" heading. */}
             <ul class="pr-feats">
-              {plan.features.map((f) =>
-                f.heading ? (
-                  <li class="pr-feat-head">{renderCatalogLabel(f.label)}</li>
-                ) : (
-                  <li class="pr-feat">{renderCatalogLabel(f.label)}</li>
-                ),
-              )}
+              <li class="pr-feat pr-feat-lead pr-feat-strong">
+                <span data-od-credit>{v.credits}</span>
+                {v.bonusPct != null && (
+                  <span class="pr-bonus">
+                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="3" y="8" width="18" height="4" rx="1" />
+                      <path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7" />
+                      <path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5" />
+                    </svg>
+                    {fillTemplate(L.creditBonus, { pct: String(v.bonusPct) })}
+                  </span>
+                )}
+              </li>
+              <li class="pr-feat pr-feat-strong">{plan.concurrency}</li>
+              {plan.features.map((f) => (
+                <li class="pr-feat">{renderCatalogLabel(f)}</li>
+              ))}
             </ul>
 
             <div class="pr-models">
               <p class="pr-models-head">{L.premiumModels}</p>
               <ul class="pr-model-list">
-                {PREMIUM_MODELS.map((m) => <li>{m}</li>)}
+                {PREMIUM_MODELS.map((m) => <li>{m.name}</li>)}
               </ul>
               <p class="pr-models-head">{L.standardModels}</p>
               <ul class="pr-model-list">
@@ -248,9 +333,9 @@ const jsonLd = [
         </div>
       </div>
       <div class="pr-team-actions">
-        <a class="btn btn-primary pr-team-cta" href={`mailto:${ENTERPRISE_EMAIL}`}>
+        <button type="button" class="btn btn-primary pr-team-cta" data-open-lead-modal>
           {enterprise.leadCta}
-        </a>
+        </button>
         <a class="pr-team-email" href={`mailto:${ENTERPRISE_EMAIL}`}>
           <span aria-hidden="true">✉</span> {ENTERPRISE_EMAIL}
         </a>
@@ -316,10 +401,43 @@ const jsonLd = [
     </div>
   </section>
 
-  <script is:inline define:vars={{ plansUrl: PLANS_JSON_URL, labels: L, subscribeBase: CLOUD_CONSOLE_URL }}>
+  {/* Team-plan lead-capture modal — opened by the "Request team access" CTA in
+      the team banner. Renders the SAME shared lead form as /enterprise
+      (fields, required rules, options, validation, /contact-sales contract),
+      so the two funnels can never drift; only `source` differs for lead
+      attribution. */}
+  <div class="pr-modal" data-lead-modal hidden aria-hidden="true">
+    <div class="pr-modal-backdrop" data-lead-close></div>
+    <div class="pr-modal-card" role="dialog" aria-modal="true" aria-labelledby="ent-form-heading">
+      <button type="button" class="pr-modal-x" data-lead-close aria-label={LF.close}>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+      <EnterpriseLeadForm locale={locale} source="pricing_team" pageName="pricing" />
+    </div>
+  </div>
+
+  <script is:inline define:vars={{ plansUrl: PLANS_JSON_URL, labels: L, subscribeBase: CLOUD_CONSOLE_URL, creditBonusPct: CREDIT_BONUS_PCT }}>
     (() => {
       const root = document.querySelector('[data-pricing-root]');
       if (!root) return;
+
+      // Shared analytics helper — same PostHog sink as the rest of the site
+      // (window.__odTrack, guarded). Stamps page_name + locale on every event.
+      const track = (name, extra) => {
+        try {
+          if (typeof window.__odTrack === 'function') {
+            window.__odTrack(
+              name,
+              Object.assign(
+                { page_name: 'pricing', locale: (document.documentElement.getAttribute('lang') || 'en').toLowerCase() },
+                extra || {},
+              ),
+            );
+          }
+        } catch (e) {}
+      };
 
       // Keep each plan's CTA deep-link pointing at the cloud console with the
       // currently selected billing interval. The console is auth-gated and
@@ -328,23 +446,35 @@ const jsonLd = [
       const syncCtas = (interval) => {
         for (const cta of root.querySelectorAll('[data-pricing-cta]')) {
           const tier = cta.getAttribute('data-tier') || '';
+          // The Free CTA is a plain console link (auth-gated: login page when
+          // signed out, console when signed in) — no checkout deep-link.
+          if (tier === 'free') continue;
           const q = new URLSearchParams({ view: 'plans', plan: tier, interval, checkout: 'auto' });
           cta.setAttribute('href', subscribeBase + '?' + q.toString());
         }
       };
 
       // ── Billing interval toggle ──────────────────────────────────────────
+      // One entry point so the toggle button and the "save $X yearly" nudge
+      // share state updates AND emit one analytics event with the right source.
+      const activateInterval = (interval, via) => {
+        root.setAttribute('data-interval', interval);
+        for (const b of root.querySelectorAll('[data-interval-btn]')) {
+          const on = b.getAttribute('data-interval-btn') === interval;
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+        }
+        syncCtas(interval);
+        track('pricing_interval_toggle', { interval: interval, via: via || 'toggle' });
+      };
+
       for (const btn of root.querySelectorAll('[data-interval-btn]')) {
-        btn.addEventListener('click', () => {
-          const interval = btn.getAttribute('data-interval-btn');
-          root.setAttribute('data-interval', interval);
-          for (const b of root.querySelectorAll('[data-interval-btn]')) {
-            const on = b === btn;
-            b.classList.toggle('is-active', on);
-            b.setAttribute('aria-selected', on ? 'true' : 'false');
-          }
-          syncCtas(interval);
-        });
+        btn.addEventListener('click', () => activateInterval(btn.getAttribute('data-interval-btn'), 'toggle'));
+      }
+
+      // Monthly-tab "save $X yearly" nudge → switch to the yearly tab.
+      for (const nudge of root.querySelectorAll('[data-goto-yearly]')) {
+        nudge.addEventListener('click', () => activateInterval('yearly', 'nudge'));
       }
 
       // ── Pricing contract reconciliation ──────────────────────────────────
@@ -375,13 +505,16 @@ const jsonLd = [
             set(card, '[data-when="monthly"] [data-od-strike]', usd(t.monthly.priceUsd));
             set(card, '[data-when="monthly"] [data-od-tag]', fill(labels.firstMonthTag, { pct: String(introPct) }));
             set(card, '[data-when="monthly"] [data-od-subline]', fill(labels.monthlyRenewal, { amountUsd: usd(t.monthly.priceUsd) }));
+            set(card, '[data-when="monthly"] [data-od-yearly-cta]', fill(labels.yearlySaveCta, { savingsUsd: usd(yearlySave) }));
 
             set(card, '[data-when="yearly"] [data-od-amount]', usd(yearlyEquiv));
             set(card, '[data-when="yearly"] [data-od-strike]', usd(t.monthly.priceUsd));
             set(card, '[data-when="yearly"] [data-od-tag]', fill(labels.yearlyDiscountTag, { pct: String(t.yearly.discountPct) }));
             set(card, '[data-when="yearly"] [data-od-subline]', fill(labels.yearlySubline, { totalUsd: usd(t.yearly.priceUsd), savingsUsd: usd(yearlySave) }));
 
-            set(card, '[data-od-credit]', usd(t.monthly.grantUsd) + labels.perMonth);
+            const bonusPct = creditBonusPct[t.tier];
+            const effectiveGrant = bonusPct ? Math.round(t.monthly.grantUsd * (1 + bonusPct / 100)) : t.monthly.grantUsd;
+            set(card, '[data-od-credit]', fill(labels.creditBenefit, { amount: usd(effectiveGrant) }));
           }
         })
         .catch(() => {});
@@ -400,6 +533,87 @@ const jsonLd = [
           else if (window.posthog && window.posthog.capture) window.posthog.capture('pricing_subscribe_click', props);
         } catch (e) {}
       });
+
+      // ── Team-plan lead-capture modal ─────────────────────────────────────
+      // The banner + modal live OUTSIDE [data-pricing-root], so query document.
+      // Form fields, validation, and the /contact-sales submit are owned by
+      // the shared enterprise-lead-form component; this block only owns the
+      // modal shell (open/close/focus) and the legacy analytics bridge.
+      const modal = document.querySelector('[data-lead-modal]');
+      if (modal) {
+        let lastFocus = null;
+
+        const card = modal.querySelector('.pr-modal-card');
+        const closeBtn = modal.querySelector('.pr-modal-x');
+        const openModal = () => {
+          lastFocus = document.activeElement;
+          // Drop any stale error state from a previous failed attempt before
+          // re-presenting the form (entered values and the sticky success
+          // panel are intentionally preserved).
+          const form = modal.querySelector('#ent-form');
+          if (form) form.dispatchEvent(new Event('od:lead-reset'));
+          modal.hidden = false;
+          modal.setAttribute('aria-hidden', 'false');
+          document.body.style.overflow = 'hidden';
+          // After a successful submit the form is hidden and the sticky success
+          // panel takes its place, so the usual email-field focus target and
+          // the form-heading label are both gone. Point the dialog's name at
+          // whichever heading is actually visible and land focus on a real
+          // target (the close button) so keyboard / SR users are never stranded
+          // on the background trigger.
+          const showingSuccess = !!(form && form.hidden);
+          if (card) {
+            card.setAttribute('aria-labelledby', showingSuccess ? 'ent-success-heading' : 'ent-form-heading');
+          }
+          const focusTarget = showingSuccess
+            ? closeBtn
+            : modal.querySelector('#ent-email');
+          if (focusTarget) setTimeout(() => focusTarget.focus(), 40);
+        };
+        const closeModal = () => {
+          modal.hidden = true;
+          modal.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+          if (lastFocus && lastFocus.focus) lastFocus.focus();
+        };
+
+        for (const btn of document.querySelectorAll('[data-open-lead-modal]')) {
+          btn.addEventListener('click', () => {
+            track('team_lead_open', { area: 'team_banner' });
+            openModal();
+          });
+        }
+        for (const el of modal.querySelectorAll('[data-lead-close]')) {
+          el.addEventListener('click', closeModal);
+        }
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && !modal.hidden) closeModal();
+        });
+
+        // Legacy funnel continuity: the shared form emits lead_submit_success
+        // (page_name: 'pricing'); existing dashboards also watch
+        // team_lead_submit, so mirror it here. The legacy schema (team_size /
+        // budget with '(none)' fallbacks + has_* presence booleans) is
+        // preserved verbatim so pre-existing filters keep matching, and the
+        // shared form's richer props (seats, country, industry, use case)
+        // ride alongside.
+        modal.addEventListener('od:lead-success', (e) => {
+          const d = (e && e.detail) || {};
+          track('team_lead_submit', {
+            team_size: d.team_size || '(none)',
+            budget: d.budget || '(none)',
+            has_company: !!d.has_company,
+            has_role: !!d.has_role,
+            has_seats: !!d.seats,
+            has_message: !!d.has_message,
+            seats: d.seats || '',
+            country: d.country || '',
+            industry: d.industry || '',
+            use_case: d.use_case || '',
+            use_case_count: d.use_case_count || 0,
+          });
+        });
+      }
     })();
   </script>
 </Layout>
@@ -464,13 +678,16 @@ const jsonLd = [
   .pr-grid {
     margin-top: 40px;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    max-width: 1180px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    max-width: 1280px;
     margin-inline: auto;
     align-items: stretch;
   }
-  @media (max-width: 880px) {
+  @media (max-width: 1080px) {
+    .pr-grid { grid-template-columns: repeat(2, 1fr); max-width: 760px; }
+  }
+  @media (max-width: 640px) {
     .pr-grid { grid-template-columns: 1fr; max-width: 460px; }
   }
 
@@ -496,6 +713,16 @@ const jsonLd = [
     height: 22px;
     width: auto;
     display: block;
+  }
+  /* Free tier has no wordmark asset; render the name as muted text like the
+     vela modal's Free column. */
+  .pr-tier-name {
+    display: block;
+    height: 22px;
+    line-height: 22px;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--ink-soft, #999);
   }
   .pr-tagline {
     font-size: 0.82rem;
@@ -528,35 +755,39 @@ const jsonLd = [
     white-space: nowrap;
   }
   .pr-subline { margin: 8px 0 0; font-size: 0.8rem; color: var(--ink-soft, #777); }
-
-  /* ---- Metrics ---- */
-  .pr-metrics {
-    margin: 18px 0 0;
-    padding: 16px 0;
-    border-top: 1px solid var(--line, rgba(0, 0, 0, 0.08));
-    border-bottom: 1px solid var(--line, rgba(0, 0, 0, 0.08));
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
+  .pr-yearly-nudge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.2s cubic-bezier(0.23, 1, 0.32, 1);
   }
-  .pr-metric { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-  .pr-metric-label { font-size: 0.84rem; color: var(--ink-soft, #666); }
-  .pr-metric-val { font-size: 0.86rem; font-weight: 650; color: var(--ink); white-space: nowrap; }
-
-  /* ---- Cost anchor ---- */
-  .pr-anchor {
-    margin: 16px 0 0;
-    font-size: 0.86rem;
-    font-weight: 600;
-    color: var(--olive, #218c00);
-  }
+  .pr-yearly-nudge [data-od-yearly-cta] { text-decoration: underline; text-underline-offset: 2px; }
+  .pr-yearly-nudge:hover { color: var(--ink, #1a1a1a); }
+  .pr-yearly-nudge:focus-visible { outline: 2px solid var(--brand, #2bd200); outline-offset: 2px; border-radius: 4px; }
+  .pr-yearly-nudge-arrow { transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1); }
+  .pr-yearly-nudge:hover .pr-yearly-nudge-arrow { transform: translateX(2px); }
 
   /* ---- CTA ---- */
   .pr-cta { margin-top: 18px; width: 100%; justify-content: center; text-align: center; }
 
-  /* ---- Features ---- */
-  .pr-feats { list-style: none; margin: 24px 0 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
-  .pr-feat-head { font-size: 0.9rem; font-weight: 650; color: var(--ink); }
+  /* ---- Features (fully expanded; credit + concurrency lead the list) ---- */
+  .pr-feats {
+    list-style: none;
+    margin: 22px 0 0;
+    padding: 18px 0 0;
+    border-top: 1px solid var(--line, rgba(0, 0, 0, 0.08));
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
   .pr-feat {
     position: relative;
     padding-left: 22px;
@@ -572,7 +803,25 @@ const jsonLd = [
     font-weight: 700;
     color: var(--olive, #218c00);
   }
-
+  /* Lead rows (credit + concurrency) read bold on paid tiers, mirroring the
+     vela modal's core-benefit emphasis. */
+  .pr-feat-strong { font-weight: 600; }
+  /* The credit lead row carries an inline bonus badge. */
+  .pr-feat-lead { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+  .pr-bonus {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 0.1rem 0.42rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    color: #0d3300;
+    background: color-mix(in srgb, var(--brand, #2bd200) 20%, transparent);
+    border: 1px solid color-mix(in srgb, var(--brand, #2bd200) 45%, transparent);
+  }
   /* ---- Model lists ---- */
   .pr-models { margin-top: 22px; }
   .pr-models-head {
@@ -598,6 +847,12 @@ const jsonLd = [
     top: 0;
     font-weight: 700;
     color: var(--olive, #218c00);
+  }
+  /* Models outside the Free trial pool render greyed-out with an ✕ mark. */
+  .pr-model-list li.is-unavailable { color: var(--ink-soft, #aaa); }
+  .pr-model-list li.is-unavailable::before {
+    content: '✕';
+    color: var(--ink-soft, #bbb);
   }
 
   /* ---- Footnote ---- */
@@ -826,6 +1081,63 @@ const jsonLd = [
     font-size: 0.88rem;
     line-height: 1.65;
     color: var(--ink-soft, #555);
+  }
+
+  /* ---- Team-plan lead-capture modal ---- */
+  .pr-modal[hidden] { display: none; }
+  .pr-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .pr-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+    animation: pr-modal-fade 200ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .pr-modal-card {
+    position: relative;
+    width: min(560px, 100%);
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    background: var(--bg, #fff);
+    border: 1px solid var(--border, rgba(0, 0, 0, 0.1));
+    border-radius: 20px;
+    /* Top padding clears the absolutely-positioned .pr-modal-x close button
+       (top: 18px, ~32px box) so it never overlaps the incentive banner that
+       leads the form content. */
+    padding: 58px 30px 26px;
+    box-shadow: 0 32px 90px -24px rgba(0, 0, 0, 0.45);
+    animation: pr-modal-pop 200ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  @keyframes pr-modal-fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pr-modal-pop {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .pr-modal-x {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    display: inline-flex;
+    padding: 6px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ink-soft, #888);
+    cursor: pointer;
+    transition: background 0.2s cubic-bezier(0.23, 1, 0.32, 1), color 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .pr-modal-x:hover { background: var(--line, rgba(0, 0, 0, 0.06)); color: var(--ink); }
+
+  @media (max-width: 560px) {
+    .pr-modal-card { padding: 58px 20px 22px; }
   }
 </style>
 

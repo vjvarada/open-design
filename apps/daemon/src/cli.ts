@@ -8,8 +8,8 @@ import { runArtifactsCli } from './artifacts-cli.js';
 import { runProjectHandoff } from './handoff-cli.js';
 import { runConnectorsToolCli } from './tools-connectors-cli.js';
 import { runDesignSystemsToolCli } from './tools-design-systems-cli.js';
-import { DESIGN_SYSTEMS_USAGE, isDesignSystemsHelpArg } from './design-systems-cli-help.js';
-import { BRAND_USAGE, isBrandHelpArg } from './brands-cli-help.js';
+import { DESIGN_SYSTEMS_USAGE, isDesignSystemsHelpArg } from './cli-help/index.js';
+import { BRAND_USAGE, isBrandHelpArg } from './cli-help/index.js';
 import { parseDesignSystemRenameArgs } from './design-systems/rename-args.js';
 import { runLiveArtifactsToolCli } from './tools-live-artifacts-cli.js';
 import { splitResearchSubcommand } from './research/cli-args.js';
@@ -28,6 +28,13 @@ import {
 } from './mcp-agent-install.js';
 
 const argv = process.argv.slice(2);
+
+const RESUME_CONTINUE_PROMPT =
+  'The previous turn was interrupted by a transient failure. ' +
+  'If your last response was cut off, continue it from where you left off ' +
+  'and keep any work already completed; otherwise complete the original ' +
+  'request. Inspect the current project files as needed before making ' +
+  'further changes.';
 
 // ---- Subcommand router ----------------------------------------------------
 //
@@ -91,9 +98,12 @@ const MCP_INSTALL_STRING_FLAGS = new Set([
   'daemon-url',
   'name',
 ]);
+const MCP_INSTALL_CLI_PROBE_FLAG = 'open-design-cli-probe';
+const MCP_INSTALL_CLI_PROBE_TOKEN = 'open-design-cli:mcp-install:v1';
 const MCP_INSTALL_BOOLEAN_FLAGS = new Set([
   'help',
   'h',
+  MCP_INSTALL_CLI_PROBE_FLAG,
   'json',
   'print',
   'dry-run',
@@ -196,7 +206,8 @@ const PROJECT_STRING_FLAGS = new Set([
   'pending-prompt', 'project', 'conversation', 'message', 'prompt',
   'prompt-file', 'path', 'dir', 'as',
   'agent', 'model', 'snapshot-id', 'inputs', 'grant-caps', 'editor',
-  'title', 'against', 'seed-from', 'fork-after', 'mode',
+  'title', 'label', 'against', 'seed-from', 'fork-after', 'mode',
+  'source',
 ]);
 const PROJECT_BOOLEAN_FLAGS = new Set(['help', 'h', 'json', 'follow']);
 // `od templates …` mirrors NewProjectPanel / ExamplesTab. Same surface,
@@ -331,6 +342,7 @@ const SUBCOMMAND_MAP = {
   export: runExport,
   status: runStatus,
   version: runVersion,
+  'whats-new': runWhatsNew,
   doctor: runDoctor,
   config: runConfig,
   library: runLibrary,
@@ -607,7 +619,7 @@ Options:
   --no-open        Do not open the browser after start.
 
 What the daemon does:
-  * scans PATH for installed code-agent CLIs (claude, codex, devin, gemini, opencode, cursor-agent, ...)
+  * scans PATH for installed code-agent CLIs (claude, codex, devin, opencode, cursor-agent, ...)
   * serves the chat UI at http://<host>:<port>
   * proxies messages (text + images) to the selected agent via child-process spawn
   * exposes /api/projects/:id/media/generate — the unified image/video/audio
@@ -1275,6 +1287,10 @@ async function runMcpInstall(args) {
     console.error(err.message);
     printMcpInstallHelp();
     process.exit(2);
+  }
+  if (flags[MCP_INSTALL_CLI_PROBE_FLAG]) {
+    console.log(MCP_INSTALL_CLI_PROBE_TOKEN);
+    return;
   }
   if (flags.help || flags.h) {
     printMcpInstallHelp();
@@ -5600,8 +5616,8 @@ async function runBrandDelete(rest) {
 function normalizeChatSessionModeFlag(value) {
   if (value == null) return undefined;
   const mode = String(value).trim().toLowerCase();
-  if (mode === 'design' || mode === 'chat') return mode;
-  console.error('--mode must be one of: design, chat');
+  if (mode === 'design' || mode === 'chat' || mode === 'plan') return mode;
+  console.error('--mode must be one of: design, chat, plan');
   process.exit(2);
 }
 
@@ -5703,7 +5719,7 @@ async function runProject(args) {
     console.log(`Usage:
   od project create [--name "<title>"] [--skill <id>] [--design-system <id>]
                     [--plugin <id>] [--inputs <json>] [--metadata-json <path|->]
-                    [--mode design|chat]
+                    [--mode design|chat|plan]
   od project create-design-system <id> [--name "<title>"]
                     [--prompt "<text>" | --prompt-file <path|->] [--json]
                     Duplicate a project as a design-system workspace and seed
@@ -5973,11 +5989,12 @@ async function runRun(args) {
     console.log(`Usage:
   od run start --project <projectId> [--conversation <id>] [--message "<text>"]
                [--plugin <id>] [--inputs <json>] [--grant-caps a,b]
-               [--agent claude|codex|gemini] [--model <id>] [--follow] [--json]
+               [--agent claude|codex|opencode] [--model <id>] [--follow] [--json]
   od run redesign [--path <folder>] [--message "<text>" | --prompt-file <path|->]
                [--agent claude] [--model <id>] [--follow] [--json]
   od run watch  <runId>                     ND-JSON event stream on stdout.
   od run cancel <runId>                     Request cancellation.
+  od run continue <runId> [--follow]        Continue a resumable failed run.
   od run list   [--project <id>]            List recent runs.
   od run info   <runId>                     One run's status.
   od run result-package <runId> [--json]    Inspect run outputs and workspace
@@ -6052,6 +6069,56 @@ Common options:
       const resp = await fetch(`${base}/api/runs/${encodeURIComponent(id)}/cancel`, { method: 'POST' });
       if (!resp.ok) return structuredHttpFailure(resp, 'run-not-found');
       console.log(`[run] cancelled ${id}`);
+      return;
+    }
+    case 'continue': {
+      const id = positionalArgs(rest, PROJECT_STRING_FLAGS)[0];
+      if (!id) {
+        console.error('Usage: od run continue <runId> [--message "<text>"] [--follow] [--json]');
+        process.exit(2);
+      }
+      const statusResp = await fetch(`${base}/api/runs/${encodeURIComponent(id)}`);
+      if (!statusResp.ok) return structuredHttpFailure(statusResp, 'run-not-found');
+      const status = await statusResp.json();
+      if (status?.resumable !== true) {
+        const payload = {
+          error: {
+            code: 'run-not-resumable',
+            message: `Run ${id} does not have a safe recoverable native session.`,
+          },
+        };
+        if (flags.json) process.stdout.write(JSON.stringify(payload, null, 2) + '\n');
+        else console.error(payload.error.message);
+        process.exit(1);
+      }
+      if (!status.projectId || !status.conversationId) {
+        const payload = {
+          error: {
+            code: 'run-missing-context',
+            message: `Run ${id} is missing project or conversation context.`,
+          },
+        };
+        if (flags.json) process.stdout.write(JSON.stringify(payload, null, 2) + '\n');
+        else console.error(payload.error.message);
+        process.exit(1);
+      }
+      const message = await readRunMessageFromFlags(flags, RESUME_CONTINUE_PROMPT);
+      const body = {
+        projectId: status.projectId,
+        conversationId: status.conversationId,
+        message,
+        analyticsHints: { entryFrom: 'resume_continue' },
+        ...(status.agentId ? { agentId: status.agentId } : {}),
+      };
+      const data = await postJsonToDaemon(base, '/api/runs', body);
+      if (flags.json && !flags.follow) {
+        return process.stdout.write(JSON.stringify({
+          ...data,
+          continuedFromRunId: id,
+        }, null, 2) + '\n');
+      }
+      console.log(`[run] continued ${id} as ${data.runId}`);
+      if (flags.follow) await streamRunEvents(base, data.runId);
       return;
     }
     case 'watch': {
@@ -6339,6 +6406,13 @@ async function attachTerminal(base, projectId, terminalId) {
   }
 }
 
+function parseProjectFileVersionSourceFlag(raw) {
+  if (raw == null) return null;
+  if (raw === 'ai' || raw === 'manual' || raw === 'restore') return raw;
+  console.error(`Invalid --source "${String(raw)}". Expected one of: ai, manual, restore.`);
+  process.exit(2);
+}
+
 async function runFiles(args) {
   if (args.length === 0 || args[0] === 'help' || args.includes('--help') || args.includes('-h')) {
     console.log(`Usage:
@@ -6351,9 +6425,19 @@ async function runFiles(args) {
   od files delete <projectId> <name>           Delete a project file.
   od files diff   <projectId> <relpathA> [<relpathB> | --against -]
                                                Print a unified diff.
+  od files versions <projectId> <relpath>      List saved HTML versions.
+  od files version-read <projectId> <relpath> <versionId>
+                                               Stream one saved HTML version.
+  od files version-create <projectId> <relpath>
+                                               Save the current HTML as a version.
+  od files version-restore <projectId> <relpath> <versionId>
+                                               Restore a saved HTML as a new current version.
 
 Common options:
   --daemon-url <url>   Open Design daemon HTTP base.
+  --prompt-file <path|->  Read a version prompt from file/stdin where supported.
+  --source <ai|manual|restore>
+                       Version provenance where supported.
   --json               Emit raw JSON.`);
     process.exit(args.length === 0 ? 2 : 0);
   }
@@ -6413,6 +6497,7 @@ Common options:
       if (!resp.ok) return structuredHttpFailure(resp);
       const data = await resp.json();
       if (flags.json) return process.stdout.write(JSON.stringify(data, null, 2) + '\n');
+      if (data?.versionWarning?.message) console.error(`[files] warning: ${data.versionWarning.message}`);
       console.log(`[files] uploaded ${data?.file?.name ?? desiredName}`);
       return;
     }
@@ -6445,6 +6530,7 @@ Common options:
       if (!resp.ok) return structuredHttpFailure(resp);
       const data = await resp.json();
       if (flags.json) return process.stdout.write(JSON.stringify(data, null, 2) + '\n');
+      if (data?.versionWarning?.message) console.error(`[files] warning: ${data.versionWarning.message}`);
       console.log(`[files] wrote ${data?.file?.name ?? rel}`);
       return;
     }
@@ -6476,6 +6562,100 @@ Common options:
       const diff = createUnifiedDiff(`a/${relA}`, `b/${rightLabel}`, left, right);
       if (flags.json) return process.stdout.write(JSON.stringify({ diff }, null, 2) + '\n');
       process.stdout.write(diff);
+      return;
+    }
+    case 'versions': {
+      const positional = positionalArgs(rest, PROJECT_STRING_FLAGS);
+      const [id, rel] = positional;
+      if (!id || !rel) {
+        console.error('Usage: od files versions <projectId> <relpath>');
+        process.exit(2);
+      }
+      const resp = await fetch(
+        `${base}/api/projects/${encodeURIComponent(id)}/files/${encodeProjectRelpath(rel)}/versions`,
+      );
+      if (!resp.ok) return structuredHttpFailure(resp, 'project-not-found');
+      const data = await resp.json();
+      if (flags.json) return process.stdout.write(JSON.stringify(data, null, 2) + '\n');
+      const versions = Array.isArray(data?.versions) ? data.versions : [];
+      for (const version of versions) {
+        const marker = version.current ? '*' : ' ';
+        const prompt = typeof version.prompt === 'string' && version.prompt.trim()
+          ? version.prompt.trim().replace(/\s+/g, ' ').slice(0, 96)
+          : '-';
+        const createdAt = Number.isFinite(Number(version.createdAt))
+          ? new Date(Number(version.createdAt)).toISOString()
+          : '-';
+        console.log(`${marker}\tv${version.version ?? '-'}\t${version.source ?? '-'}\t${createdAt}\t${version.id ?? '-'}\t${prompt}`);
+      }
+      return;
+    }
+    case 'version-read': {
+      const positional = positionalArgs(rest, PROJECT_STRING_FLAGS);
+      const [id, rel, versionId] = positional;
+      if (!id || !rel || !versionId) {
+        console.error('Usage: od files version-read <projectId> <relpath> <versionId>');
+        process.exit(2);
+      }
+      const resp = await fetch(
+        `${base}/api/projects/${encodeURIComponent(id)}/files/${encodeProjectRelpath(rel)}/versions/${encodeURIComponent(versionId)}`,
+      );
+      if (!resp.ok) return structuredHttpFailure(resp, 'project-not-found');
+      const data = await resp.json();
+      if (flags.json) return process.stdout.write(JSON.stringify(data, null, 2) + '\n');
+      process.stdout.write(String(data?.content ?? ''));
+      return;
+    }
+    case 'version-create': {
+      const positional = positionalArgs(rest, PROJECT_STRING_FLAGS);
+      const [id, rel] = positional;
+      if (!id || !rel) {
+        console.error('Usage: od files version-create <projectId> <relpath> [--prompt <text> | --prompt-file <path|->] [--label <text>] [--source <ai|manual|restore>]');
+        process.exit(2);
+      }
+      const source = parseProjectFileVersionSourceFlag(flags.source);
+      const prompt = await readPromptFromFlags(flags);
+      const body = {};
+      if (prompt !== null) body.prompt = prompt;
+      if (typeof flags.label === 'string' && flags.label.length > 0) body.label = flags.label;
+      if (source) body.source = source;
+      const resp = await fetch(
+        `${base}/api/projects/${encodeURIComponent(id)}/files/${encodeProjectRelpath(rel)}/versions`,
+        {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        },
+      );
+      if (!resp.ok) return structuredHttpFailure(resp, 'project-not-found');
+      const data = await resp.json();
+      if (flags.json) return process.stdout.write(JSON.stringify(data, null, 2) + '\n');
+      console.log(`[files] saved ${rel} as version ${data?.version?.version ?? data?.version?.id ?? '-'}`);
+      return;
+    }
+    case 'version-restore': {
+      const positional = positionalArgs(rest, PROJECT_STRING_FLAGS);
+      const [id, rel, versionId] = positional;
+      if (!id || !rel || !versionId) {
+        console.error('Usage: od files version-restore <projectId> <relpath> <versionId> [--prompt <text> | --prompt-file <path|->]');
+        process.exit(2);
+      }
+      const prompt = await readPromptFromFlags(flags);
+      const body = {};
+      if (prompt !== null) body.prompt = prompt;
+      const resp = await fetch(
+        `${base}/api/projects/${encodeURIComponent(id)}/files/${encodeProjectRelpath(rel)}/versions/${encodeURIComponent(versionId)}/restore`,
+        {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        },
+      );
+      if (!resp.ok) return structuredHttpFailure(resp, 'project-not-found');
+      const data = await resp.json();
+      if (flags.json) return process.stdout.write(JSON.stringify(data, null, 2) + '\n');
+      if (data?.versionWarning?.message) console.error(`[files] warning: ${data.versionWarning.message}`);
+      console.log(`[files] restored ${rel} as version ${data?.version?.version ?? data?.version?.id ?? '-'}`);
       return;
     }
     default:
@@ -6791,7 +6971,7 @@ Common options:
 async function runConversation(args) {
   if (args.length === 0 || args[0] === 'help' || args.includes('--help') || args.includes('-h')) {
     console.log(`Usage:
-  od conversation new  <projectId> [--title "<title>"] [--seed-from <cid>] [--fork-after <mid>] [--mode design|chat]
+  od conversation new  <projectId> [--title "<title>"] [--seed-from <cid>] [--fork-after <mid>] [--mode design|chat|plan]
                                            Create a conversation in a project.
                                            --seed-from copies another
                                            conversation's messages in (Side Chat).
@@ -6886,7 +7066,7 @@ Common options:
 async function runChat(args) {
   if (args.length === 0 || args[0] === 'help' || args.includes('--help') || args.includes('-h')) {
     console.log(`Usage:
-  od chat new --project <id> [--seed-from <cid>] [--fork-after <mid>] [--title "<title>"] [--mode design|chat] [--json]
+  od chat new --project <id> [--seed-from <cid>] [--fork-after <mid>] [--title "<title>"] [--mode design|chat|plan] [--json]
                                            Create a Side Chat — a new conversation
                                            that copies in another conversation's
                                            context (--seed-from). Use
@@ -7938,6 +8118,39 @@ async function runVersion(args) {
     ? data.version
     : (data?.version?.version ?? JSON.stringify(data));
   console.log(version);
+}
+
+// `od whats-new` — CLI mirror of the home-surface post-update highlights
+// card. Prints the current hand-curated "what's new" highlight (or a note
+// when there is none right now), from the same /api/whats-new endpoint the
+// web UI reads.
+async function runWhatsNew(args) {
+  const flags = parseFlags(args, { string: LIBRARY_STRING_FLAGS, boolean: LIBRARY_BOOLEAN_FLAGS });
+  if (flags.help || flags.h) {
+    console.log(`Usage:
+  od whats-new [--json]   Print the current release highlight, if any.`);
+    process.exit(0);
+  }
+  const base = (await libraryDaemonUrl(flags)).replace(/\/$/, '');
+  let resp;
+  try {
+    resp = await fetch(`${base}/api/whats-new`);
+  } catch (err) {
+    return exitWithStructuredError({
+      code:    'daemon-not-running',
+      message: `Cannot reach daemon at ${base}: ${err?.message ?? err}`,
+    });
+  }
+  if (!resp.ok) return structuredHttpFailure(resp);
+  const data = await resp.json();
+  if (flags.json) return process.stdout.write(JSON.stringify(data, null, 2) + '\n');
+  console.log(`Open Design ${data?.version ?? 'unknown'}`);
+  if (data?.content != null) {
+    console.log(`\n${data.content.title}\n${data.content.body}`);
+    if (data.content.linkUrl) console.log(`\nDetails: ${data.content.linkUrl}`);
+  } else {
+    console.log(`\nNo release highlights right now.`);
+  }
 }
 
 // ---------------------------------------------------------------------------

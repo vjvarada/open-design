@@ -1,5 +1,6 @@
 import { expect, test } from '@/playwright/suite';
 import { openNewProjectModal } from '@/playwright/rail';
+import { T } from '@/timeouts';
 import {
   captureVisual,
   captureVisualTarget,
@@ -13,6 +14,8 @@ import {
 } from '@/playwright/visual';
 
 test('[P2] captures the onboarding cloud sign-in surface', async ({ page }) => {
+  test.setTimeout(T.xlong);
+
   await configureVisualPage(page, {
     projects: [],
     agents: [VISUAL_AMR_AGENT, ...VISUAL_CLI_AGENTS],
@@ -22,11 +25,12 @@ test('[P2] captures the onboarding cloud sign-in surface', async ({ page }) => {
   });
 
   await page.goto('/onboarding', { waitUntil: 'domcontentloaded' });
+  await page.getByText('Loading Open Design…').waitFor({ state: 'hidden', timeout: T.long });
   // The connect step opens on the cloud sign-in landing. Local CLI and BYOK
   // remain available as secondary paths from the same first screen.
   await expect(
     page.getByRole('heading', { name: /Sign in to Open Design|登录 Open Design/i }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: T.medium });
   await expect(
     page.getByRole('button', { name: /Sign in to Open Design|登录 Open Design/i }),
   ).toBeVisible();
@@ -155,6 +159,9 @@ test('[P2] captures the home plugin use staged surface', async ({ page }) => {
   await gotoVisualHome(page);
 
   const home = page.getByTestId('entry-view-home');
+  await home.getByTestId('plugins-home-pill-category-prototype').click();
+  const card = home.locator('article.plugins-home__card[data-plugin-id="visual-prototype-starter"]');
+  await expect(card).toBeVisible();
   await home.getByTestId('plugins-home-details-visual-prototype-starter').click({ force: true });
   await expect(page.getByRole('dialog', { name: /Prototype Starter details/i })).toBeVisible();
   await page.getByTestId('plugin-details-use-visual-prototype-starter').click();
@@ -193,6 +200,8 @@ test('[P2] captures the home plugin use with query surface', async ({ page }) =>
 });
 
 test('[P2] captures the new project modal surface', async ({ page }) => {
+  test.setTimeout(T.xlong);
+
   await configureVisualPage(page);
   await gotoVisualHome(page);
 

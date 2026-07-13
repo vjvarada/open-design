@@ -140,6 +140,12 @@ const blog = defineCollection({
               category: z.string().optional(),
               body: z.string().optional(),
               bodyHtml: z.string().optional(),
+              // Optional per-locale reading time. Set this when a localized
+              // `bodyHtml` differs in length from the English Markdown (e.g. a
+              // translation that hasn't caught up to an expanded English body)
+              // so non-English readers see an accurate estimate instead of the
+              // shared English `readingTime`.
+              readingTime: z.number().int().positive().optional(),
             })
             .passthrough(),
         )
@@ -171,14 +177,15 @@ const tutorials = defineCollection({
   }),
   schema: z.object({
     title: z.string(),
-    youtubeId: z.string().regex(/^[\w-]{11}$/, 'youtubeId must be 11 chars'),
+    youtubeId: z.string().regex(/^[\w-]{11}$/, 'youtubeId must be 11 chars').optional(),
     summary: z.string(),
     date: z.coerce.date(),
     category: z.enum(['Getting started', 'Tutorial', 'Demo', 'Review', 'Community']),
-    durationSeconds: z.number().int().positive(),
+    durationSeconds: z.number().int().positive().optional(),
     author: z.string(),
+    publicFormat: z.enum(['video', 'article']).default('video'),
     official: z.boolean().default(false),
-    thumbnail: z.string().url().optional(),
+    thumbnail: z.string().optional(),
   }),
 });
 

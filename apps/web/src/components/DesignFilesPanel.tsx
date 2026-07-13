@@ -4,6 +4,7 @@ import { trackFileManagerClick } from '../analytics/events';
 import { useT } from '../i18n';
 import { LIBRARY_UI_VISIBLE } from '../features/libraryUi';
 import type { Dict } from '../i18n/types';
+import { copyToClipboard } from '../lib/copy-to-clipboard';
 import { projectFileUrl, projectRawUrl } from '../providers/registry';
 import { buildSrcdoc } from '../runtime/srcdoc';
 import type { LiveArtifactWorkspaceEntry, ProjectFile, ProjectFileKind, ProjectFolder } from '../types';
@@ -114,6 +115,7 @@ const SECTION_ORDER: FileCategory[] = [
 ];
 
 const STYLESHEET_EXTENSIONS = new Set(['css', 'scss', 'sass', 'less']);
+const HTML_THUMBNAIL_INLINE_MAX_BYTES = 512 * 1024;
 
 function fileCategory(file: ProjectFile): FileCategory {
   const dot = file.name.lastIndexOf('.');
@@ -183,6 +185,14 @@ const USEFUL_TIPS: ReadonlyArray<{ key: keyof Dict; url?: string }> = [
   { key: 'designFiles.usefulInfoTip6', url: 'https://discord.gg/mHAjSMV6gz' },
   { key: 'designFiles.usefulInfoTip7', url: 'https://github.com/nexu-io/open-design' },
   { key: 'designFiles.usefulInfoTip8', url: 'https://x.com/OpenDesignHQ' },
+  { key: 'designFiles.usefulInfoTip16', url: 'https://www.threads.com/@opendesign.ai' },
+  { key: 'designFiles.usefulInfoTip17', url: 'https://www.instagram.com/opendesign.ai/' },
+  { key: 'designFiles.usefulInfoTip18', url: 'https://www.youtube.com/@Open-Design-ai' },
+  { key: 'designFiles.usefulInfoTip19', url: 'https://www.linkedin.com/company/open-design-ai/' },
+  {
+    key: 'designFiles.usefulInfoTip20',
+    url: 'https://www.xiaohongshu.com/user/profile/691effad000000003002978f',
+  },
 ];
 const TIP_TYPE_MS = 32; // per-character typing speed
 const TIP_HOLD_MS = 3800; // pause on a fully-typed tip before advancing
@@ -316,7 +326,7 @@ export function DesignFilesPanel({
   const dragDepthRef = useRef(0);
   const [hover, setHover] = useState<string | null>(null);
   const [menuPos, setMenuPos] = useState<{ name: string; top: number; left: number } | null>(null);
-  const MENU_ESTIMATED_HEIGHT = 145;
+  const MENU_ESTIMATED_HEIGHT = 180;
   const MENU_SAFE_PADDING = 8;
   const [preview, setPreview] = useState<string | null>(null);
   const autoPreviewAppliedRef = useRef(false);
@@ -327,6 +337,7 @@ export function DesignFilesPanel({
   const [sharingFolder, setSharingFolder] = useState<string | null>(null);
   const [installNotice, setInstallNotice] = useState<ActionNotice | null>(null);
   const [renaming, setRenaming] = useState<{ name: string; draft: string; saving: boolean } | null>(null);
+  const [copiedLocalPath, setCopiedLocalPath] = useState<string | null>(null);
   const [currentDir, setCurrentDir] = useState<string>(() => navState?.currentDir ?? '');
   const [projectMenuOpen, setProjectMenuOpen] = useState(false);
   const projectMenuRef = useRef<HTMLDivElement | null>(null);
@@ -490,6 +501,19 @@ export function DesignFilesPanel({
   }, [menuPos]);
 
   useEffect(() => {
+    const onClipboardPaste = (event: ClipboardEvent) => {
+      if (shouldIgnoreClipboardFilePaste(event.target)) return;
+      const pastedFiles = filesFromClipboardData(event.clipboardData);
+      if (pastedFiles.length === 0) return;
+      event.preventDefault();
+      setDropReadError(null);
+      onClearUploadError?.();
+      onUploadFiles(pastedFiles);
+    };
+    window.addEventListener('paste', onClipboardPaste);
+    return () => window.removeEventListener('paste', onClipboardPaste);
+  }, [onClearUploadError, onUploadFiles]);
+  useEffect(() => {
     if (!projectMenuOpen) return;
     function handlePointerDown(event: PointerEvent) {
       const target = event.target;
@@ -506,7 +530,6 @@ export function DesignFilesPanel({
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [projectMenuOpen]);
-
 
   function toggleSelect(name: string) {
     setSelected((prev) => {
@@ -547,6 +570,18 @@ export function DesignFilesPanel({
     const left = Math.max(MENU_SAFE_PADDING, rect.right - 160);
 
     setMenuPos({ name, top, left });
+  }
+
+  async function copyLocalPath(fileName: string) {
+    const localPath = files.find((file) => file.name === fileName)?.localPath;
+    if (!localPath) return;
+    const copied = await copyToClipboard(localPath);
+    if (copied) {
+      setCopiedLocalPath(fileName);
+      window.setTimeout(() => {
+        setCopiedLocalPath((current) => (current === fileName ? null : current));
+      }, 1600);
+    }
   }
 
   function startRename(name: string) {
@@ -865,7 +900,7 @@ export function DesignFilesPanel({
         <span>{t('designFiles.newSketch')}</span>
       </button>
       <button type="button" onClick={onPaste} title={t('designFiles.paste.title')}>
-        <Icon name="copy" size={13} />
+        <Icon name="file" size={13} />
         <span>{t('designFiles.paste.label')}</span>
       </button>
       <button
@@ -1099,18 +1134,16 @@ export function DesignFilesPanel({
                       <span>{t('workspace.newBrowser')}</span>
                     </button>
                   ) : null}
-                  {onCreateDesignSystem ? (
-                    <button
-                      type="button"
-                      className="df-empty-cta df-empty-cta-tertiary"
-                      data-testid="design-files-empty-create-design-system"
-                      onClick={onCreateDesignSystem}
-                      title={t('dsManager.createTitle')}
-                    >
-                      <Icon name="blocks" size={13} />
-                      <span>{t('dsManager.createTitle')}</span>
-                    </button>
-                  ) : null}
+                  <button
+                    type="button"
+                    className="df-empty-cta df-empty-cta-tertiary"
+                    data-testid="design-files-empty-create-document"
+                    onClick={onPaste}
+                    title={t('designFiles.paste.title')}
+                  >
+                    <Icon name="file" size={13} />
+                    <span>{t('designFiles.paste.label')}</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1314,6 +1347,20 @@ export function DesignFilesPanel({
           >
             {t('common.rename')}
           </button>
+          <button
+            type="button"
+            disabled={!files.some((file) => file.name === menuPos.name && file.localPath)}
+            onClick={(e) => {
+              e.stopPropagation();
+              const name = menuPos.name;
+              setMenuPos(null);
+              void copyLocalPath(name);
+            }}
+          >
+            {copiedLocalPath === menuPos.name
+              ? t('designFiles.copiedLocalPath')
+              : t('designFiles.copyLocalPath')}
+          </button>
           <a
             href={projectFileUrl(projectId, menuPos.name)}
             download={menuPos.name}
@@ -1380,7 +1427,12 @@ function DfPreview({
         {rendersSketchJson ? (
           <SketchPreview projectId={projectId} file={file} />
         ) : file.kind === 'image' || file.kind === 'sketch' ? (
-          <img src={`${url}?v=${Math.round(file.mtime)}`} alt={file.name} />
+          <img
+            src={`${url}?v=${Math.round(file.mtime)}`}
+            alt={file.name}
+            loading="lazy"
+            decoding="async"
+          />
         ) : file.kind === 'html' ? (
           <HtmlPreviewThumbnail projectId={projectId} file={file} />
         ) : file.kind === 'video' ? (
@@ -1393,19 +1445,7 @@ function DfPreview({
         ) : file.kind === 'audio' ? (
           <audio src={`${url}?v=${Math.round(file.mtime)}`} controls preload="metadata" />
         ) : (
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--text-faint)',
-              fontSize: 38,
-            }}
-          >
-            {categoryGlyph(fileCategory(file))}
-          </div>
+          <FilePreviewPlaceholder file={file} />
         )}
         {thumbCanOpen ? (
           <button
@@ -1447,31 +1487,57 @@ function HtmlPreviewThumbnail({
   projectId: string;
   file: ProjectFile;
 }) {
+  const t = useT();
+  const tooLargeForThumbnail = file.size > HTML_THUMBNAIL_INLINE_MAX_BYTES;
   const url = projectFileUrl(projectId, file.name);
   const [srcDoc, setSrcDoc] = useState<string | null>(null);
   useEffect(() => {
+    setSrcDoc(null);
+    if (tooLargeForThumbnail) return;
+    const controller = new AbortController();
     let cancelled = false;
-    void fetch(`${url}?v=${Math.round(file.mtime)}`)
+    void fetch(`${url}?v=${Math.round(file.mtime)}`, { signal: controller.signal })
       .then((response) => (response.ok ? response.text() : null))
       .then((html) => {
         if (cancelled || html === null) return;
-        setSrcDoc(buildSrcdoc(html, { baseHref: projectRawUrl(projectId, baseDirForFile(file.name)) }));
+        const nextSrcDoc = buildSrcdoc(html, { baseHref: projectRawUrl(projectId, baseDirForFile(file.name)) });
+        if (!cancelled) setSrcDoc(nextSrcDoc);
       })
-      .catch(() => {
+      .catch((err) => {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
         if (!cancelled) setSrcDoc(null);
       });
     return () => {
       cancelled = true;
+      controller.abort();
     };
-  }, [file.mtime, file.name, projectId, url]);
+  }, [file.mtime, file.name, projectId, tooLargeForThumbnail, url]);
+
+  if (tooLargeForThumbnail || srcDoc === null) {
+    return <FilePreviewPlaceholder file={file} title={t('designFiles.previewOpen')} />;
+  }
 
   return (
     <iframe
       title={file.name}
-      src={srcDoc ? undefined : url}
-      srcDoc={srcDoc ?? undefined}
+      srcDoc={srcDoc}
       sandbox="allow-scripts allow-downloads"
+      loading="lazy"
     />
+  );
+}
+
+function FilePreviewPlaceholder({
+  file,
+  title,
+}: {
+  file: ProjectFile;
+  title?: string;
+}) {
+  return (
+    <div className="df-preview-placeholder" title={title}>
+      {categoryGlyph(fileCategory(file))}
+    </div>
   );
 }
 
@@ -1519,6 +1585,46 @@ function categoryLabel(category: FileCategory, t: TranslateFn): string {
 function categoryGlyph(category: FileCategory): string {
   if (category === 'stylesheet') return '#';
   return kindGlyph(category);
+}
+
+function filesFromClipboardData(clipboardData: DataTransfer | null): File[] {
+  const files = Array.from(clipboardData?.files ?? []);
+  if (files.length > 0) return files.map(normalizePastedFile);
+  const items = Array.from(clipboardData?.items ?? []);
+  return items
+    .filter((item) => item.kind === 'file')
+    .flatMap((item) => {
+      const file = item.getAsFile();
+      return file ? [normalizePastedFile(file)] : [];
+    });
+}
+
+function normalizePastedFile(file: File): File {
+  if (file.name.trim()) return file;
+  const extension = extensionForMimeType(file.type);
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  return new File([file], `pasted-${stamp}${extension}`, {
+    type: file.type,
+    lastModified: file.lastModified,
+  });
+}
+
+function extensionForMimeType(mimeType: string): string {
+  if (mimeType === 'image/png') return '.png';
+  if (mimeType === 'image/jpeg') return '.jpg';
+  if (mimeType === 'image/gif') return '.gif';
+  if (mimeType === 'image/webp') return '.webp';
+  if (mimeType === 'image/svg+xml') return '.svg';
+  if (mimeType === 'text/html') return '.html';
+  if (mimeType === 'text/plain') return '.txt';
+  return '';
+}
+
+function shouldIgnoreClipboardFilePaste(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.closest('[contenteditable="true"]')) return true;
+  const tagName = target.tagName.toLowerCase();
+  return tagName === 'input' || tagName === 'textarea' || tagName === 'select';
 }
 
 async function filesFromDataTransfer(dataTransfer: DataTransfer): Promise<File[]> {

@@ -15,6 +15,12 @@ import type {
   ImportLocalDesignSystemRequest,
   ImportLocalDesignSystemResponse,
   ReplaceProjectWorkingDirResponse,
+  ProjectFileTextPreviewResponse,
+  ProjectFileVersion,
+  ProjectFileVersionSource,
+  ProjectFileVersionResponse,
+  ProjectFileVersionsResponse,
+  RestoreProjectFileVersionResponse,
   SocialShareRequest,
   SocialShareResponse,
 } from '@open-design/contracts';
@@ -22,6 +28,7 @@ import type {
   AgentInfo,
   AppVersionInfo,
   AppVersionResponse,
+  WhatsNewResponse,
   ChatAttachment,
   CodexPetSummary,
   CodexPetsResponse,
@@ -64,6 +71,7 @@ import type {
   UpdateDeployConfigRequest,
 } from '../types';
 import type { ArtifactManifest } from '../artifacts/types';
+import { GENERIC_DEPLOY_ENVELOPE_CODES } from '../analytics/deploy-error-code';
 import {
   isOpenDesignHostAvailable,
   openHostExternalUrl,
@@ -1229,6 +1237,24 @@ export async function fetchLatestGithubReleaseInfo(): Promise<LatestGithubReleas
   }
 }
 
+export async function fetchWhatsNew(): Promise<WhatsNewResponse | null> {
+  try {
+    const resp = await fetch('/api/whats-new');
+    if (!resp.ok) return null;
+    const json = (await resp.json()) as Partial<WhatsNewResponse>;
+    if (typeof json.version !== 'string') {
+      return null;
+    }
+    return {
+      version: json.version,
+      id: typeof json.id === 'string' ? json.id : null,
+      content: json.content ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export type SkillExampleResult =
   | { html: string }
   // The skill declares a non-HTML preview surface (image / markdown / …)
@@ -1353,9 +1379,19 @@ export async function deployProjectFile(
   });
   if (!resp.ok) {
     const payload = (await resp.json().catch(() => null)) as
-      | { error?: { message?: string }; message?: string }
+      | { error?: { message?: string; code?: string }; code?: string; message?: string }
       | null;
-    throw new Error(payload?.error?.message || payload?.message || `Deploy failed (${resp.status})`);
+    const message = payload?.error?.message || payload?.message || `Deploy failed (${resp.status})`;
+    // Preserve a queryable failure code for analytics (`deployErrorCode` reads
+    // `.code` first). The daemon deploy route (apps/daemon/src/routes/deploy.ts)
+    // collapses every non-404 failure's code to a generic `BAD_REQUEST` (and 404
+    // to `FILE_NOT_FOUND`) while keeping the REAL provider HTTP status on the
+    // response and the real message in the body — so ignore those envelope codes
+    // and fall back to `HTTP_${resp.status}`, which then buckets as HTTP_403 /
+    // HTTP_429 / HTTP_500 instead of collapsing every failure into one code.
+    const rawCode = payload?.error?.code || payload?.code;
+    const code = rawCode && !GENERIC_DEPLOY_ENVELOPE_CODES.has(rawCode) ? rawCode : `HTTP_${resp.status}`;
+    throw Object.assign(new Error(message), { code });
   }
   return (await resp.json()) as WebDeployProjectFileResponse;
 }
@@ -1595,11 +1631,11 @@ export async function deleteLiveArtifact(projectId: string, artifactId: string):
 
 async function readApiErrorBody(resp: Response): Promise<{ message: string; code?: string }> {
   try {
-    const json = (await resp.json()) as { error?: { code?: string; message?: string }; message?: string };
-    const message = json.error?.message ?? json.message;
+    const json = (await resp.json()) as { error?: { code?: string; message?: string } | string; message?: string };
+    const message = typeof json.error === 'string' ? json.error : json.error?.message ?? json.message;
     return {
       message: typeof message === 'string' && message.length > 0 ? message : `Request failed (${resp.status}).`,
-      ...(typeof json.error?.code === 'string' ? { code: json.error.code } : {}),
+      ...(typeof json.error === 'object' && typeof json.error?.code === 'string' ? { code: json.error.code } : {}),
     };
   } catch {
     return { message: `Request failed (${resp.status}).` };
@@ -1699,6 +1735,106 @@ export async function fetchProjectFileText(
   }
 }
 
+export async function fetchProjectFileTextPreview(
+  projectId: string,
+  name: string,
+  options?: { limit?: number; cacheBustKey?: string | number },
+): Promise<ProjectFileTextPreviewResponse | null> {
+  const segments = name
+    .split('/')
+    .filter((segment) => segment.length > 0)
+    .map(encodeURIComponent)
+    .join('/');
+  if (!segments) return null;
+  const params = new URLSearchParams();
+  if (options?.limit != null) params.set('limit', String(options.limit));
+  if (options?.cacheBustKey != null) params.set('cacheBust', String(options.cacheBustKey));
+  const query = params.toString();
+  const url = `/api/projects/${encodeURIComponent(projectId)}/text-preview/${segments}${query ? `?${query}` : ''}`;
+
+  try {
+    const resp = await fetch(url, { cache: 'no-store' });
+    if (!resp.ok) {
+      console.warn('[fetchProjectFileTextPreview] failed:', {
+        name,
+        projectId,
+        status: resp.status,
+        statusText: resp.statusText,
+        url,
+      });
+      return null;
+    }
+    return (await resp.json()) as ProjectFileTextPreviewResponse;
+  } catch (err) {
+    console.warn('[fetchProjectFileTextPreview] failed:', {
+      error: err,
+      name,
+      projectId,
+      url,
+    });
+    return null;
+  }
+}
+
+function projectFileVersionsUrl(projectId: string, name: string): string {
+  const safePath = name
+    .split('/')
+    .map((seg) => encodeURIComponent(seg))
+    .join('/');
+  return `/api/projects/${encodeURIComponent(projectId)}/files/${safePath}/versions`;
+}
+
+export async function fetchProjectFileVersions(
+  projectId: string,
+  name: string,
+): Promise<ProjectFileVersionsResponse | null> {
+  try {
+    const resp = await fetch(projectFileVersionsUrl(projectId, name), { cache: 'no-store' });
+    if (!resp.ok) return null;
+    return (await resp.json()) as ProjectFileVersionsResponse;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchProjectFileVersion(
+  projectId: string,
+  name: string,
+  versionId: string,
+): Promise<ProjectFileVersionResponse | null> {
+  try {
+    const resp = await fetch(
+      `${projectFileVersionsUrl(projectId, name)}/${encodeURIComponent(versionId)}`,
+      { cache: 'no-store' },
+    );
+    if (!resp.ok) return null;
+    return (await resp.json()) as ProjectFileVersionResponse;
+  } catch {
+    return null;
+  }
+}
+
+export async function restoreProjectFileVersion(
+  projectId: string,
+  name: string,
+  version: Pick<ProjectFileVersion, 'id'>,
+): Promise<RestoreProjectFileVersionResponse | null> {
+  try {
+    const resp = await fetch(
+      `${projectFileVersionsUrl(projectId, name)}/${encodeURIComponent(version.id)}/restore`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      },
+    );
+    if (!resp.ok) return null;
+    return (await resp.json()) as RestoreProjectFileVersionResponse;
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchPreviewComments(
   projectId: string,
   conversationId: string,
@@ -1780,7 +1916,12 @@ export async function writeProjectTextFile(
   projectId: string,
   name: string,
   content: string,
-  options?: { artifactManifest?: ArtifactManifest },
+  options?: {
+    artifactManifest?: ArtifactManifest;
+    versionSource?: ProjectFileVersionSource;
+    versionLabel?: string;
+    versionPrompt?: string | null;
+  },
 ): Promise<ProjectFile | null> {
   const result = await writeProjectTextFileDetailed(projectId, name, content, options);
   return result.ok ? result.file : null;
@@ -1794,13 +1935,25 @@ export async function writeProjectTextFileDetailed(
   projectId: string,
   name: string,
   content: string,
-  options?: { artifactManifest?: ArtifactManifest },
+  options?: {
+    artifactManifest?: ArtifactManifest;
+    versionSource?: ProjectFileVersionSource;
+    versionLabel?: string;
+    versionPrompt?: string | null;
+  },
 ): Promise<WriteProjectTextFileResult> {
   try {
     const resp = await fetch(`/api/projects/${encodeURIComponent(projectId)}/files`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, content, artifactManifest: options?.artifactManifest }),
+      body: JSON.stringify({
+        name,
+        content,
+        artifactManifest: options?.artifactManifest,
+        versionSource: options?.versionSource,
+        versionLabel: options?.versionLabel,
+        versionPrompt: options?.versionPrompt,
+      }),
     });
     if (!resp.ok) {
       const body = await readApiErrorBody(resp);
@@ -2044,13 +2197,22 @@ export async function renameProjectFile(
   return (await resp.json()) as RenameProjectFileResponse;
 }
 
-export async function openFolderDialog(): Promise<string | null> {
+export async function openFolderDialog(options: { throwOnError?: boolean } = {}): Promise<string | null> {
   try {
     const resp = await fetch('/api/dialog/open-folder', { method: 'POST' });
-    if (!resp.ok) return null;
+    if (!resp.ok) {
+      if (options.throwOnError) {
+        const errorBody = await readApiErrorBody(resp);
+        throw new Error(errorBody.message);
+      }
+      return null;
+    }
     const data = await resp.json();
     return typeof data.path === 'string' && data.path.length > 0 ? data.path : null;
-  } catch {
+  } catch (err) {
+    if (options.throwOnError) {
+      throw err instanceof Error ? err : new Error('Could not open folder picker');
+    }
     return null;
   }
 }

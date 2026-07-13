@@ -105,6 +105,78 @@ describe('NextStepActions', () => {
     expect(onPromptAction).toHaveBeenCalledWith(expect.stringContaining('refine this design system in place'));
   });
 
+  it('offers document handoff rows after plan mode produces only a document', () => {
+    const onPromptAction = vi.fn();
+    renderActions({
+      variant: 'plan',
+      fileName: 'plan.md',
+      planFileName: 'plan.md',
+      artifactFileName: null,
+      onPromptAction,
+    });
+
+    expect(screen.queryByText(AUTO_MATCH_TITLE)).toBeNull();
+    expect(screen.getByText(en['nextStep.planGenerateTitle'])).toBeTruthy();
+    expect(screen.getByText(en['nextStep.planImproveTitle'])).toBeTruthy();
+    expect(screen.queryByText(en['nextStep.planImproveArtifactTitle'])).toBeNull();
+
+    fireEvent.click(screen.getByTestId('next-step-plan-action-plan-generate-from-doc'));
+    expect(onPromptAction).toHaveBeenLastCalledWith(
+      expect.stringContaining('plan.md'),
+      { sessionMode: 'design' },
+    );
+
+    fireEvent.click(screen.getByTestId('next-step-plan-action-plan-improve-doc'));
+    expect(onPromptAction).toHaveBeenLastCalledWith(
+      expect.stringContaining('plan.md'),
+      { sessionMode: 'plan' },
+    );
+  });
+
+  it('offers artifact refinement after plan mode produces only an artifact', () => {
+    const onPromptAction = vi.fn();
+    renderActions({
+      variant: 'plan',
+      fileName: 'index.html',
+      planFileName: null,
+      artifactFileName: 'index.html',
+      onPromptAction,
+    });
+
+    expect(screen.queryByText(en['nextStep.planGenerateTitle'])).toBeNull();
+    expect(screen.queryByText(en['nextStep.planImproveTitle'])).toBeNull();
+    expect(screen.getByText(en['nextStep.planImproveArtifactTitle'])).toBeTruthy();
+
+    fireEvent.click(screen.getByTestId('next-step-plan-action-plan-improve-artifact'));
+    expect(onPromptAction).toHaveBeenLastCalledWith(
+      expect.stringContaining('index.html'),
+      { sessionMode: 'design' },
+    );
+  });
+
+  it('offers a document/artifact merge when plan mode produces both', () => {
+    const onPromptAction = vi.fn();
+    renderActions({
+      variant: 'plan',
+      fileName: 'plan.md',
+      planFileName: 'plan.md',
+      artifactFileName: 'index.html',
+      onPromptAction,
+    });
+
+    expect(screen.queryByText(en['nextStep.planGenerateTitle'])).toBeNull();
+    expect(screen.queryByText(en['nextStep.planImproveTitle'])).toBeNull();
+    expect(screen.getByText(en['nextStep.planMergeTitle'])).toBeTruthy();
+    expect(screen.getByText(en['nextStep.planImproveArtifactTitle'])).toBeTruthy();
+
+    fireEvent.click(screen.getByTestId('next-step-plan-action-plan-merge-doc-artifact'));
+    expect(onPromptAction).toHaveBeenLastCalledWith(
+      expect.stringContaining('plan.md'),
+      { sessionMode: 'design' },
+    );
+    expect(onPromptAction.mock.calls.at(-1)?.[0]).toContain('index.html');
+  });
+
   it('uses brand-extraction primary rows for programmatic brand projects', () => {
     const onAiOptimize = vi.fn();
     const onCreateDesign = vi.fn();
@@ -178,6 +250,8 @@ describe('NextStepActions', () => {
     expect(onPromptAction).toHaveBeenCalledWith(PROJECT_CONTINUE_PROMPT);
     fireEvent.click(screen.getByTestId('next-step-project-action-project-generate-artifact'));
     expect(onPromptAction).toHaveBeenCalledWith(PROJECT_GENERATE_ARTIFACT_PROMPT);
+    expect(PROJECT_GENERATE_ARTIFACT_PROMPT).toContain('semantic filename');
+    expect(PROJECT_GENERATE_ARTIFACT_PROMPT).not.toContain('usually index.html');
   });
 
   it('localizes incomplete-project recovery prompts in Chinese', () => {
@@ -196,8 +270,14 @@ describe('NextStepActions', () => {
     expect(onPromptAction).toHaveBeenCalledWith(
       expect.stringContaining('现在生成缺失的项目产物'),
     );
+    expect(onPromptAction).toHaveBeenCalledWith(
+      expect.stringContaining('语义化文件名'),
+    );
     expect(onPromptAction).not.toHaveBeenCalledWith(
       expect.stringContaining('Generate the missing project artifact now'),
+    );
+    expect(onPromptAction).not.toHaveBeenCalledWith(
+      expect.stringContaining('通常保存为 index.html'),
     );
   });
 

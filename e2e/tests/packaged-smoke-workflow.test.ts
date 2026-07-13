@@ -29,6 +29,12 @@ const bakePreviewsAutomergeWorkflowPath = join(
   "bake-plugin-previews-automerge.yml",
 );
 const bakePreviewsWorkflowPath = join(workspaceRoot, ".github", "workflows", "bake-plugin-previews.yml");
+const bakePreviewsReleaseWorkflowPath = join(
+  workspaceRoot,
+  ".github",
+  "workflows",
+  "bake-plugin-previews-release.yml",
+);
 const finalizeReleaseWorkflowPath = join(workspaceRoot, ".github", "workflows", "finalize-release.yml");
 const handoffScriptPath = join(workspaceRoot, ".github", "scripts", "handoff.py");
 const releaseBetaWorkflowPath = join(workspaceRoot, ".github", "workflows", "release-beta.yml");
@@ -36,6 +42,7 @@ const releaseBetaSelfHostedWorkflowPath = join(workspaceRoot, ".github", "workfl
 const releasePreviewWorkflowPath = join(workspaceRoot, ".github", "workflows", "release-preview.yml");
 const releasePrereleaseWorkflowPath = join(workspaceRoot, ".github", "workflows", "release-prerelease.yml");
 const releaseStableWorkflowPath = join(workspaceRoot, ".github", "workflows", "release-stable.yml");
+const releaseStableNotesScriptPath = join(workspaceRoot, ".github", "scripts", "release", "github", "stable-notes.sh");
 const releasePreviewScriptPath = join(workspaceRoot, "tools", "release", "src", "metadata", "prepare-preview.ts");
 const releaseStableScriptPath = join(workspaceRoot, "tools", "release", "src", "metadata", "prepare-stable.ts");
 const releaseBetaScriptPath = join(workspaceRoot, "tools", "release", "src", "metadata", "prepare-beta.ts");
@@ -43,6 +50,9 @@ const packagedPackageJsonPath = join(workspaceRoot, "apps", "packaged", "package
 const scopesScriptPath = join(workspaceRoot, "scripts", "scopes.ts");
 const runnersScriptPath = join(workspaceRoot, ".github", "scripts", "runners.py");
 const notifyDailyFeishuWorkflowPath = join(workspaceRoot, ".github", "workflows", "notify-daily-feishu.yml");
+const cutReleaseWorkflowPath = join(workspaceRoot, ".github", "workflows", "cut-release.yml");
+const cutPatchReleaseWorkflowPath = join(workspaceRoot, ".github", "workflows", "cut-patch-release.yml");
+const feishuNoticeScriptPath = join(workspaceRoot, "tools", "release", "src", "notifications", "feishu-notice.ts");
 const landingPageDailyFeishuWorkflowPath = join(workspaceRoot, ".github", "workflows", "landing-page-daily-feishu.yml");
 const landingPageProductionWorkflowPath = join(workspaceRoot, ".github", "workflows", "landing-page-production.yml");
 const landingPageDailyFeishuScriptPath = join(workspaceRoot, ".github", "scripts", "landing-page-daily-feishu.ts");
@@ -71,6 +81,35 @@ function sectionBetween(content: string, start: string, end: string): string {
   const endIndex = content.indexOf(end, startIndex + start.length);
   expect(endIndex).toBeGreaterThan(startIndex);
   return content.slice(startIndex, endIndex);
+}
+
+function extractWorkflowRunScript(workflow: string, stepName: string): string {
+  const marker = `      - name: ${stepName}`;
+  const start = workflow.indexOf(marker);
+  expect(start).toBeGreaterThanOrEqual(0);
+  const next = workflow.indexOf("\n      - ", start + marker.length);
+  const step = workflow.slice(start, next === -1 ? workflow.length : next);
+  const runStart = step.indexOf("        run: |\n");
+  expect(runStart).toBeGreaterThanOrEqual(0);
+  return step
+    .slice(runStart + "        run: |\n".length)
+    .split("\n")
+    .map((line) => line.replace(/^          /, ""))
+    .join("\n")
+    .trimEnd();
+}
+
+function parseGithubOutput(raw: string): Record<string, string> {
+  return Object.fromEntries(
+    raw
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .map((line) => {
+        const sep = line.indexOf("=");
+        expect(sep).toBeGreaterThan(0);
+        return [line.slice(0, sep), line.slice(sep + 1)];
+      }),
+  );
 }
 
 async function gitPatchId(mode: "--stable" | "--verbatim", diff: string): Promise<string> {
@@ -304,12 +343,40 @@ describe("packaged smoke workflow", () => {
     expect(dockerTrigger).not.toContain("branches: [main]");
     expect(dockerTrigger).not.toContain("- main");
     expect(commentWorkflow).toContain("workflows: [ci]");
-    expect(commentWorkflow).toContain("github.event.workflow_run.event == 'pull_request'");
+    // comment.atom consumes merge_group runs too, so the needs-validation gate can surface a
+    // queue-ejection notice on the PR; autofix/report stay pull_request-only trusted consumers.
+    expect(commentWorkflow).toContain(
+      "(github.event.workflow_run.event == 'pull_request' || github.event.workflow_run.event == 'merge_group')",
+    );
     expect(autofixWorkflow).toContain("workflows: [ci]");
     expect(autofixWorkflow).toContain("github.event.workflow_run.event == 'pull_request'");
+    expect(autofixWorkflow).not.toContain("merge_group");
     expect(autofixWorkflow).not.toContain("ci-nix");
     expect(reportWorkflow).toContain("workflows: [ci]");
     expect(reportWorkflow).toContain("github.event.workflow_run.event == 'pull_request'");
+    expect(reportWorkflow).not.toContain("merge_group");
+  });
+
+  it("[P2] surfaces a merge-queue needs-validation ejection as a PR comment handoff", async () => {
+    const [ciWorkflow, commentWorkflow] = await Promise.all([
+      readFile(ciWorkflowPath, "utf8"),
+      readFile(commentWorkflowPath, "utf8"),
+    ]);
+
+    // Producer: the merge_group gate emits a handoff/comment artifact for the labeled PR when
+    // it blocks, and uploads it on the failure path (the gate exits 1 exactly when it produces).
+    expect(ciWorkflow).toContain("<!-- merge-queue-needs-validation -->");
+    expect(ciWorkflow).toContain("emit_ejection_notice");
+    expect(ciWorkflow).toContain(
+      "if: ${{ failure() && steps.needs_validation_gate.outputs.comment_created == 'true' }}",
+    );
+
+    // Consumer: a merge_group run's head_sha is the queue's synthetic merge commit, so the atom
+    // binds merge_group artifacts to their producing run by run_id and skips the base-freshness
+    // check (PRs ahead in the queue move the base while the run completes).
+    expect(commentWorkflow).toContain('"$RUN_EVENT" = "merge_group"');
+    expect(commentWorkflow).toContain('"$artifact_run_id" != "$RUN_ID"');
+    expect(commentWorkflow).toContain('[ "$RUN_EVENT" != "merge_group" ] && [ "$current_base" != "$base_sha" ]');
   });
 
   it("[P2] gates the backport auto-merge follow-up as a trusted workflow_run consumer", async () => {
@@ -397,6 +464,8 @@ describe("packaged smoke workflow", () => {
     expect(workflow).toContain("workflow_dispatch:");
     expect(workflow).toContain("github.event_name == 'workflow_dispatch'");
     expect(workflow).toContain("github.event.workflow_run.conclusion == 'success'");
+    expect(workflow).toContain("github.repository == 'nexu-io/open-design'");
+    expect(workflow).not.toContain("github.event.workflow_run.conclusion != 'cancelled'");
 
     // It mints the privileged release App token for label deletion, branch push, PR + merge-queue.
     expect(workflow).toContain("actions/create-github-app-token");
@@ -428,10 +497,201 @@ describe("packaged smoke workflow", () => {
     expect(workflow).toContain("--add-reviewer nexu-io/core-maintainers");
     expect(workflow).toContain("--squash --auto --match-head-commit");
     expect(workflow).toContain("head_sha=$(git rev-parse HEAD)");
+    expect(workflow).toContain("git ls-remote --exit-code --heads origin \"$BRANCH\"");
 
     // The shipped release's backport label is cleaned up (tolerant of an already-deleted label).
     expect(workflow).toContain('label="backport release/v$VERSION"');
     expect(workflow).toContain("gh label delete");
+  });
+
+  it("[P2] resolves finalize-release shipped versions from the real workflow shell step", async () => {
+    const workflow = await readFile(finalizeReleaseWorkflowPath, "utf8");
+    const script = extractWorkflowRunScript(
+      workflow,
+      "Resolve the shipped version (latest published stable, or the dispatch tag)",
+    );
+
+    async function runResolve(args: {
+      event: "workflow_dispatch" | "workflow_run";
+      inputTag?: string;
+      state?: string;
+      ghExit?: boolean;
+    }): Promise<{ output: Record<string, string>; ghArgs: string[] }> {
+      const dir = await mkdtemp(join(tmpdir(), "od-finalize-resolve-"));
+      const ghPath = join(dir, "gh");
+      const jqPath = join(dir, "jq");
+      const outputPath = join(dir, "github-output");
+      const ghLogPath = join(dir, "gh-args.log");
+      await writeFile(
+        ghPath,
+        `#!/usr/bin/env node
+const fs = require("node:fs");
+fs.appendFileSync(process.env.FAKE_GH_LOG, process.argv.slice(2).join(" ") + "\\n");
+if (process.env.FAKE_GH_EXIT === "1") process.exit(1);
+process.stdout.write(process.env.FAKE_GH_STATE || "");
+`,
+      );
+      await chmod(ghPath, 0o755);
+      await writeFile(
+        jqPath,
+        `#!/usr/bin/env node
+const selector = process.argv[process.argv.length - 1];
+let input = "";
+process.stdin.on("data", (chunk) => { input += chunk; });
+process.stdin.on("end", () => {
+  const data = JSON.parse(input);
+  const key = selector.startsWith(".") ? selector.slice(1) : selector;
+  process.stdout.write(String(data[key]) + "\\n");
+});
+`,
+      );
+      await chmod(jqPath, 0o755);
+
+      try {
+        await execFileAsync("bash", ["-c", script], {
+          cwd: dir,
+          env: {
+            ...process.env,
+            EVENT: args.event,
+            INPUT_TAG: args.inputTag ?? "",
+            GITHUB_OUTPUT: outputPath,
+            PATH: `${dir}${delimiter}${process.env.PATH ?? ""}`,
+            FAKE_GH_LOG: ghLogPath,
+            FAKE_GH_STATE: args.state ?? "",
+            FAKE_GH_EXIT: args.ghExit ? "1" : "0",
+          },
+        });
+        const [rawOutput, rawGhArgs] = await Promise.all([
+          readFile(outputPath, "utf8").catch(() => ""),
+          readFile(ghLogPath, "utf8").catch(() => ""),
+        ]);
+        return {
+          output: parseGithubOutput(rawOutput),
+          ghArgs: rawGhArgs.split(/\r?\n/).filter(Boolean),
+        };
+      } finally {
+        await rm(dir, { recursive: true, force: true });
+      }
+    }
+
+    await expect(
+      runResolve({
+        event: "workflow_dispatch",
+        inputTag: "0.12.0",
+        state: JSON.stringify({ tagName: "open-design-v0.12.0", isDraft: false, isPrerelease: false }),
+      }),
+    ).resolves.toMatchObject({
+      output: {
+        skip: "false",
+        version: "0.12.0",
+        next: "0.12.1",
+        branch: "release-bot/bump-main-v0.12.1",
+      },
+      ghArgs: [expect.stringContaining("release view open-design-v0.12.0")],
+    });
+
+    await expect(
+      runResolve({
+        event: "workflow_dispatch",
+        inputTag: "open-design-v1.2.3",
+        state: JSON.stringify({ tagName: "open-design-v1.2.3", isDraft: false, isPrerelease: false }),
+      }),
+    ).resolves.toMatchObject({
+      output: { skip: "false", version: "1.2.3", next: "1.2.4" },
+      ghArgs: [expect.stringContaining("release view open-design-v1.2.3")],
+    });
+
+    for (const state of [
+      { tagName: "open-design-v0.12.0", isDraft: true, isPrerelease: false },
+      { tagName: "open-design-v0.12.0", isDraft: false, isPrerelease: true },
+      { tagName: "open-design-v0.12.0-beta.1", isDraft: false, isPrerelease: false },
+    ]) {
+      await expect(runResolve({ event: "workflow_run", state: JSON.stringify(state) })).resolves.toMatchObject({
+        output: { skip: "true" },
+      });
+    }
+
+    await expect(runResolve({ event: "workflow_run", ghExit: true })).resolves.toMatchObject({
+      output: { skip: "true" },
+    });
+  });
+
+  it("[P2] bumps only synchronized workspace manifests in finalize-release", async () => {
+    const workflow = await readFile(finalizeReleaseWorkflowPath, "utf8");
+    const script = extractWorkflowRunScript(workflow, "Bump main's synchronized workspace versions");
+    const dir = await mkdtemp(join(tmpdir(), "od-finalize-bump-"));
+    const outputPath = join(dir, "github-output");
+    const writeJson = (relativePath: string, value: unknown) =>
+      writeFile(join(dir, relativePath), `${JSON.stringify(value, null, 2)}\n`);
+
+    try {
+      await Promise.all([
+        mkdir(join(dir, "apps", "web"), { recursive: true }),
+        mkdir(join(dir, "packages", "platform"), { recursive: true }),
+        mkdir(join(dir, "packages", "components"), { recursive: true }),
+        mkdir(join(dir, "tools", "dev"), { recursive: true }),
+        mkdir(join(dir, "e2e"), { recursive: true }),
+      ]);
+      await Promise.all([
+        writeJson("package.json", { name: "root", version: "0.12.0", dependencies: { untouched: "0.12.0" } }),
+        writeJson("apps/web/package.json", { name: "@open-design/web", version: "0.12.0" }),
+        writeJson("packages/platform/package.json", { name: "@open-design/platform", version: "0.12.0" }),
+        writeJson("packages/components/package.json", { name: "@open-design/components", version: "0.5.0" }),
+        writeJson("tools/dev/package.json", { name: "@open-design/dev", version: "0.12.0" }),
+        writeJson("e2e/package.json", { name: "@open-design/e2e", version: "0.12.0" }),
+      ]);
+
+      await execFileAsync("bash", ["-c", script], {
+        cwd: dir,
+        env: { ...process.env, NEXT: "0.12.1", GITHUB_OUTPUT: outputPath },
+      });
+
+      await expect(readFile(outputPath, "utf8")).resolves.toContain("changed=true");
+      await expect(readFile(join(dir, "package.json"), "utf8").then(JSON.parse)).resolves.toMatchObject({
+        version: "0.12.1",
+        dependencies: { untouched: "0.12.0" },
+      });
+      await expect(readFile(join(dir, "apps", "web", "package.json"), "utf8").then(JSON.parse)).resolves.toMatchObject({
+        version: "0.12.1",
+      });
+      await expect(readFile(join(dir, "packages", "platform", "package.json"), "utf8").then(JSON.parse)).resolves.toMatchObject({
+        version: "0.12.1",
+      });
+      await expect(readFile(join(dir, "tools", "dev", "package.json"), "utf8").then(JSON.parse)).resolves.toMatchObject({
+        version: "0.12.1",
+      });
+      await expect(readFile(join(dir, "e2e", "package.json"), "utf8").then(JSON.parse)).resolves.toMatchObject({
+        version: "0.12.1",
+      });
+      await expect(readFile(join(dir, "packages", "components", "package.json"), "utf8").then(JSON.parse)).resolves.toMatchObject({
+        version: "0.5.0",
+      });
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("[P2] keeps finalize-release version bumps forward-only", async () => {
+    const workflow = await readFile(finalizeReleaseWorkflowPath, "utf8");
+    const script = extractWorkflowRunScript(workflow, "Bump main's synchronized workspace versions");
+    const dir = await mkdtemp(join(tmpdir(), "od-finalize-bump-noop-"));
+    const outputPath = join(dir, "github-output");
+
+    try {
+      await writeFile(join(dir, "package.json"), `${JSON.stringify({ name: "root", version: "0.12.2" }, null, 2)}\n`);
+
+      await execFileAsync("bash", ["-c", script], {
+        cwd: dir,
+        env: { ...process.env, NEXT: "0.12.1", GITHUB_OUTPUT: outputPath },
+      });
+
+      await expect(readFile(outputPath, "utf8")).resolves.toContain("changed=false");
+      await expect(readFile(join(dir, "package.json"), "utf8").then(JSON.parse)).resolves.toMatchObject({
+        version: "0.12.2",
+      });
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
   });
 
   it("[P2] keeps the backport patch-equivalence gate whitespace-sensitive", async () => {
@@ -583,6 +843,32 @@ describe("packaged smoke workflow", () => {
     expect(workflow).not.toContain("git/ref/heads/main");
   });
 
+  it("[P2] keeps the release-cut bake pushing its manifest as a ruleset bypass bot", async () => {
+    // release/** is guarded by the "Protected branches (preview/*, release/v*)" ruleset whose
+    // pull_request rule rejects a direct push (GH013) unless the pusher is a bypass actor. The
+    // release-cut bake writes the authoritative manifest straight onto the release branch, so it
+    // must push as open-design-bot — a bypass actor on that ruleset — not github-actions[bot],
+    // which is NOT and gets rejected (this stranded release/v0.14.2's manifest). These three auth
+    // invariants only work together; a refactor that drops any one silently reintroduces the
+    // GH013 regression, so lock them here rather than rely on YAML review.
+    const workflow = await readFile(bakePreviewsReleaseWorkflowPath, "utf8");
+
+    // 1. Checkout must NOT persist GITHUB_TOKEN: its http.extraheader would override the inline bot
+    //    token on push and re-authenticate as github-actions[bot] (the same override fixed in the
+    //    post-merge bake — #5357).
+    expect(workflow).toContain("persist-credentials: false");
+    // 2. The run mints an open-design-bot token via the BOT_APP_* creds — the App that IS a bypass
+    //    actor on the release ruleset. RELEASE_BOT_APP_ID (used by the post-merge bake) is a
+    //    different App and is NOT a bypass actor, so pin the correct credentials, not just the
+    //    generic token action.
+    expect(workflow).toContain("actions/create-github-app-token");
+    expect(workflow).toContain("secrets.BOT_APP_CLIENT_ID");
+    expect(workflow).toContain("secrets.BOT_APP_PRIVATE_KEY");
+    // 3. The manifest push goes through the explicit tokenized URL with that bot token, so it
+    //    authenticates as the bypass actor rather than the checkout's default credential.
+    expect(workflow).toContain("x-access-token:${BOT_TOKEN}");
+  });
+
   it("[P2] keeps PR and merge queue CI separated by hot/full validation mode", async () => {
     const workflow = await readFile(ciWorkflowPath, "utf8");
     const scopes = sectionBetween(workflow, "  scopes:", "  static_gate:");
@@ -709,6 +995,7 @@ describe("packaged smoke workflow", () => {
       "ui/project-management-flows.test.ts",
       "ui/workspace-keyboard-flows.test.ts",
     ]);
+    expect(uiP0Groups["project-workspace"].workers).toBe(1);
     expect(visual).toContain("fromJSON(needs.runners.outputs.runs_on).visual_hot");
     expect(visual).toContain("toJSON(fromJSON(needs.runners.outputs.runs_on).visual_hot)");
     expect(workflow).not.toContain("needs.runners.outputs.contabo_control");
@@ -1003,6 +1290,38 @@ describe("packaged smoke workflow", () => {
     expect(prereleaseWorkflow).toContain("Required when ref is not release/vX.Y.Z");
   });
 
+  it("[P2] publishes release notes through one channel-neutral tools-release pipeline", async () => {
+    const workflows = await Promise.all([
+      readFile(releaseBetaWorkflowPath, "utf8"),
+      readFile(releaseBetaSelfHostedWorkflowPath, "utf8"),
+      readFile(releasePrereleaseWorkflowPath, "utf8"),
+      readFile(releasePreviewWorkflowPath, "utf8"),
+      readFile(releaseStableWorkflowPath, "utf8"),
+    ]);
+
+    for (const workflow of workflows) {
+      expect(workflow).toContain("tools-release prepare-release-note");
+      expect(workflow).toContain("tools-release publish-release-note");
+      expect(workflow).toContain("tools-release verify-release-note");
+      expect(workflow).toContain("RELEASE_NOTE_MANIFEST_PATH:");
+      expect(workflow.indexOf("tools-release prepare-release-note")).toBeLessThan(
+        workflow.indexOf("tools-release publish-release-note"),
+      );
+      expect(workflow.indexOf("tools-release publish-release-note")).toBeLessThan(
+        workflow.indexOf("tools-release verify-release-note"),
+      );
+      expect(workflow.indexOf("tools-release verify-release-note")).toBeLessThan(
+        workflow.indexOf("tools-release publish-metadata"),
+      );
+    }
+
+    const stableWorkflow = workflows[4] ?? "";
+    expect(stableWorkflow).toContain("Validate stable release note policy");
+    expect(stableWorkflow).toContain(
+      "RELEASE_PUBLISH_SIDE_EFFECTS: ${{ needs.metadata.outputs.publish_side_effects_enabled }}",
+    );
+  });
+
   it("[P2] requires stable release dispatch to use the release version branch", async () => {
     const [workflow, script] = await Promise.all([
       readFile(releaseStableWorkflowPath, "utf8"),
@@ -1109,6 +1428,99 @@ describe("packaged smoke workflow", () => {
     expect(resolveJob).not.toContain("refs/heads/release/v*");
   });
 
+  it("[P2] gates the Thursday patch cut on the Tuesday minor being published", async () => {
+    // cut-patch-release is the Tuesday cut-release flow, one weekday later, with a
+    // PATCH bump and a publish guard. Lock the three properties that make it safe:
+    //   1. It fires Thursday and bumps patch (not minor) from the highest release branch.
+    //   2. It only cuts when this line's minor base X.Y.0 is a PUBLISHED stable
+    //      GitHub Release (non-draft, non-prerelease) — otherwise it must NOT create
+    //      a branch or build; it posts a Feishu notice and stops.
+    //   3. The happy path still cuts from main and pushes with the App token, so the
+    //      existing notify-release-feishu push trigger produces the prerelease + card.
+    const [workflow, notice] = await Promise.all([
+      readFile(cutPatchReleaseWorkflowPath, "utf8"),
+      readFile(feishuNoticeScriptPath, "utf8"),
+    ]);
+
+    // Thursday cron, and a patch (not minor) bump.
+    const trigger = sectionBetween(workflow, "on:", "\npermissions:");
+    expect(trigger).toContain("cron: '0 1 * * 4'");
+    expect(workflow).toContain('V="${major}.${minor}.$((patch+1))"');
+    expect(workflow).not.toContain("minor+1");
+
+    // The guard target (MINOR_BASE) must derive from the FINAL version V, not from
+    // the highest branch — otherwise a manual `version=` on another line is gated
+    // against the wrong minor (e.g. version=0.15.1 while latest is 0.14.0 would
+    // wrongly check open-design-v0.14.0). Assert V's own major/minor drive it.
+    expect(workflow).toContain('vmajor=${V%%.*}; vrest=${V#*.}; vminor=${vrest%%.*}');
+    expect(workflow).toContain('MINOR_BASE="${vmajor}.${vminor}.0"');
+    expect(workflow).not.toContain('MINOR_BASE="${major}.${minor}.0"');
+
+    // The guard reads the minor base's stable release and requires it published
+    // (neither draft nor prerelease); a missing release falls back to not published.
+    const guard = sectionBetween(workflow, "- name: Check the Tuesday minor is published", "# ---- Skip path");
+    expect(guard).toContain('gh release view "$MINOR_TAG"');
+    expect(guard).toContain("--jq '(.isDraft or .isPrerelease) | not'");
+    expect(guard).toContain("|| published=false");
+    expect(workflow).toContain('echo "minor_tag=open-design-v$MINOR_BASE"');
+
+    // Skip path: no branch, no build — only the Feishu notice runs, gated on !published.
+    const noticeStep = sectionBetween(workflow, "- name: Notify Feishu that the patch cut was skipped", "- name: Stop here when skipping");
+    expect(noticeStep).toContain("if: steps.guard.outputs.published != 'true'");
+    expect(noticeStep).toContain("tools/release/src/notifications/feishu-notice.ts");
+    // Every branch-cutting step must be gated on the guard passing: assert the
+    // guard `if:` is the line immediately after each step name.
+    for (const step of ["Bail out if the branch already exists", "Create branch + bump version + push", "Create backport label"]) {
+      expect(workflow).toContain(`- name: ${step}\n        if: steps.guard.outputs.published == 'true'`);
+    }
+
+    // Happy path keeps cut-release's mechanics: cut from main, App-token push.
+    expect(workflow).toContain("ref: main");
+    expect(workflow).toContain("token: ${{ steps.app.outputs.token }}");
+    expect(workflow).toContain('git push origin "$BRANCH"');
+    // The version bump is a no-op whenever main already leads stable by this exact
+    // patch (apps/packaged == $VERSION), so the release commit MUST tolerate an empty
+    // tree — otherwise `git commit` dies on "nothing to commit" and no branch is cut.
+    expect(workflow).toContain('git commit --allow-empty -am "chore(release): v$VERSION"');
+
+    // The notice card is a standalone poster with the same signed-webhook contract.
+    expect(notice).toContain("msg_type: \"interactive\"");
+    expect(notice).toContain('required("NOTICE_TITLE")');
+    expect(notice).toContain('required("NOTICE_BODY")');
+  });
+
+  it("[P2] posts an immediate branch-cut Feishu card naming the backport label on both cut workflows", async () => {
+    // Cutting a release branch triggers a ~20-40 min prerelease build before the
+    // download card lands, so both cut workflows post an eager "branch cut" notice
+    // the moment the branch exists. Each must: reuse feishu-notice.ts, run AFTER the
+    // branch push + label creation, and name the exact backport label so the team
+    // knows which label to apply for backports.
+    const [minorCut, patchCut] = await Promise.all([
+      readFile(cutReleaseWorkflowPath, "utf8"),
+      readFile(cutPatchReleaseWorkflowPath, "utf8"),
+    ]);
+
+    for (const [label, workflow, kind] of [
+      ["cut-release (minor)", minorCut, "大版本 minor"],
+      ["cut-patch-release (patch)", patchCut, "小版本 patch"],
+    ] as const) {
+      const step = sectionBetween(workflow, "- name: Notify Feishu that the branch was cut", "\n        run:");
+      // Same standalone notifier + the shared release webhook/secret.
+      expect(workflow, label).toContain("run: node --experimental-strip-types tools/release/src/notifications/feishu-notice.ts");
+      expect(step, label).toContain("FEISHU_WEBHOOK: ${{ secrets.FEISHU_RELEASE_WEBHOOK }}");
+      // Names the version's backport label in the card body.
+      expect(step, label).toContain("backport release/v${{ steps.ver.outputs.version }}");
+      // Distinguishes major vs minor cut.
+      expect(step, label).toContain(kind);
+      // The eager card must come AFTER the branch is actually cut + pushed.
+      expect(workflow.indexOf("- name: Notify Feishu that the branch was cut"), label)
+        .toBeGreaterThan(workflow.indexOf('git push origin "$BRANCH"'));
+    }
+    // The patch workflow's eager card only fires on the happy (published) path.
+    const patchNotice = sectionBetween(patchCut, "- name: Notify Feishu that the branch was cut", "\n        run:");
+    expect(patchNotice).toContain("if: steps.guard.outputs.published == 'true'");
+  });
+
   it("[P2] sends the daily landing PR summary to Feishu with staging deployment status", async () => {
     const [workflow, productionWorkflow, script] = await Promise.all([
       readFile(landingPageDailyFeishuWorkflowPath, "utf8"),
@@ -1161,21 +1573,26 @@ describe("packaged smoke workflow", () => {
     expect(script).toContain(".github/workflows/landing-page-staging.yml");
   });
 
-  it("[P2] supports stable dry-run metadata and prepublish boundaries", async () => {
+  it("[P2] supports stable metadata, prepublish, and publish dispatch modes", async () => {
     const [workflow, script] = await Promise.all([
       readFile(releaseStableWorkflowPath, "utf8"),
       readFile(releaseStableScriptPath, "utf8"),
     ]);
 
     expect(workflow).toContain("dry_run:");
-    expect(workflow).toContain("Dry-run boundary to validate. metadata stops after promotion metadata; prepublish runs build/smoke/report/plan without publishing.");
+    expect(workflow).toContain(
+      "Release mode. metadata stops after promotion metadata; prepublish runs build/smoke/report/plan without publishing; publish performs the stable release.",
+    );
     expect(workflow).toContain("group: open-design-release-stable-${{ inputs.dry_run }}");
     expect(workflow).toContain("type: choice");
     expect(workflow).toContain("- metadata");
     expect(workflow).toContain("- prepublish");
+    expect(workflow).toContain("- publish");
     expect(workflow).toContain("default: metadata");
     expect(workflow).not.toContain("inputs.channel");
-    expect(workflow).toContain("OPEN_DESIGN_RELEASE_DRY_RUN: ${{ inputs.dry_run }}");
+    expect(workflow).toContain("OPEN_DESIGN_RELEASE_DRY_RUN: ${{ inputs.dry_run == 'publish' && 'false' || inputs.dry_run }}");
+    expect(workflow).toContain("RELEASE_PUBLIC_ORIGIN: ${{ vars.CLOUDFLARE_R2_RELEASES_PUBLIC_ORIGIN }}");
+    expect(workflow).toContain("run: bash .github/scripts/release/github/stable-notes.sh");
     expect(workflow).toContain("dry_run: ${{ steps.stable.outputs.dry_run }}");
     expect(workflow).toContain("dry_run_mode: ${{ steps.stable.outputs.dry_run_mode }}");
     expect(workflow).toContain("if: ${{ needs.metadata.outputs.run_prepublish_jobs == 'true' }}");
@@ -1187,6 +1604,43 @@ describe("packaged smoke workflow", () => {
     expect(script).toContain('setOutput("dry_run_mode", stableDryRunMode);');
     expect(script).toContain('setOutput("run_prepublish_jobs", runPrepublishJobs ? "true" : "false");');
     expect(script).toContain('setOutput("publish_side_effects_enabled", publishSideEffectsEnabled ? "true" : "false");');
+  });
+
+  it("[P2] writes stable release notes from the release public origin variable", async () => {
+    for (const [envName, origin] of [
+      ["RELEASE_PUBLIC_ORIGIN", "https://releases.open-design.ai/current/"],
+      ["CLOUDFLARE_R2_RELEASES_PUBLIC_ORIGIN", "https://releases.open-design.ai/legacy/"],
+    ] as const) {
+      const runnerTemp = await mkdtemp(join(tmpdir(), "od-stable-notes-"));
+      const outputPath = join(runnerTemp, "github-output.txt");
+
+      try {
+        await execFileAsync("bash", [releaseStableNotesScriptPath], {
+          cwd: workspaceRoot,
+          env: {
+            ...process.env,
+            BRANCH_NAME: "release/v0.13.0",
+            CLOUDFLARE_R2_RELEASES_PUBLIC_ORIGIN: envName === "CLOUDFLARE_R2_RELEASES_PUBLIC_ORIGIN" ? origin : "",
+            GITHUB_OUTPUT: outputPath,
+            GITHUB_REPOSITORY: "nexu-io/open-design",
+            GITHUB_SHA: "0123456789abcdef0123456789abcdef01234567",
+            RELEASE_CHANNEL: "stable",
+            RELEASE_PUBLIC_ORIGIN: envName === "RELEASE_PUBLIC_ORIGIN" ? origin : "",
+            RELEASE_SIGNED: "true",
+            RELEASE_VERSION: "0.13.0",
+            RUNNER_TEMP: runnerTemp,
+            VERSION_TAG: "open-design-v0.13.0",
+          },
+        });
+
+        const outputs = parseGithubOutput(await readFile(outputPath, "utf8"));
+        const notes = await readFile(outputs.notes_file ?? "", "utf8");
+        expect(notes).toContain(`R2 metadata: ${origin.replace(/\/+$/, "")}/stable/latest/metadata.json`);
+        expect(notes).toContain(`E2E report: ${origin.replace(/\/+$/, "")}/stable/versions/0.13.0/report.zip`);
+      } finally {
+        await rm(runnerTemp, { force: true, recursive: true });
+      }
+    }
   });
 
   it("[P2] validates stable dry-run prerelease metadata from a release branch", async () => {
