@@ -648,6 +648,38 @@ export function registerChatRoutes(app: Express, ctx: RegisterChatRoutesDeps) {
   // `anthropic-beta` header is required.
   const ANTHROPIC_CACHE_CONTROL = { type: 'ephemeral' as const };
 
+  // Incremental conversation caching. A `cache_control` breakpoint on the LAST
+  // message caches the whole prefix up to and including it; on the NEXT turn
+  // (when this message has become part of the stable history) that prefix is
+  // read from cache instead of re-billed. Combined with the system/tools
+  // breakpoints, this caches the growing conversation body — including any
+  // attached project file, which the web client now inlines once at a stable
+  // position rather than re-sending on the newest message each turn. Anthropic
+  // allows up to 4 breakpoints; we use at most 3 (tools + system + last msg).
+  // The array/string content split keeps the BYOK tool loop (whose messages
+  // carry tool_use / tool_result blocks) intact.
+  const withTrailingMessageCacheBreakpoint = (messages: any[]): any[] => {
+    if (messages.length === 0) return messages;
+    const out = messages.slice();
+    const last = out[out.length - 1];
+    if (!last || typeof last !== 'object') return messages;
+    const content = last.content;
+    if (typeof content === 'string') {
+      out[out.length - 1] = {
+        ...last,
+        content: [{ type: 'text', text: content, cache_control: ANTHROPIC_CACHE_CONTROL }],
+      };
+    } else if (Array.isArray(content) && content.length > 0) {
+      const blocks = content.slice();
+      const lastBlock = blocks[blocks.length - 1];
+      if (lastBlock && typeof lastBlock === 'object') {
+        blocks[blocks.length - 1] = { ...lastBlock, cache_control: ANTHROPIC_CACHE_CONTROL };
+        out[out.length - 1] = { ...last, content: blocks };
+      }
+    }
+    return out;
+  };
+
   const buildAnthropicChatPayload = (
     model: string,
     systemPrompt: unknown,
@@ -658,7 +690,7 @@ export function registerChatRoutes(app: Express, ctx: RegisterChatRoutesDeps) {
       model,
       max_tokens:
         typeof maxTokens === 'number' && maxTokens > 0 ? maxTokens : 8192,
-      messages: Array.isArray(messages) ? messages : [],
+      messages: withTrailingMessageCacheBreakpoint(Array.isArray(messages) ? messages : []),
       stream: true,
     };
     if (typeof systemPrompt === 'string' && systemPrompt) {

@@ -194,6 +194,57 @@ describe('historyWithApiAttachmentContext', () => {
     expect(mockedFetchProjectFilePreview).toHaveBeenCalledWith('project-1', 'report.pdf');
     expect(history[0]?.content).toContain('Quarterly results');
   });
+
+  it('inlines a file kept attached across turns only once and references it later', async () => {
+    mockedFetchProjectFileText.mockResolvedValue('<h1>Landing</h1>');
+
+    const history = await historyWithApiAttachmentContext(
+      [
+        userMessage('msg-1', 'Start the landing page', [
+          { path: 'landing.html', name: 'landing.html', kind: 'file' },
+        ]),
+        assistantMessage('a-1', 'Working on it'),
+        userMessage('msg-2', 'Make the hero bigger', [
+          { path: 'landing.html', name: 'landing.html', kind: 'file' },
+        ]),
+      ],
+      'msg-2',
+      'project-1',
+      [projectFile('landing.html', 'html')],
+    );
+
+    // Full body inlined once, at the earliest (stable) turn.
+    expect(history[0]?.content).toContain('### Attachment 1: landing.html');
+    expect(history[0]?.content).toContain('<h1>Landing</h1>');
+    // Later turn references it instead of re-sending the body.
+    expect(history[2]?.content).toContain('### Attachment 2: landing.html');
+    expect(history[2]?.content).toContain('Same file as Attachment 1 above');
+    expect(history[2]?.content).not.toContain('<h1>Landing</h1>');
+    // Body fetched exactly once — the repeat occurrence is not re-read.
+    expect(mockedFetchProjectFileText).toHaveBeenCalledTimes(1);
+  });
+
+  it('still inlines two DIFFERENT files in full', async () => {
+    mockedFetchProjectFileText.mockImplementation(async (_project, path) =>
+      path === 'a.html' ? '<h1>A</h1>' : '<h1>B</h1>',
+    );
+
+    const history = await historyWithApiAttachmentContext(
+      [
+        userMessage('msg-1', 'Use both', [
+          { path: 'a.html', name: 'a.html', kind: 'file', order: 0 },
+          { path: 'b.html', name: 'b.html', kind: 'file', order: 1 },
+        ]),
+      ],
+      'msg-1',
+      'project-1',
+      [projectFile('a.html', 'html'), projectFile('b.html', 'html')],
+    );
+
+    expect(history[0]?.content).toContain('<h1>A</h1>');
+    expect(history[0]?.content).toContain('<h1>B</h1>');
+    expect(history[0]?.content).not.toContain('Same file as Attachment');
+  });
 });
 
 function userMessage(
@@ -208,6 +259,10 @@ function userMessage(
     createdAt: 1,
     attachments,
   };
+}
+
+function assistantMessage(id: string, content: string): ChatMessage {
+  return { id, role: 'assistant', content, createdAt: 1 };
 }
 
 function projectFile(path: string, kind: ProjectFile['kind']): ProjectFile {

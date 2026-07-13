@@ -358,6 +358,45 @@ describe('API proxy routes', () => {
     ]);
   });
 
+  // Incremental conversation caching: the LAST message carries a cache_control
+  // breakpoint so the whole prefix up to it is cached and read on the next turn
+  // (once it becomes stable history). This is what caches the conversation body,
+  // including an attached project file the web client inlines at a stable
+  // position, instead of re-billing it every turn.
+  it('puts a cache_control breakpoint on the last Anthropic message', async () => {
+    const fetchMock = vi.fn((input: FetchInput, init?: FetchInit) => {
+      const url = String(input);
+      if (url.startsWith(baseUrl)) return realFetch(input, init);
+      return Promise.resolve(sseResponse('event: message_stop\ndata: {}\n\n'));
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    await realFetch(`${baseUrl}/api/proxy/anthropic/stream`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        baseUrl: 'https://api.anthropic.com',
+        apiKey: 'sk-ant',
+        model: 'claude-test',
+        messages: [
+          { role: 'user', content: 'first' },
+          { role: 'assistant', content: 'ok' },
+          { role: 'user', content: 'second' },
+        ],
+      }),
+    });
+
+    const [, upstreamInit] = fetchMock.mock.calls[0]!;
+    const body = JSON.parse(String(upstreamInit?.body));
+    // Only the last message is wrapped with a cache breakpoint.
+    expect(body.messages[body.messages.length - 1].content).toEqual([
+      { type: 'text', text: 'second', cache_control: { type: 'ephemeral' } },
+    ]);
+    // Earlier messages are left untouched (plain string content).
+    expect(body.messages[0].content).toBe('first');
+    expect(body.messages[1].content).toBe('ok');
+  });
+
   // Regression: appendVersionedApiPath needs to thread three shapes:
   //   * bare host                  → inject /v1 (api.openai.com)
   //   * sub-path containing /vN    → no inject (api.deepinfra.com/v1/openai)
