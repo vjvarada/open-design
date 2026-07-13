@@ -167,7 +167,7 @@ const TOOL_DEFS = [
   {
     name: 'get_artifact',
     description:
-      'PREFER THIS over multiple get_file calls. Bundles the entry file plus every sibling it references (HTML <script>/<link>/<img>/srcset, JSX import/require, CSS url()/@import) up to depth 3, skipping CDN/data URLs. include="all" returns every file in the project; include="shallow" returns just the entry.',
+      'Bundles the entry file plus every sibling it references (HTML <script>/<link>/<img>/srcset, JSX import/require, CSS url()/@import) up to depth 3, skipping CDN/data URLs. Use this when you need to understand or extend a whole multi-file design in one call — it saves the round-trips of many get_file reads. For a targeted lookup or a single-file edit, prefer search_files + get_file so you do not pull the whole project into context. include="all" returns every file in the project; include="shallow" returns just the entry.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -185,7 +185,7 @@ const TOOL_DEFS = [
         maxBytes: {
           type: 'number',
           description:
-            'Soft cap on total text bytes (default 1_500_000). Also capped at 200 files. Excess files are dropped and truncated:true is set.',
+            'Soft cap on total text bytes (default 300_000 ≈ 75k tokens). Also capped at 200 files. Excess files are dropped and truncated:true is set — raise maxBytes explicitly if you truly need a larger bundle.',
         },
       },
       additionalProperties: false,
@@ -529,8 +529,11 @@ export async function runMcpStdio({ daemonUrl }: RunMcpOptions): Promise<void> {
         'Pulling design context:',
         ' - get_artifact() - entry file PLUS every referenced sibling',
         '    (tokens CSS, JSX modules, imported assets) in one call.',
-        '    PREFER THIS over multiple get_file calls when the user',
-        '    wants to understand or extend a design.',
+        '    Use it when you need the WHOLE multi-file design at once',
+        '    (understand or extend it) — it saves the round-trips of',
+        '    many get_file reads. For a targeted lookup or single-file',
+        '    edit, use search_files + get_file instead so you do not',
+        '    pull the whole project into context.',
         ' - get_file(path) for a single known file. Returns up to 2000',
         '    lines starting at offset (default 0) and stamps a',
         '    [od:file-window ...] marker when the file is longer; page',
@@ -1551,7 +1554,12 @@ function formatActiveEchoLine(active: ActiveContext, resolvedPath: string): stri
 }
 
 const VALID_INCLUDE_MODES = new Set(['auto', 'all', 'shallow']);
-const DEFAULT_MAX_BYTES = 1_500_000;
+// Soft cap on total text bytes returned by a single get_artifact bundle.
+// ~300 KB ≈ 75k tokens: generous enough that real multi-file designs are never
+// truncated, tight enough to stop a pathological project from dumping hundreds
+// of KB (the old 1.5 MB default was ~375k tokens — a whole small-context window
+// in one tool result). Callers can raise it explicitly via maxBytes.
+const DEFAULT_MAX_BYTES = 300_000;
 const MAX_FILES = 200;
 
 // Tracks total textual content bytes accumulated; binary stubs don't

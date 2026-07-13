@@ -637,6 +637,17 @@ export function registerChatRoutes(app: Express, ctx: RegisterChatRoutesDeps) {
   // wire/SSE handling lives here once. The OpenAI tool loop stays in
   // registerByokToolChatProxy.
 
+  // Anthropic prompt caching. The composed OD system prompt is large (~10k-30k
+  // tokens with an active design system) and byte-identical across every turn of
+  // a session, yet without a breakpoint it is re-billed as fresh input each turn.
+  // A single `cache_control` breakpoint on the system block caches the whole
+  // static prefix — Anthropic caches in `tools -> system -> messages` order, so
+  // marking `system` also caches the tool definitions in front of it. Blocks
+  // shorter than the model minimum (1024 tokens; 2048 on Haiku) are silently not
+  // cached, so this is safe to apply unconditionally. Caching is GA, so no
+  // `anthropic-beta` header is required.
+  const ANTHROPIC_CACHE_CONTROL = { type: 'ephemeral' as const };
+
   const buildAnthropicChatPayload = (
     model: string,
     systemPrompt: unknown,
@@ -651,7 +662,13 @@ export function registerChatRoutes(app: Express, ctx: RegisterChatRoutesDeps) {
       stream: true,
     };
     if (typeof systemPrompt === 'string' && systemPrompt) {
-      payload.system = systemPrompt;
+      payload.system = [
+        {
+          type: 'text',
+          text: systemPrompt,
+          cache_control: ANTHROPIC_CACHE_CONTROL,
+        },
+      ];
     }
     return payload;
   };
@@ -859,12 +876,23 @@ export function registerChatRoutes(app: Express, ctx: RegisterChatRoutesDeps) {
 
   // OpenAI tool definition → Anthropic Messages `tools` shape. Anthropic calls
   // the JSON-schema slot `input_schema` (OpenAI calls it `parameters`).
-  const openaiToolsToAnthropic = (tools: any[]): any[] =>
-    (Array.isArray(tools) ? tools : []).map((t: any) => ({
+  // A `cache_control` breakpoint on the final tool caches the whole (static)
+  // tool-definition block so it is not re-billed each turn, independent of the
+  // system-prompt breakpoint. See ANTHROPIC_CACHE_CONTROL above.
+  const openaiToolsToAnthropic = (tools: any[]): any[] => {
+    const mapped: any[] = (Array.isArray(tools) ? tools : []).map((t: any) => ({
       name: t?.function?.name,
       description: t?.function?.description,
       input_schema: t?.function?.parameters ?? { type: 'object', properties: {} },
     }));
+    if (mapped.length > 0) {
+      mapped[mapped.length - 1] = {
+        ...mapped[mapped.length - 1],
+        cache_control: ANTHROPIC_CACHE_CONTROL,
+      };
+    }
+    return mapped;
+  };
 
   // Gemini's functionDeclaration `parameters` is an OpenAPI-subset Schema that
   // rejects JSON-schema extras (additionalProperties, $schema, default, …). We

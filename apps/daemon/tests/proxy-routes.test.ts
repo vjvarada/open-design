@@ -322,6 +322,42 @@ describe('API proxy routes', () => {
     }
   });
 
+  // Prompt caching: the composed OD system prompt is large and byte-identical
+  // across every turn of a session. Sending it as a `cache_control`-tagged text
+  // block lets Anthropic cache the static prefix so it is not re-billed as fresh
+  // input each turn. A block below the model minimum is silently not cached, so
+  // this is safe to apply unconditionally.
+  it('tags the Anthropic system prompt with cache_control for prompt caching', async () => {
+    const fetchMock = vi.fn((input: FetchInput, init?: FetchInit) => {
+      const url = String(input);
+      if (url.startsWith(baseUrl)) return realFetch(input, init);
+      return Promise.resolve(sseResponse('event: message_stop\ndata: {}\n\n'));
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    await realFetch(`${baseUrl}/api/proxy/anthropic/stream`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        baseUrl: 'https://api.anthropic.com',
+        apiKey: 'sk-ant',
+        model: 'claude-test',
+        systemPrompt: 'you are a design assistant',
+        messages: [{ role: 'user', content: 'hello' }],
+      }),
+    });
+
+    const [, upstreamInit] = fetchMock.mock.calls[0]!;
+    const body = JSON.parse(String(upstreamInit?.body));
+    expect(body.system).toEqual([
+      {
+        type: 'text',
+        text: 'you are a design assistant',
+        cache_control: { type: 'ephemeral' },
+      },
+    ]);
+  });
+
   // Regression: appendVersionedApiPath needs to thread three shapes:
   //   * bare host                  → inject /v1 (api.openai.com)
   //   * sub-path containing /vN    → no inject (api.deepinfra.com/v1/openai)
@@ -1247,13 +1283,24 @@ describe('API proxy routes', () => {
     expect(headers['x-api-key']).toBe('ah-test');
     expect(headers['anthropic-version']).toBe('2023-06-01');
     const body = JSON.parse(String(init?.body));
-    expect(body.system).toBe('be brief'); // Anthropic-shaped (not OpenAI messages[system])
+    // System prompt is Anthropic-shaped (not OpenAI messages[system]) and is now
+    // sent as a cache_control-tagged text block so the large static OD system
+    // prompt is cached across turns instead of re-billed as fresh input each turn.
+    expect(body.system).toEqual([
+      { type: 'text', text: 'be brief', cache_control: { type: 'ephemeral' } },
+    ]);
     // Media tools are now injected on the claude route too, in the Anthropic
     // `input_schema` shape, so an aihubmix claude chat model can run the same
     // in-chat generate_image/video/speech tool loop the OpenAI family has.
     expect(Array.isArray(body.tools)).toBe(true);
     expect(body.tools.map((t: any) => t.name)).toContain('generate_image');
     expect(body.tools[0]).toHaveProperty('input_schema');
+    // The final tool carries a cache_control breakpoint so the (static) tool
+    // definitions cache alongside the system prompt (Anthropic caches in
+    // tools -> system -> messages order).
+    expect(body.tools[body.tools.length - 1]).toHaveProperty('cache_control', {
+      type: 'ephemeral',
+    });
     expect(body.tool_choice).toEqual({ type: 'auto' });
     if (AIHUBMIX_APP_CODE) {
       expect(headers['APP-Code']).toBe(AIHUBMIX_APP_CODE);
