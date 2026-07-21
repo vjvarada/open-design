@@ -456,6 +456,8 @@ svg{display:block;width:100%;height:auto;}
               <option value="cf-petg">CF-PETG</option>
               <option value="asa">ASA</option>
               <option value="pc-abs">PC-ABS</option>
+              <option value="pp">PP (Polypropylene)</option>
+              <option value="pva">PVA</option>
               </select>
         </div>
         <div class="legend" id="radar-legend">
@@ -605,6 +607,81 @@ const FRACKTAL_MATERIALS = {
       pricePerKg: { value: 3500, unit: '₹/kg', note: 'approximate' }
     },
     url: '/polycarbonate/'
+  },
+  'asa': {
+    name: 'ASA (Acrylonitrile Styrene Acrylate)',
+    shortName: 'ASA',
+    color: '#4a90d9',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [4, 5, 7, 6, 6, 5, 6, 5, 7],
+    specs: {
+      tensileStrength: { value: 42, unit: 'MPa' },
+      heatDeflection: { value: 98, unit: '°C' },
+      density: { value: 1.06, unit: 'g/cm³' },
+      printTemp: { min: 220, max: 250, unit: '°C' },
+      pricePerKg: { value: 2200, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/asa/'
+  },
+  'cf-petg': {
+    name: 'Carbon Fiber PETG (CF-PETG)',
+    shortName: 'CF-PETG',
+    color: '#e8963e',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [7, 7, 5, 5, 7, 7, 5, 7, 6],
+    specs: {
+      tensileStrength: { value: 58, unit: 'MPa' },
+      heatDeflection: { value: 80, unit: '°C' },
+      density: { value: 1.32, unit: 'g/cm³' },
+      printTemp: { min: 230, max: 260, unit: '°C' },
+      pricePerKg: { value: 3000, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/cf-petg/'
+  },
+  'pc-abs': {
+    name: 'PC-ABS Blend',
+    shortName: 'PC-ABS',
+    color: '#6c5ce7',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [5, 6, 8, 7, 6, 6, 5, 4, 5],
+    specs: {
+      tensileStrength: { value: 48, unit: 'MPa' },
+      heatDeflection: { value: 108, unit: '°C' },
+      density: { value: 1.12, unit: 'g/cm³' },
+      printTemp: { min: 240, max: 270, unit: '°C' },
+      pricePerKg: { value: 2700, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/pc-abs/'
+  },
+  'pp': {
+    name: 'PP (Polypropylene)',
+    shortName: 'PP',
+    color: '#00b894',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [3, 3, 10, 7, 9, 4, 5, 4, 7],
+    specs: {
+      tensileStrength: { value: 28, unit: 'MPa' },
+      heatDeflection: { value: 92, unit: '°C' },
+      density: { value: 0.9, unit: 'g/cm³' },
+      printTemp: { min: 200, max: 240, unit: '°C' },
+      pricePerKg: { value: 2200, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/pp-polypropylene/'
+  },
+  'pva': {
+    name: 'PVA (Polyvinyl Alcohol)',
+    shortName: 'PVA',
+    color: '#fdcb6e',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [2, 1, 2, 1, 2, 2, 8, 5, 2],
+    specs: {
+      tensileStrength: { value: 25, unit: 'MPa' },
+      heatDeflection: { value: 50, unit: '°C' },
+      density: { value: 1.25, unit: 'g/cm³' },
+      printTemp: { min: 180, max: 210, unit: '°C' },
+      pricePerKg: { value: 4250, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/pva/'
   }
 };
 
@@ -728,42 +805,48 @@ const RADAR_AXIS_LABELS = [
       <p>Engineering values with context that decides whether PETG is the right choice for your application.</p>
     </div>
     <div class="card-flex">
-      <div class="prop-card" data-od-id="prop-tensile">
+      <div class="prop-card has-img" data-od-id="prop-tensile">
+        <img class="prop-img" src="https://d8j0ntlcm91z4.cloudfront.net/user_3FgPPk8oMuj8SYTxnyelClUUvq8/hf_20260712_154213_6544ebe2-beb3-4396-af2d-4990293b0459.png" alt="PETG tensile test specimen in stainless steel grips" loading="lazy">
         <div class="prop-body">
           <div class="name">Tensile Strength</div>
           <div class="val">48 MPa</div>
           <div class="ctx">Comparable to ABS with far better layer adhesion.</div>
         </div>
       </div>
-      <div class="prop-card" data-od-id="prop-hdt">
+      <div class="prop-card has-img" data-od-id="prop-hdt">
+        <img class="prop-img" src="https://d8j0ntlcm91z4.cloudfront.net/user_3FgPPk8oMuj8SYTxnyelClUUvq8/hf_20260712_151326_189f8f0f-7d8e-4f9e-81f6-fd1a7c9e33c6.png" alt="Torch flame test on PETG demonstrating heat resistance" loading="lazy">
         <div class="prop-body">
           <div class="name">Heat Deflection</div>
           <div class="val">70 °C</div>
           <div class="ctx">Suitable for most indoor applications; avoids hot car interiors.</div>
         </div>
       </div>
-      <div class="prop-card" data-od-id="prop-density">
+      <div class="prop-card has-img" data-od-id="prop-density">
+        <img class="prop-img" src="mri3eu7u-hf_20260712_175314_ca1578a8-fe85-466b-9f87-2b3dd272140a.png" alt="PETG filament spool with 3D printed structural parts" loading="lazy">
         <div class="prop-body">
           <div class="name">Density</div>
           <div class="val">1.27 g/cm³</div>
           <div class="ctx">Mid-range density — heavier than PLA, lighter than PC.</div>
         </div>
       </div>
-      <div class="prop-card" data-od-id="prop-chem">
+      <div class="prop-card has-img" data-od-id="prop-chem">
+        <img class="prop-img" src="fracktal-petg-hero-spool.png" alt="PETG filament demonstrating chemical resistance properties" loading="lazy">
         <div class="prop-body">
           <div class="name">Chemical Resistance</div>
           <div class="val">Good</div>
           <div class="ctx">Resists dilute acids, alkalis, and most common solvents.</div>
         </div>
       </div>
-      <div class="prop-card" data-od-id="prop-elongation">
+      <div class="prop-card has-img" data-od-id="prop-elongation">
+        <img class="prop-img" src="mrhy7thd-hf_20260712_152004_2011de7e-94dd-4225-b44a-23da53abb061.png" alt="FDM printer creating PETG part showing ductile material properties" loading="lazy">
         <div class="prop-body">
           <div class="name">Elongation at Break</div>
           <div class="val">20–30 %</div>
           <div class="ctx">Ductile failure mode — bends before snapping.</div>
         </div>
       </div>
-      <div class="prop-card" data-od-id="prop-moisture">
+      <div class="prop-card has-img" data-od-id="prop-moisture">
+        <img class="prop-img" src="fracktal-cf-pa-dry-box-humidity.png" alt="PETG filament dry box with hygrometer showing low moisture absorption" loading="lazy">
         <div class="prop-body">
           <div class="name">Moisture Absorption</div>
           <div class="val">0.2 % (sat.)</div>

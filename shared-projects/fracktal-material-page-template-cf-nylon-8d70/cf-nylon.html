@@ -450,8 +450,13 @@ svg{display:block;width:100%;height:auto;}
             <option value="pla">PLA</option>
             <option value="petg">PETG</option>
             <option value="abs">ABS</option>
+            <option value="asa">ASA</option>
             <option value="tpu-95a">TPU 95A</option>
             <option value="polycarbonate">Polycarbonate (PC)</option>
+            <option value="pc-abs">PC-ABS Blend</option>
+            <option value="cf-petg">CF-PETG</option>
+            <option value="pp">PP (Polypropylene)</option>
+            <option value="pva">PVA</option>
           </select>
         </div>
         <div class="legend" id="radar-legend">
@@ -601,6 +606,81 @@ const FRACKTAL_MATERIALS = {
       pricePerKg: { value: 3500, unit: '₹/kg', note: 'approximate' }
     },
     url: '/polycarbonate/'
+  },
+  'asa': {
+    name: 'ASA (Acrylonitrile Styrene Acrylate)',
+    shortName: 'ASA',
+    color: '#4a90d9',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [4, 5, 7, 6, 6, 5, 6, 5, 7],
+    specs: {
+      tensileStrength: { value: 42, unit: 'MPa' },
+      heatDeflection: { value: 98, unit: '°C' },
+      density: { value: 1.06, unit: 'g/cm³' },
+      printTemp: { min: 220, max: 250, unit: '°C' },
+      pricePerKg: { value: 2200, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/asa/'
+  },
+  'cf-petg': {
+    name: 'Carbon Fiber PETG (CF-PETG)',
+    shortName: 'CF-PETG',
+    color: '#e8963e',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [7, 7, 5, 5, 7, 7, 5, 7, 6],
+    specs: {
+      tensileStrength: { value: 58, unit: 'MPa' },
+      heatDeflection: { value: 80, unit: '°C' },
+      density: { value: 1.32, unit: 'g/cm³' },
+      printTemp: { min: 230, max: 260, unit: '°C' },
+      pricePerKg: { value: 3000, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/cf-petg/'
+  },
+  'pc-abs': {
+    name: 'PC-ABS Blend',
+    shortName: 'PC-ABS',
+    color: '#6c5ce7',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [5, 6, 8, 7, 6, 6, 5, 4, 5],
+    specs: {
+      tensileStrength: { value: 48, unit: 'MPa' },
+      heatDeflection: { value: 108, unit: '°C' },
+      density: { value: 1.12, unit: 'g/cm³' },
+      printTemp: { min: 240, max: 270, unit: '°C' },
+      pricePerKg: { value: 2700, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/pc-abs/'
+  },
+  'pp': {
+    name: 'PP (Polypropylene)',
+    shortName: 'PP',
+    color: '#00b894',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [3, 3, 10, 7, 9, 4, 5, 4, 7],
+    specs: {
+      tensileStrength: { value: 28, unit: 'MPa' },
+      heatDeflection: { value: 92, unit: '°C' },
+      density: { value: 0.9, unit: 'g/cm³' },
+      printTemp: { min: 200, max: 240, unit: '°C' },
+      pricePerKg: { value: 2200, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/pp-polypropylene/'
+  },
+  'pva': {
+    name: 'PVA (Polyvinyl Alcohol)',
+    shortName: 'PVA',
+    color: '#fdcb6e',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [2, 1, 2, 1, 2, 2, 8, 5, 2],
+    specs: {
+      tensileStrength: { value: 25, unit: 'MPa' },
+      heatDeflection: { value: 50, unit: '°C' },
+      density: { value: 1.25, unit: 'g/cm³' },
+      printTemp: { min: 180, max: 210, unit: '°C' },
+      pricePerKg: { value: 4250, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/pva/'
   }
 };
 
@@ -1520,6 +1600,10 @@ function compareMaterial(materialKey) {
       'pp': {
         name: 'PP',
         desc: 'Lightweight polypropylene with chemical resistance and low cost. Good fatigue resistance and snap-fit capabilities. Suitable for consumer products and chemical-resistant parts.'
+      },
+      'pva': {
+        name: 'PVA',
+        desc: 'Water-soluble support material for complex geometries. Dissolves completely in water, leaving no residue. Essential for multi-material printing with overhangs and internal voids.'
       }
     };
 
