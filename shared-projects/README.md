@@ -1,24 +1,44 @@
 # Shared Projects
 
-Team-collaborative Open Design projects. These projects are git-tracked so multiple people can work on them simultaneously.
+Team-collaborative Open Design projects. These projects live in git so multiple people can work on them simultaneously. Edits made in the app save directly to these files — commit and push like normal code.
 
-## How to use
+## Setup for new teammates
 
-1. **Clone the repo** on your machine
-2. **In Open Design**, go to the project switcher → **Import folder** and select the project folder from `shared-projects/`
-3. Open Design will use the imported folder as the project workspace — edits made in the app save directly to these files
-4. **Commit and push** your changes so teammates can pull them
+1. **Clone this repo** and install dependencies:
+   ```powershell
+   git clone https://github.com/vjvarada/open-design.git
+   cd open-design
+   pnpm install
+   ```
+
+2. **Start Open Design** (from repo root):
+   ```powershell
+   # Windows (double-click or run):
+   .\start-open-design.ps1
+   ```
+   Or manually: `pnpm tools-dev`
+
+3. **Open a project in the app:**
+   - In the Open Design window, find the **"Select working directory"** dropdown (bottom-left area)
+   - Click it → **"Choose folder"** → navigate to `shared-projects/` and pick a project folder
+   - The project's files (HTML, images, docs) now appear in the app and edits save directly to the git-tracked folder
+
+4. **Collaborate:**
+   - Work on designs in the app → files update in `shared-projects/<project>/`
+   - `git add`, `git commit`, `git push` to share changes
+   - Teammates `git pull` to get your latest work
 
 ## Projects
 
 | Project | Description |
 |---------|-------------|
-| `fracktal-material-page-template-cf-nylon-8d70` | Material page templates for Fracktal 3D printing filaments (ABS, PLA, PETG, Nylon, etc.) |
+| `fracktal-material-page-template-cf-nylon-8d70` | Material page templates for Fracktal 3D printing filaments (ABS, PLA, PETG, Nylon, CF-Nylon, PC, TPU, etc.) |
 | `3d-printer-manufacturer-india-landing-page-redesign-65a2` | Landing page redesign for a 3D printer manufacturer in India |
 | `brand-fracktal-80651f` | Fracktal brand design system |
 | `hsn-code-gst-on-3d-printing-india-fe90` | HSN code & GST reference for 3D printing in India |
 
 ## Notes
 
-- `.file-versions/` and `.od-skills/` directories are excluded from git — they are app internals
+- `.file-versions/` and `.od-skills/` directories are excluded from git — they are app internals regenerated on each machine
 - `.artifact.json` files contain Open Design metadata and are safe to commit
+- The `shared-projects/` folder lives alongside the Open Design source code but is independent — you can also use it with a pre-built Open Design release instead of running from source
