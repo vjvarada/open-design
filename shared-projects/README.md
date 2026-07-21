@@ -18,10 +18,16 @@ Team-collaborative Open Design projects. These projects live in git so multiple 
    ```
    Or manually: `pnpm tools-dev`
 
-3. **Open a project in the app:**
-   - In the Open Design window, find the **"Select working directory"** dropdown (bottom-left area)
-   - Click it → **"Choose folder"** → navigate to `shared-projects/` and pick a project folder
-   - The project's files (HTML, images, docs) now appear in the app and edits save directly to the git-tracked folder
+3. **Import all projects into Open Design** (run once after clone):
+   ```powershell
+   # The CLI needs the sidecar IPC pipe path — tools-dev sets this up automatically.
+   # Run this from the repo root while Open Design is running:
+   $env:OD_SIDECAR_IPC_PATH = "\\.\pipe\open-design-default-daemon"
+   Get-ChildItem shared-projects -Directory | ForEach-Object {
+     pnpm exec od project import-folder $_.FullName
+   }
+   ```
+   This registers each project folder as a separate workspace in Open Design.
 
 4. **Collaborate:**
    - Work on designs in the app → files update in `shared-projects/<project>/`
