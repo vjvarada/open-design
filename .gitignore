@@ -101,3 +101,6 @@ deploy/agent-bins/
 
 # Local environment configuration (may contain secrets)
 .env
+
+# Looper harness attachments (bug screenshots etc.) — agent scratch, not repo content
+.looper-attachments/

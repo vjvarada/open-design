@@ -102,8 +102,22 @@ export function createChatRunService({
       error: null,
       errorCode: null,
       cancelRequested: false,
+      runtimeFailureObservedBeforeCancellation: false,
       retryRestartTimer: null,
+      // First failure that triggered a same-run retry. The next attempt creates
+      // a fresh startChatRun closure and clears run.error/errorCode, so keep the
+      // compact analytics snapshot on the shared run until terminal telemetry.
+      retryOriginFailure: null,
+      retryOriginErrorCode: null,
       stdinOpen: false,
+      // E-lite root-cause telemetry. `stdinBackpressure` records whether the
+      // prompt write to the child's stdin was queued (pipe buffer full — a
+      // corroborating signal for a `stdin_write`-phase stall). `lastAgentActivityAt`
+      // is the clock the inactivity watchdog keys off, read at finish to derive
+      // `last_progress_age_ms`. (`approval_requested` and `tool_result_sent` are
+      // derived from run.events by summarizeRunDiagnosticsForAnalytics.)
+      stdinBackpressure: false,
+      lastAgentActivityAt: now,
       // Work-completeness signals (#1247 / #1060), folded from agent events by
       // captureRunWorkCompletenessSignals (server.ts). `lastTodoSnapshot` is the
       // most recent TodoWrite `todos` array; `truncatedMidTurn` records a
@@ -112,6 +126,8 @@ export function createChatRunService({
       lastTodoSnapshot: null,
       truncatedMidTurn: false,
       endedWithUnfinishedWork: false,
+      artifactCount: undefined as number | undefined,
+      artifactOutcome: undefined,
       eventsLogPath: runsLogDir ? path.join(runsLogDir, id, 'events.jsonl') : null,
       eventsLogStream: null,
       // Set once finish() has closed the log stream, so a late post-finish emit
@@ -219,6 +235,7 @@ export function createChatRunService({
     failureDetail: run.failureDetail ?? null,
     resumable: run.resumable ?? false,
     endedWithUnfinishedWork: !!run.endedWithUnfinishedWork,
+    ...(Number.isFinite(run.artifactCount) ? { artifactCount: run.artifactCount } : {}),
     eventsLogPath: run.eventsLogPath ?? null,
     workspace: projectWorkspaceProvenance(run.projectMetadata),
     mediaExecution: run.mediaExecution ?? normalizeMediaExecutionPolicyForRun(null),
@@ -258,6 +275,7 @@ export function createChatRunService({
       status,
       resumable: run.resumable ?? false,
       endedWithUnfinishedWork: run.endedWithUnfinishedWork,
+      ...(Number.isFinite(run.artifactCount) ? { artifactCount: run.artifactCount } : {}),
       failureCategory: run.failureCategory ?? null,
       failureDetail: run.failureDetail ?? null,
     });
@@ -329,9 +347,9 @@ export function createChatRunService({
     if (!run.childExitObservedAt) run.childExitObservedAt = Date.now();
   };
 
-  const waitForChildExit = (child, timeoutMs) => {
+  const waitForChildExit = (child, timeoutMs, { closeOnly = false } = {}) => {
     if (!child) return Promise.resolve(true);
-    if (childHasExited(child)) return Promise.resolve(true);
+    if (!closeOnly && childHasExited(child)) return Promise.resolve(true);
     return new Promise((resolve) => {
       let settled = false;
       const done = (exited) => {
@@ -339,15 +357,29 @@ export function createChatRunService({
         settled = true;
         clearTimeout(timer);
         child.off?.('close', onClose);
-        child.off?.('exit', onClose);
+        if (!closeOnly) child.off?.('exit', onClose);
         resolve(exited);
       };
       const onClose = () => done(true);
       const timer = setTimeout(() => done(false), timeoutMs);
       timer.unref?.();
       child.once?.('close', onClose);
-      child.once?.('exit', onClose);
+      if (!closeOnly) child.once?.('exit', onClose);
     });
+  };
+
+  // A runtime error can be emitted while the child is still draining stdout.
+  // When that happened before cancellation, wait for `close` so server.ts's
+  // earlier close listener can classify and finalize the failure before the
+  // cancel route applies its canceled fallback. Ordinary cancellation keeps
+  // the faster exit-or-close behavior.
+  const waitForCanceledChildExit = (run, timeoutMs) => {
+    if (TERMINAL_RUN_STATUSES.has(run.status)) return Promise.resolve(true);
+    return waitForChildExit(
+      run.child,
+      timeoutMs,
+      { closeOnly: run.runtimeFailureObservedBeforeCancellation === true },
+    );
   };
 
   const forceWaitMs = () => {
@@ -488,24 +520,24 @@ export function createChatRunService({
         // Signal fallback below owns eventual process termination.
       }
       const graceMs = Number(process.env.PI_ABORT_GRACE_MS) || 3000;
-      if (await waitForChildExit(run.child, graceMs)) {
+      if (await waitForCanceledChildExit(run, graceMs)) {
         return finishCanceledFromChildState(run, 'SIGTERM');
       }
       killChild(run, 'SIGTERM');
-      if (await waitForChildExit(run.child, graceMs)) {
+      if (await waitForCanceledChildExit(run, graceMs)) {
         return finishCanceledFromChildState(run, 'SIGTERM');
       }
       killChild(run, 'SIGKILL');
-      await waitForChildExit(run.child, forceWaitMs());
+      await waitForCanceledChildExit(run, forceWaitMs());
       return finishCanceledFromChildState(run, 'SIGKILL');
     }
 
     killChild(run, 'SIGTERM');
-    if (await waitForChildExit(run.child, cancelGraceMs())) {
+    if (await waitForCanceledChildExit(run, cancelGraceMs())) {
       return finishCanceledFromChildState(run, 'SIGTERM');
     }
     killChild(run, 'SIGKILL');
-    await waitForChildExit(run.child, forceWaitMs());
+    await waitForCanceledChildExit(run, forceWaitMs());
     return finishCanceledFromChildState(run, 'SIGKILL');
   };
 
