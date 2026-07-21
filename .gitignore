@@ -98,3 +98,6 @@ growth/**
 # Agent long-running task memory
 .task/
 deploy/agent-bins/
+
+# Local environment configuration (may contain secrets)
+.env
