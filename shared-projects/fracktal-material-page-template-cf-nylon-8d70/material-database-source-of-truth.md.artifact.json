@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "markdown-document",
+  "title": "material-database-source-of-truth.md",
+  "entry": "material-database-source-of-truth.md",
+  "renderer": "markdown",
+  "status": "complete",
+  "exports": [
+    "md",
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-07-14T04:48:31.664Z",
+  "updatedAt": "2026-07-14T04:48:31.667Z",
+  "metadata": {
+    "inferred": true
+  }
+}

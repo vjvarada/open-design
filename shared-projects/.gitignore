@@ -1,0 +1,3 @@
+# Open Design internal directories — do not commit
+.file-versions/
+.od-skills/

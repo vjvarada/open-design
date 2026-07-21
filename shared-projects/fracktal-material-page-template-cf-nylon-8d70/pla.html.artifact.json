@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "html",
+  "title": "pla.html",
+  "entry": "pla.html",
+  "renderer": "html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-07-14T20:23:30.581Z",
+  "updatedAt": "2026-07-14T20:23:30.581Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

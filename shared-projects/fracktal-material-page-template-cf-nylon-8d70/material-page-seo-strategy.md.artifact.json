@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "markdown-document",
+  "title": "material-page-seo-strategy.md",
+  "entry": "material-page-seo-strategy.md",
+  "renderer": "markdown",
+  "status": "complete",
+  "exports": [
+    "md",
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-07-14T04:53:38.032Z",
+  "updatedAt": "2026-07-14T04:53:38.037Z",
+  "metadata": {
+    "inferred": true
+  }
+}

@@ -1,0 +1,1593 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carbon Fiber Nylon (CF-PA) Filament — Fracktal Works</title>
+<meta name="description" content="Carbon fiber nylon (CF-PA) filament for FDM 3D printing — high strength, heat resistant, dimensionally stable. Buy CF nylon filament from Fracktal Works, India.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+:root{
+  --canvas:#ffffff;
+  --ink:#3c3c3c;
+  --red:#f25e50;
+  --dark:#111111;
+  --muted:#5a5a5a;
+  --border:#e6e6e6;
+  --surface-soft:rgba(17,17,17,0.035);
+  --radius:6px;
+  --font: 'Montserrat', system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --maxw:1120px;
+}
+
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0;
+  font-family:var(--font);
+  color:var(--ink);
+  background:var(--canvas);
+  font-weight:400;
+  line-height:1.6;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block;}
+a{color:inherit;}
+a:focus-visible,button:focus-visible,.btn:focus-visible{outline:2px solid var(--red);outline-offset:2px;}
+h1,h2,h3,h4{font-weight:700;color:var(--dark);margin:0;line-height:1.15;letter-spacing:-0.02em;}
+h1{font-size:clamp(30px,5vw,52px);}
+h2{font-size:clamp(24px,3.4vw,34px);letter-spacing:-0.015em;}
+h3{font-size:20px;letter-spacing:-0.01em;}
+p{margin:0;}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+.hero .wrap{overflow:visible;}
+.section{padding:72px 0;}
+.section--tight{padding:56px 0;}
+
+.overline{
+  font-size:12px;font-weight:600;text-transform:uppercase;
+  letter-spacing:0.1em;color:var(--red);margin-bottom:14px;display:block;
+}
+.overline--muted{color:var(--muted);}
+.sec-head{max-width:720px;margin-bottom:40px;}
+.sec-head p{color:var(--muted);margin-top:14px;font-size:16px;}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;justify-content:center;
+  font-family:var(--font);font-weight:600;font-size:14px;letter-spacing:0.02em;
+  padding:13px 24px;border-radius:var(--radius);border:1px solid transparent;
+  cursor:pointer;text-decoration:none;transition:background .12s ease,color .12s ease,border-color .12s ease;
+}
+.btn--primary{background:var(--red);color:#fff;}
+.btn--primary:hover{filter:brightness(0.92);}
+.btn--outline{background:transparent;color:#fff;border-color:rgba(255,255,255,0.4);}
+.btn--outline:hover{border-color:#fff;background:rgba(255,255,255,0.08);}
+
+/* ---------- Hero ---------- */
+.hero{background:#000;color:#fff;padding:84px 0 10px;overflow:visible;}
+.hero h1{color:#fff;}
+.hero .overline{color:var(--red);}
+.hero__descriptor{
+  font-size:clamp(16px,2vw,20px);color:rgba(255,255,255,0.8);font-weight:400;
+  margin-top:20px;max-width:640px;line-height:1.5;
+}
+.hero__tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px;}
+.tag{
+  font-size:12px;font-weight:600;letter-spacing:0.04em;
+  padding:6px 12px;border:1px solid rgba(255,255,255,0.22);border-radius:var(--radius);
+  color:rgba(255,255,255,0.85);
+}
+.hero__specs{
+  display:flex;flex-wrap:wrap;margin-top:40px;
+  border-top:1px solid rgba(255,255,255,0.14);padding-top:28px;
+}
+.spec-inline{width:25%;padding-right:16px;margin-bottom:8px;}
+.spec-inline .k{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.5);font-weight:600;}
+.spec-inline .v{font-size:20px;font-weight:700;color:#fff;margin-top:6px;}
+.spec-inline .v small{font-size:13px;font-weight:500;color:rgba(255,255,255,0.65);}
+
+/* ---------- Machine-readable reference ---------- */
+.quickref{
+  border:1px solid var(--border);border-radius:var(--radius);
+  background:var(--surface-soft);padding:22px 24px;margin-top:40px;
+}
+.quickref h2{font-size:13px;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted);}
+.quickref dl{display:grid;grid-template-columns:repeat(4,1fr);gap:0 24px;margin:14px 0 0;}
+.quickref dt{display:none;}
+.qr-item{padding:10px 0;border-bottom:1px solid var(--border);}
+.qr-item:nth-last-child(-n+4){border-bottom:0;}
+.qr-item .k{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);font-weight:600;}
+.qr-item dd{margin:4px 0 0;font-size:15px;font-weight:600;color:var(--dark);}
+@media(max-width:900px){
+  .quickref{padding:16px 18px;}
+  .quickref dl{grid-template-columns:repeat(3,1fr);gap:0 16px;}
+  .qr-item{padding:8px 0;}
+  .qr-item:nth-last-child(-n+3){border-bottom:0;}
+  .qr-item .k{font-size:10px;}
+  .qr-item dd{font-size:13px;}
+}
+
+/* ---------- Radar ---------- */
+.chart-panel{
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:32px;display:flex;flex-direction:row;flex-wrap:nowrap;align-items:flex-start;gap:40px;
+}
+.chart-panel .chart-side{flex:0 0 320px;order:1;display:flex;flex-direction:column;justify-content:center;padding-right:20px;}
+.chart-panel .svg-hold{flex:1 1 auto;order:2;max-width:520px;overflow:visible;}
+.chart-side h2{margin-bottom:16px;}
+.legend{margin-top:22px;}
+.legend-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.legend-row:last-child{border-bottom:0;}
+.swatch{width:16px;height:16px;border-radius:3px;flex:0 0 auto;}
+.legend-row .lbl{font-weight:600;font-size:14px;color:var(--dark);}
+.legend-row .sub{font-size:12px;color:var(--muted);margin-left:auto;}
+.radar-note{font-size:12px;color:var(--muted);margin-top:18px;line-height:1.5;}
+
+/* compare dropdown */
+.compare-select{margin-bottom:20px;}
+.compare-label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:8px;}
+.compare-dropdown{
+  width:100%;padding:12px 14px;font-family:var(--font);font-size:14px;font-weight:600;
+  color:var(--dark);background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius);
+  cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a5a5a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+}
+.compare-dropdown:hover{border-color:var(--muted);}
+.compare-dropdown:focus{outline:2px solid var(--red);outline-offset:2px;}
+svg{display:block;width:100%;height:auto;}
+
+/* ---------- Property cards ---------- */
+.card-flex{display:flex;flex-wrap:wrap;gap:20px;}
+.prop-card{
+  width:calc(25% - 15px);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 22px;background:var(--canvas);transition:border-color .12s ease;
+}
+.prop-card:hover{border-color:var(--muted);}
+.prop-card .name{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);}
+.prop-card .val{font-size:28px;font-weight:700;color:var(--dark);margin:6px 0 8px;letter-spacing:-0.02em;}
+.prop-card .ctx{font-size:13px;color:var(--muted);line-height:1.5;}
+
+/* ---------- Machine requirements table ---------- */
+.req-table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.req-table th,.req-table td{text-align:left;padding:15px 18px;font-size:14px;border-bottom:1px solid var(--border);vertical-align:top;}
+.req-table thead th{background:var(--dark);color:#fff;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;}
+.req-table tbody tr:last-child td{border-bottom:0;}
+.req-table tbody tr:nth-child(odd){background:var(--canvas);}
+.req-table tbody tr:nth-child(even){background:var(--border);}
+.req-table td:first-child{font-weight:600;color:var(--dark);display:flex;align-items:center;gap:10px;}
+.req-icon{flex:0 0 auto;color:var(--muted);display:flex;}
+.req-table td .rec{color:var(--dark);}
+.table-scroll{overflow-x:auto;}
+@media(max-width:768px){
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+}
+@media(max-width:640px){
+  .table-scroll{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .req-table{display:contents;}
+  .req-table thead{display:none;}
+  .req-table tbody{display:contents;}
+  .req-table tr{display:block;border:1px solid var(--border);border-radius:var(--radius);padding:12px;background:var(--canvas);overflow:hidden;}
+  .req-table tr:nth-child(4n+3),.req-table tr:nth-child(4n+4){background:var(--border);}
+  .req-table td{display:block;border:0;padding:4px 0;font-size:12px;width:100%;}
+  .req-table td:first-child{font-size:13px;font-weight:600;padding:0 0 6px 0;margin-bottom:6px;border-bottom:1px solid rgba(0,0,0,0.1);}
+  .req-table td:last-child{padding-bottom:0;}
+  .req-table td:nth-child(2)::before{content:"Min: ";font-weight:600;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:0.03em;display:inline-block;min-width:30px;}
+  .req-table td:nth-child(3)::before{content:"Rec: ";font-weight:600;color:var(--red);font-size:10px;text-transform:uppercase;letter-spacing:0.03em;display:inline-block;min-width:30px;}
+}
+@media(max-width:480px){
+  .req-table tr{padding:10px;font-size:11px;}
+}
+.callout{
+  display:flex;gap:16px;align-items:flex-start;margin-top:24px;
+  border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px 22px;background:var(--canvas);
+}
+.callout .ic{color:var(--red);flex:0 0 auto;margin-top:2px;}
+.callout p{font-size:14px;color:var(--ink);line-height:1.55;}
+
+/* ---------- Applications ---------- */
+.app-tile{
+  width:calc(33.333% - 14px);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 22px;background:var(--canvas);
+}
+.app-tile h3{font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.app-tile h3 .ic{flex:0 0 auto;color:var(--muted);}
+.app-tile ul{margin:0;padding:0;list-style:none;}
+.app-tile li{font-size:13px;color:var(--muted);padding:4px 0 4px 14px;position:relative;line-height:1.4;}
+.app-tile li::before{content:"";position:absolute;left:0;top:10px;width:4px;height:4px;background:var(--border);border-radius:1px;}
+
+/* ---------- Use / Avoid ---------- */
+.decide-col{width:calc(50% - 12px);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.decide-head{padding:14px 20px;display:flex;align-items:center;gap:10px;}
+.decide-head .ic{flex:0 0 auto;}
+.decide-head h3{color:#fff;font-size:14px;font-weight:600;}
+.decide--use .decide-head{background:var(--dark);}
+.decide--avoid .decide-head{background:var(--ink);}
+.decide-body{padding:4px 20px 16px;}
+.decide-body ul{margin:0;padding:0;list-style:none;}
+.decide-body li{font-size:13px;color:var(--ink);padding:10px 0 10px 24px;position:relative;border-bottom:1px solid var(--border);line-height:1.45;}
+.decide-body li:last-child{border-bottom:0;}
+.decide-body li .ic{position:absolute;left:0;top:10px;}
+.decide--use li .ic{color:var(--red);}
+.decide--avoid li .ic{color:var(--muted);}
+
+/* ---------- DfAM ---------- */
+.tip-card{
+  width:calc(25% - 15px);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px 20px;background:var(--surface-soft);
+}
+.tip-card h3{font-size:14px;margin-bottom:8px;line-height:1.35;display:flex;align-items:flex-start;gap:10px;}
+.tip-card h3 .ic{flex:0 0 auto;color:var(--muted);margin-top:1px;}
+.tip-card p{font-size:12px;color:var(--muted);line-height:1.5;margin-left:0;}
+
+/* ---------- Related ---------- */
+.related-scroll-wrap{position:relative;overflow:hidden;}
+.related-scroll{display:flex;gap:16px;transition:transform 0.5s ease;}
+.mat-card{
+  flex:0 0 auto;width:200px;border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 22px;text-decoration:none;background:var(--canvas);transition:border-color .15s ease,box-shadow .15s ease;
+  position:relative;
+}
+.mat-card:hover{border-color:var(--red);box-shadow:0 4px 12px rgba(0,0,0,0.06);}
+.mat-card:focus-visible{outline:2px solid var(--red);outline-offset:2px;}
+.mat-card .name{font-weight:700;color:var(--dark);font-size:15px;line-height:1.35;}
+.mat-card__btns{display:flex;gap:6px;margin-top:12px;}
+.mat-card__btn{
+  display:inline-block;padding:6px 10px;font-size:10px;font-weight:600;
+  letter-spacing:0.04em;text-transform:uppercase;border-radius:var(--radius);
+  text-decoration:none;transition:opacity .15s ease;cursor:pointer;white-space:nowrap;
+}
+.mat-card__btn--compare{background:var(--red);color:#fff;border:none;}
+.mat-card__btn--compare:hover{opacity:0.9;}
+.mat-card__btn--view{background:transparent;color:var(--red);border:1px solid var(--red);}
+.mat-card__btn--view:hover{background:var(--red);color:#fff;}
+
+/* ---------- CTA ---------- */
+.cta{background:var(--dark);color:#fff;text-align:center;padding:80px 0;}
+.cta h2{color:#fff;margin-bottom:8px;}
+.cta p{color:rgba(255,255,255,0.7);margin-bottom:30px;}
+.cta__btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.wordmark{
+  margin-top:44px;font-weight:700;letter-spacing:0.14em;font-size:13px;text-transform:uppercase;color:rgba(255,255,255,0.5);
+}
+.wordmark b{color:#fff;}
+
+/* ---------- Hero image split ---------- */
+.hero__inner{display:flex;align-items:center;gap:32px;}
+.hero__content{flex:1;min-width:0;}
+.hero__img-wrap{flex:0 0 460px;overflow:hidden;background:#000;position:relative;border-radius:var(--radius);}
+.hero__img-wrap::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(to right,#000 0%,transparent 20%,transparent 80%,rgba(0,0,0,0.4) 100%),
+    linear-gradient(to bottom,transparent 78%,rgba(0,0,0,0.4) 93%,#000 100%),
+    linear-gradient(to top,transparent 78%,rgba(0,0,0,0.4) 94%,#000 100%);
+}
+.hero__img-wrap img{width:100%;height:auto;max-height:380px;object-fit:cover;display:block;}
+
+/* ---------- App tile with image ---------- */
+.app-tile.has-img{padding:0;}
+.app-tile.has-img .tile-img{width:100%;height:160px;object-fit:cover;border-radius:calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;display:block;}
+.app-tile.has-img .tile-body{padding:20px 22px;}
+
+/* ---------- Carousel (JS-driven single-card step) ---------- */
+.carousel-wrap{position:relative;overflow:hidden;}
+.carousel-track{display:flex;gap:20px;transition:transform 0.5s ease;}
+
+/* ---------- Compatible Printers ---------- */
+.printer-scroll-wrap{position:relative;overflow:hidden;}
+.printer-scroll{display:flex;gap:20px;transition:transform 0.5s ease;}
+.printer-scroll::-webkit-scrollbar{height:6px;}
+.printer-scroll::-webkit-scrollbar-track{background:var(--surface-soft);border-radius:3px;}
+.printer-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.printer-scroll::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+.printer-card{
+  flex:0 0 300px;scroll-snap-align:start;
+  border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;background:var(--canvas);text-decoration:none;
+  transition:border-color .15s ease,box-shadow .15s ease;
+  display:flex;flex-direction:column;
+}
+.printer-card:hover{border-color:var(--red);box-shadow:0 4px 12px rgba(0,0,0,0.06);}
+.printer-card:focus-visible{outline:2px solid var(--red);outline-offset:2px;}
+.printer-card__img{width:100%;height:280px;object-fit:cover;background:var(--surface-soft);padding:0;display:block;}
+.printer-card__body{padding:18px 20px 22px;flex:1;display:flex;flex-direction:column;}
+.printer-card__name{font-weight:700;font-size:17px;color:var(--dark);}
+.printer-card__note{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5;flex:1;}
+.printer-card__compat{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px;}
+.compat-tag{font-size:10px;font-weight:600;letter-spacing:0.05em;padding:2px 7px;background:var(--surface-soft);border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);}
+.printer-card__link{
+  display:inline-block;margin-top:14px;padding:6px 12px;font-size:10px;font-weight:600;
+  letter-spacing:0.04em;text-transform:uppercase;color:#fff;background:var(--red);
+  border:none;border-radius:var(--radius);transition:opacity .15s ease;cursor:pointer;pointer-events:none;
+}
+.printer-card__link:hover{opacity:0.9;}
+.printer-not-compat{
+  background:var(--surface-soft);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px 20px;display:flex;align-items:flex-start;gap:12px;margin-top:20px;
+}
+.printer-not-compat .ic{color:var(--muted);flex:0 0 auto;margin-top:2px;}
+.printer-not-compat p{font-size:13px;color:var(--muted);line-height:1.5;}
+.printer-not-compat p strong{color:var(--ink);}
+
+/* ---------- Prop card with image ---------- */
+.prop-card.has-img{padding:0;}
+.prop-card.has-img .prop-img{width:100%;height:100px;object-fit:cover;border-radius:calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;display:block;}
+.prop-card.has-img .prop-body{padding:16px 20px;}
+
+/* ---------- Tip card with image ---------- */
+.tip-card.has-img{padding:0;}
+.tip-card.has-img .tip-img{width:100%;height:110px;object-fit:cover;border-radius:calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;display:block;}
+.tip-card.has-img .tip-body{padding:12px 14px;}
+.tip-card.has-img .tip-body h3{margin-bottom:6px;}
+.tip-card.has-img .tip-body h3 .ic{display:none;}
+.tip-card.has-img .tip-body p{margin-left:0;}
+
+/* ---------- Mat card with image ---------- */
+.mat-card.has-img{padding:0;width:220px;}
+.mat-card.has-img .mat-img{width:100%;height:160px;object-fit:cover;border-radius:calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;display:block;}
+.mat-card.has-img .mat-body{padding:14px 18px 16px;}
+.mat-card.has-img .cta-pill{margin-top:12px;}
+
+/* ---------- Footer nav anchor list (sr context) ---------- */
+.footer-min{padding:26px 0;border-top:1px solid var(--border);font-size:12px;color:var(--muted);}
+
+/* skip link */
+.skip-link{
+  position:absolute;top:-100px;left:16px;background:var(--dark);color:#fff;
+  padding:10px 16px;border-radius:var(--radius);font-size:14px;font-weight:600;
+  z-index:9999;text-decoration:none;
+}
+.skip-link:focus{top:16px;}
+
+/* ---------- Responsive ---------- */
+@media (max-width:900px){
+  .spec-inline{width:50%;}
+  .qr-item{width:50%;}
+  .prop-card{width:calc(50% - 10px);}
+  .app-tile{width:calc(50% - 10px);}
+  .tip-card{width:calc(50% - 10px);}
+  .chart-panel{flex-direction:column;padding:24px 16px;}
+  .chart-panel .chart-side{flex:none;width:100%;order:1;padding-right:0;}
+  .chart-panel .svg-hold{flex:none;width:100%;max-width:none;order:2;margin:16px -8px 0;}
+  .hero__inner{flex-direction:column-reverse;}
+  .hero__img-wrap{flex:0 0 auto;width:100%;max-width:480px;margin:0 auto -30px;border-radius:var(--radius) var(--radius) 0 0;}
+  .hero__img-wrap img{height:260px;max-height:260px;}
+  .printer-card{max-width:100%;}
+}
+@media (max-width:600px){
+  .section{padding:52px 0;}
+  .wrap{padding:0 18px;}
+  .spec-inline{width:50%;}
+  .quickref dl{grid-template-columns:repeat(2,1fr);}
+  .qr-item:nth-last-child(-n+3){border-bottom:1px solid var(--border);}
+  .qr-item:nth-last-child(-n+2){border-bottom:0;}
+  .qr-item{width:100%;}
+  .prop-card{width:calc(50% - 10px);}
+  .prop-card.has-img .prop-img{height:70px;}
+  .app-tile{width:calc(50% - 10px);}
+  .app-tile.has-img .tile-img{height:100px;}
+  .tip-card{width:calc(50% - 10px);}
+  .tip-card.has-img .tip-img{height:80px;}
+  .decide-col{width:100%;}
+  .hero__specs{padding-top:22px;}
+  .chart-panel{padding:20px 12px;}
+  .chart-panel .svg-hold{margin:16px -4px 0;}
+}
+</style>
+</head>
+<body>
+<a href="#overview" class="skip-link">Skip to content</a>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero" id="overview" data-od-id="hero">
+  <div class="wrap">
+    <div class="hero__inner">
+      <div class="hero__content">
+        <span class="overline">FDM Material · Composite</span>
+        <h1>Carbon Fiber Nylon<br>(CF-PA)</h1>
+        <p class="hero__descriptor">Short-fiber reinforced PA12 composite for high-strength structural FDM printing.</p>
+        <div class="hero__tags">
+          <span class="tag">FDM</span>
+          <span class="tag">Structural</span>
+          <span class="tag">Engineering Grade</span>
+          <span class="tag">Composite</span>
+        </div>
+        <div class="hero__specs" data-od-id="hero-specs">
+          <div class="spec-inline"><div class="k">Tensile Strength</div><div class="v">82 <small>MPa</small></div></div>
+          <div class="spec-inline"><div class="k">Heat Deflection</div><div class="v">145 <small>°C</small></div></div>
+          <div class="spec-inline"><div class="k">Density</div><div class="v">1.1 <small>g/cm³</small></div></div>
+          <div class="spec-inline"><div class="k">Print Temp</div><div class="v">260–280 <small>°C</small></div></div>
+        </div>
+      </div>
+      <div class="hero__img-wrap">
+        <img src="fracktal-cf-pa-hero-matte-finish.png" alt="Carbon fiber nylon (CF-PA) 3D printed part — matte composite finish, soft-edged blend on black background" loading="eager" width="1152" height="896">
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== MACHINE-READABLE QUICK REFERENCE ===================== -->
+<div class="wrap">
+  <section class="quickref" id="specifications" aria-label="Material quick reference" data-od-id="quick-reference">
+    <h2>Quick Reference</h2>
+    <dl>
+      <dt>Material properties</dt>
+      <div class="qr-item"><span class="k">Material Name</span><dd>Carbon Fiber Nylon (CF-PA)</dd></div>
+      <div class="qr-item"><span class="k">Category</span><dd>Engineering composite</dd></div>
+      <div class="qr-item"><span class="k">Base Polymer</span><dd>Polyamide 12 (PA12)</dd></div>
+      <div class="qr-item"><span class="k">Filler</span><dd>Short chopped carbon fibre</dd></div>
+      <div class="qr-item"><span class="k">Print Process</span><dd>FDM / FFF</dd></div>
+      <div class="qr-item"><span class="k">Tensile Strength</span><dd>82 MPa</dd></div>
+      <div class="qr-item"><span class="k">Heat Deflection (HDT)</span><dd>145 °C</dd></div>
+      <div class="qr-item"><span class="k">Density</span><dd>1.1 g/cm³</dd></div>
+      <div class="qr-item"><span class="k">Layer Bond Strength</span><dd>35 MPa</dd></div>
+      <div class="qr-item"><span class="k">Moisture Absorption</span><dd>1.1 %</dd></div>
+      <div class="qr-item"><span class="k">Nozzle Temp</span><dd>260–280 °C</dd></div>
+      <div class="qr-item"><span class="k">Nozzle Diameter</span><dd>≥0.6 mm (0.8 mm recommended)</dd></div>
+      <div class="qr-item"><span class="k">Nozzle Material</span><dd>Hardened steel (≥0.4 mm)</dd></div>
+    </dl>
+  </section>
+</div>
+
+<!-- ===================== RADAR / PROPERTY PROFILE ===================== -->
+<section class="section" id="property-profile" data-od-id="property-profile">
+  <div class="wrap">
+    <div class="chart-panel">
+      <div class="chart-side">
+        <span class="overline overline--muted">Comparative Profile</span>
+        <h2>Material Property Profile</h2>
+        <div class="compare-select">
+          <label for="compare-material" class="compare-label">Compare against:</label>
+          <select id="compare-material" class="compare-dropdown">
+            <option value="nylon-pa12" selected="">Nylon (PA12)</option>
+            <option value="pla">PLA</option>
+            <option value="petg">PETG</option>
+            <option value="abs">ABS</option>
+            <option value="tpu-95a">TPU 95A</option>
+            <option value="polycarbonate">Polycarbonate (PC)</option>
+          </select>
+        </div>
+        <div class="legend" id="radar-legend">
+          <div class="legend-row"><span class="swatch" style="background:#f25e50"></span><span class="lbl">CF-PA</span><span class="sub">This material</span></div>
+          <div class="legend-row" id="legend-compare"><span class="swatch" style="background:#111111"></span><span class="lbl" id="legend-compare-name">Nylon (PA12)</span><span class="sub">Comparison</span></div>
+        </div>
+        <p class="radar-note">Values scored 0–10 from measured mechanical data and print process behaviour. Select a material above to compare properties.</p>
+      </div>
+      <div class="svg-hold">
+        <svg id="radar-svg" viewBox="-100 -40 800 720" style="width:100%;height:auto;" role="img" aria-label="Radar chart comparing CF-PA against a selected material across nine properties on a 0 to 10 scale">
+          <!-- grid rings (9 axes = nonagon) -->
+          <g id="radar-grid" fill="none" stroke="#e6e6e6" stroke-width="1"></g>
+          <!-- axes -->
+          <g id="radar-axes" stroke="#e6e6e6" stroke-width="1"></g>
+          <!-- numeric scale labels along top axis -->
+          <g fill="#5a5a5a" font-family="Montserrat, sans-serif" font-size="10" font-weight="600" text-anchor="start">
+            <text x="306" y="245">2.5</text>
+            <text x="306" y="190">5.0</text>
+            <text x="306" y="135">7.5</text>
+            <text x="306" y="80">10</text>
+          </g>
+          <!-- comparison material (drawn first, behind) -->
+          <polygon id="radar-compare" fill="#111111" fill-opacity="0.08" stroke="#111111" stroke-width="1.5"></polygon>
+          <!-- primary material (CF-PA) -->
+          <polygon id="radar-primary" fill="#f25e50" fill-opacity="0.16" stroke="#f25e50" stroke-width="2.5"></polygon>
+          <!-- axis labels -->
+          <g id="radar-labels" fill="#3c3c3c" font-family="Montserrat, sans-serif" font-size="12" font-weight="600"></g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+/**
+ * FRACKTAL MATERIALS DATABASE
+ * Unified data for all material pages — radar chart axes and key specs.
+ * Axes order: [Tensile, Flexural, Impact, Heat, Surface, Ease, Chemical, Dimensional, Cost]
+ * Cost is scored 0–10 where 10 = most affordable (inverted from price)
+ * Scale: 0–10
+ */
+const FRACKTAL_MATERIALS = {
+  'cf-pa': {
+    name: 'Carbon Fiber Nylon (CF-PA)',
+    shortName: 'CF-PA',
+    color: '#f25e50',
+    isPrimary: true,
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [9, 9, 4, 9, 8, 9, 4, 4, 3],
+    specs: {
+      tensileStrength: { value: 82, unit: 'MPa' },
+      heatDeflection: { value: 145, unit: '°C' },
+      density: { value: 1.1, unit: 'g/cm³' },
+      printTemp: { min: 260, max: 280, unit: '°C' },
+      layerBond: { value: 35, unit: 'MPa' },
+      moistureAbsorption: { value: 1.1, unit: '%' },
+      pricePerKg: { value: 4500, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/cf-nylon/'
+  },
+  'nylon-pa12': {
+    name: 'Nylon PA12',
+    shortName: 'Nylon (PA12)',
+    color: '#111111',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [6, 5, 8, 5, 7, 5, 5, 5, 5],
+    specs: {
+      tensileStrength: { value: 50, unit: 'MPa' },
+      heatDeflection: { value: 78, unit: '°C' },
+      density: { value: 1.01, unit: 'g/cm³' },
+      printTemp: { min: 240, max: 260, unit: '°C' },
+      pricePerKg: { value: 3000, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/nylon/'
+  },
+  'pla': {
+    name: 'PLA',
+    shortName: 'PLA',
+    color: '#5a5a5a',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [5, 6, 2, 2, 3, 8, 9, 10, 9],
+    specs: {
+      tensileStrength: { value: 56, unit: 'MPa' },
+      heatDeflection: { value: 53, unit: '°C' },
+      density: { value: 1.24, unit: 'g/cm³' },
+      printTemp: { min: 190, max: 220, unit: '°C' },
+      pricePerKg: { value: 1200, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/pla/'
+  },
+  'petg': {
+    name: 'PETG',
+    shortName: 'PETG',
+    color: '#5a5a5a',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [5, 5, 7, 4, 7, 6, 7, 8, 8],
+    specs: {
+      tensileStrength: { value: 48, unit: 'MPa' },
+      heatDeflection: { value: 70, unit: '°C' },
+      density: { value: 1.27, unit: 'g/cm³' },
+      printTemp: { min: 220, max: 250, unit: '°C' },
+      pricePerKg: { value: 1500, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/pet-g-polyethylene-terephthalate-glycol/'
+  },
+  'abs': {
+    name: 'ABS',
+    shortName: 'ABS',
+    color: '#5a5a5a',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [4, 5, 7, 6, 5, 4, 6, 5, 8],
+    specs: {
+      tensileStrength: { value: 38, unit: 'MPa' },
+      heatDeflection: { value: 96, unit: '°C' },
+      density: { value: 1.04, unit: 'g/cm³' },
+      printTemp: { min: 220, max: 250, unit: '°C' },
+      pricePerKg: { value: 1400, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/abs-acrylonitrile-butadiene-styrene/'
+  },
+  'tpu-95a': {
+    name: 'TPU 95A',
+    shortName: 'TPU 95A',
+    color: '#5a5a5a',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [3, 1, 10, 3, 8, 3, 6, 4, 6],
+    specs: {
+      tensileStrength: { value: 28, unit: 'MPa' },
+      heatDeflection: { value: 60, unit: '°C' },
+      density: { value: 1.21, unit: 'g/cm³' },
+      printTemp: { min: 220, max: 240, unit: '°C' },
+      pricePerKg: { value: 2200, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/tpu/'
+  },
+  'polycarbonate': {
+    name: 'Polycarbonate (PC)',
+    shortName: 'Polycarbonate',
+    color: '#5a5a5a',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [6, 6, 9, 8, 5, 5, 5, 3, 4],
+    specs: {
+      tensileStrength: { value: 62, unit: 'MPa' },
+      heatDeflection: { value: 134, unit: '°C' },
+      density: { value: 1.20, unit: 'g/cm³' },
+      printTemp: { min: 260, max: 300, unit: '°C' },
+      pricePerKg: { value: 3500, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/polycarbonate/'
+  }
+};
+
+// Axis labels for the 9-axis radar
+// Physical properties grouped together (1–7), practical properties together (8–9)
+const RADAR_AXIS_LABELS = [
+  'Tensile Strength',
+  'Flexural Modulus',
+  'Impact Resistance',
+  'Heat Resistance',
+  'Chemical Resistance',
+  'Dimensional Stability',
+  'Surface Finish',
+  'Ease of Printing',
+  'Cost Efficiency'
+];
+
+(function() {
+  const CX = 300, CY = 300, R = 220;
+  const AXES = 9;
+  const PRIMARY_KEY = 'cf-pa';
+
+  function scoreToRadius(score) {
+    return (score / 10) * R;
+  }
+
+  function getPoint(index, radius) {
+    const angle = (Math.PI * 2 * index / AXES) - Math.PI / 2;
+    return {
+      x: CX + radius * Math.cos(angle),
+      y: CY + radius * Math.sin(angle)
+    };
+  }
+
+  function radarToPoints(radarData) {
+    return radarData.map((score, i) => {
+      const pt = getPoint(i, scoreToRadius(score));
+      return `${pt.x.toFixed(2)},${pt.y.toFixed(2)}`;
+    }).join(' ');
+  }
+
+  // Build grid rings (nonagon at 2.5, 5, 7.5, 10)
+  function buildGrid() {
+    const gridEl = document.getElementById('radar-grid');
+    [2.5, 5, 7.5, 10].forEach(level => {
+      const pts = [];
+      for (let i = 0; i < AXES; i++) {
+        const pt = getPoint(i, scoreToRadius(level));
+        pts.push(`${pt.x.toFixed(2)},${pt.y.toFixed(2)}`);
+      }
+      const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      poly.setAttribute('points', pts.join(' '));
+      gridEl.appendChild(poly);
+    });
+  }
+
+  // Build axis lines
+  function buildAxes() {
+    const axesEl = document.getElementById('radar-axes');
+    for (let i = 0; i < AXES; i++) {
+      const pt = getPoint(i, R);
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', CX);
+      line.setAttribute('y1', CY);
+      line.setAttribute('x2', pt.x.toFixed(2));
+      line.setAttribute('y2', pt.y.toFixed(2));
+      axesEl.appendChild(line);
+    }
+  }
+
+  // Build axis labels
+  function buildLabels() {
+    const labelsEl = document.getElementById('radar-labels');
+    const labelOffset = 34;
+    RADAR_AXIS_LABELS.forEach((label, i) => {
+      const pt = getPoint(i, R + labelOffset);
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', pt.x.toFixed(2));
+      text.setAttribute('y', pt.y.toFixed(2));
+      // Determine anchor based on position
+      const angle = (Math.PI * 2 * i / AXES) - Math.PI / 2;
+      const deg = (angle * 180 / Math.PI + 360) % 360;
+      if (deg > 45 && deg < 135) text.setAttribute('text-anchor', 'middle');
+      else if (deg >= 135 && deg <= 225) text.setAttribute('text-anchor', 'end');
+      else if (deg > 225 && deg < 315) text.setAttribute('text-anchor', 'middle');
+      else text.setAttribute('text-anchor', 'start');
+      text.textContent = label;
+      labelsEl.appendChild(text);
+    });
+  }
+
+  function updateRadar(compareKey) {
+    const primary = FRACKTAL_MATERIALS[PRIMARY_KEY];
+    const compare = FRACKTAL_MATERIALS[compareKey];
+    if (!primary || !compare) return;
+
+    document.getElementById('radar-primary').setAttribute('points', radarToPoints(primary.radar));
+    document.getElementById('radar-compare').setAttribute('points', radarToPoints(compare.radar));
+    document.getElementById('legend-compare-name').textContent = compare.shortName;
+  }
+
+  // Initialize radar on load
+  buildGrid();
+  buildAxes();
+  buildLabels();
+
+  document.getElementById('compare-material').addEventListener('change', function(e) {
+    updateRadar(e.target.value);
+  });
+
+  updateRadar('nylon-pa12');
+})();
+</script>
+
+<!-- ===================== KEY PROPERTIES GRID ===================== -->
+<section class="section" id="key-properties" data-od-id="key-properties">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="overline">Measured Properties</span>
+      <h2>Key Properties</h2>
+      <p>Engineering values with the context that decides whether CF-PA is the right choice for a load-bearing part.</p>
+    </div>
+    <div class="card-flex">
+      <div class="prop-card has-img" data-od-id="prop-tensile">
+        <img class="prop-img" src="https://d8j0ntlcm91z4.cloudfront.net/user_3FgPPk8oMuj8SYTxnyelClUUvq8/hf_20260712_154213_6544ebe2-beb3-4396-af2d-4990293b0459.png" alt="CF-PA tensile test specimen in stainless steel grips" loading="lazy">
+        <div class="prop-body">
+          <div class="name">Tensile Strength</div>
+          <div class="val">82 MPa</div>
+          <div class="ctx">vs 50 MPa for unfilled PA12.</div>
+        </div>
+      </div>
+      <div class="prop-card has-img" data-od-id="prop-hdt">
+        <img class="prop-img" src="https://d8j0ntlcm91z4.cloudfront.net/user_3FgPPk8oMuj8SYTxnyelClUUvq8/hf_20260712_151326_189f8f0f-7d8e-4f9e-81f6-fd1a7c9e33c6.png" alt="Torch flame test on CF-PA bracket demonstrating heat resistance" loading="lazy">
+        <div class="prop-body">
+          <div class="name">Heat Deflection Temp</div>
+          <div class="val">145 °C</div>
+          <div class="ctx">Maintains shape in automotive engine-bay conditions.</div>
+        </div>
+      </div>
+      <div class="prop-card has-img" data-od-id="prop-bond">
+        <img class="prop-img" src="https://d8j0ntlcm91z4.cloudfront.net/user_3FgPPk8oMuj8SYTxnyelClUUvq8/hf_20260712_154558_3a69817d-0e96-4dd8-a7b4-c32b99e16fc5.png" alt="Cross-section of carbon fiber nylon part showing strong layer bonding" loading="lazy">
+        <div class="prop-body">
+          <div class="name">Layer Bond Strength</div>
+          <div class="val">35 MPa</div>
+          <div class="ctx">Isotropic-approaching for structural FDM.</div>
+        </div>
+      </div>
+      <div class="prop-card has-img" data-od-id="prop-stiffness">
+        <img class="prop-img" src="https://d8j0ntlcm91z4.cloudfront.net/user_3FgPPk8oMuj8SYTxnyelClUUvq8/hf_20260712_155204_f941f1bd-9dd6-443f-a09d-e96c42783c7a.png" alt="CF-PA bracket on precision scale in aerospace workshop" loading="lazy">
+        <div class="prop-body">
+          <div class="name">Specific Stiffness</div>
+          <div class="val">5.9 <span style="font-size:16px">GPa·cm³/g</span></div>
+          <div class="ctx">Flexural modulus / density ratio.</div>
+        </div>
+      </div>
+      <div class="prop-card has-img" data-od-id="prop-moisture">
+        <img class="prop-img" src="fracktal-cf-pa-dry-box-humidity.png" alt="CF-PA filament dry box with hygrometer showing low humidity" loading="lazy">
+        <div class="prop-body">
+          <div class="name">Moisture Absorption</div>
+          <div class="val">1.1 %</div>
+          <div class="ctx">Desiccated storage required.</div>
+        </div>
+      </div>
+      <div class="prop-card has-img" data-od-id="prop-speed">
+        <img class="prop-img" src="fracktal-fdm-printer-cf-pa-printing.png" alt="FDM 3D printer in motion building CF-PA part" loading="lazy">
+        <div class="prop-body">
+          <div class="name">Print Speed</div>
+          <div class="val">40–70 <span style="font-size:16px">mm/s</span></div>
+          <div class="ctx">Hardened steel nozzle required, ≥0.6 mm.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MACHINE REQUIREMENTS ===================== -->
+<section class="section" id="machine-requirements" style="background:var(--surface-soft);" data-od-id="machine-requirements">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="overline">Printer Compatibility</span>
+      <h2>Machine Requirements</h2>
+      <p>Can your printer handle this? These are the hard thresholds for reliable CF-PA output.</p>
+    </div>
+    <div class="table-scroll">
+      <table class="req-table">
+        <thead>
+          <tr><th>Requirement</th><th>Minimum Spec</th><th>Recommended</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="req-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg></span>Nozzle Temperature</td><td>260 °C</td><td class="rec">265–280 °C</td></tr>
+          <tr><td><span class="req-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="14" width="20" height="4" rx="1"></rect><path d="M6 14v-2"></path><path d="M10 14v-3"></path><path d="M14 14v-2"></path><path d="M18 14v-3"></path><path d="M4 18v2"></path><path d="M20 18v2"></path></svg></span>Bed Temperature</td><td>80 °C (heated mandatory)</td><td class="rec">100–110 °C</td></tr>
+          <tr><td><span class="req-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6"></path><path d="M9 8h6l-1 6h-4l-1-6z"></path><circle cx="12" cy="18" r="2"></circle><path d="M12 20v2"></path></svg></span>Nozzle Material</td><td>Hardened steel</td><td class="rec">Hardened steel (carbide optional)</td></tr>
+          <tr><td><span class="req-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"></path><path d="M4 4l4 4"></path><path d="M20 4l-4 4"></path><path d="M4 20l4-4"></path><path d="M20 20l-4-4"></path><rect x="8" y="8" width="8" height="8"></rect></svg></span>Enclosure</td><td>Strongly recommended</td><td class="rec">Fully enclosed + temp-controlled</td></tr>
+          <tr><td><span class="req-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-1.5 3-3 4.5-3 7a3 3 0 1 0 6 0c0-2.5-1.5-4-3-7z"></path><path d="M6 19h12"></path><path d="M8 22h8"></path><path d="M9 19v3"></path><path d="M15 19v3"></path></svg></span>Drying</td><td>70 °C / 6 hr before print</td><td class="rec">80 °C / 8 hr; re-dry if open &gt;4 hr</td></tr>
+          <tr><td><span class="req-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg></span>Bed Surface</td><td>PEI / Garolite</td><td class="rec">Garolite (G10)</td></tr>
+          <tr><td><span class="req-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>Nozzle Diameter</td><td>0.6 mm minimum</td><td class="rec">0.8 mm recommended — finer nozzles clog on short fibres</td></tr>
+          <tr><td><span class="req-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"></path><path d="M8 7l4-4 4 4"></path><path d="M8 17l4 4 4-4"></path><path d="M5 12h3"></path><path d="M16 12h3"></path></svg></span>Retraction</td><td>≤1 mm (direct drive)</td><td class="rec">Direct drive preferred</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout" data-od-id="hotend-callout">
+      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"></path><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"></path></svg></span>
+      <p>CF-PA is an <strong>engineering-grade material</strong>. Standard FDM printers with PTFE hot-end liners cannot reliably print above 240 °C — verify your machine's all-metal hot-end before ordering.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== APPLICATIONS ===================== -->
+<section class="section" id="applications" data-od-id="applications">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="overline">Where It Is Used</span>
+      <h2>Applications — By Industry</h2>
+    </div>
+    <div class="card-flex">
+      <div class="app-tile has-img" data-od-id="app-aerospace">
+        <img class="tile-img" src="fracktal-cf-pa-aerospace-drone-frame.png" alt="Matte black carbon-fiber nylon 3D printed drone frame component — aerospace and defence application" loading="lazy" width="600" height="400">
+        <div class="tile-body">
+          <h3><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5A2.12 2.12 0 0 0 16.5 4.5L13 8 4.8 6.2a1 1 0 0 0-.9 1.7l4.4 3.1-1.3 3-2.5.5a.7.7 0 0 0-.4 1.2l2.6 2.6a.7.7 0 0 0 1.2-.4l.5-2.5 3-1.3 3.1 4.4a1 1 0 0 0 1.7-.9Z"></path></svg></span>Aerospace &amp; Defence</h3>
+          <ul><li>Jigs &amp; fixtures</li><li>Structural brackets</li><li>Tooling inserts</li></ul>
+        </div>
+      </div>
+      <div class="app-tile has-img" data-od-id="app-automotive">
+        <img class="tile-img" src="automotive-end-use-part.jpg" alt="Matte black carbon-fiber nylon 3D printed end-use automotive part" loading="lazy" width="600" height="400">
+        <div class="tile-body">
+          <h3><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13 6.7 8a2 2 0 0 1 1.9-1.3h6.8A2 2 0 0 1 17.3 8L19 13"></path><path d="M3 13h18v4a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"></path><path d="M7 16h.01M17 16h.01"></path></svg></span>Automotive</h3>
+          <ul><li>Under-hood components</li><li>Sensor housings</li><li>Intake manifolds</li></ul>
+        </div>
+      </div>
+      <div class="app-tile has-img" data-od-id="app-tooling">
+        <img class="tile-img" src="https://fracktal.in/wp-content/uploads/2023/12/assembly-jig-3d-print-e1703091029262.jpg" alt="3D printed assembly jig — end-of-arm tooling and robotic grippers" loading="lazy" width="600" height="400">
+        <div class="tile-body">
+          <h3><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4Z"></path></svg></span>Industrial Tooling</h3>
+          <ul><li>End-of-arm tooling</li><li>Robotic grippers</li><li>Drill guides</li></ul>
+        </div>
+      </div>
+      <div class="app-tile has-img" data-od-id="app-electronics">
+        <img class="tile-img" src="fracktal-cf-pa-electronics-enclosure.png" alt="Black carbon-fiber-reinforced nylon 3D printed structural electronics enclosure with internal circuit board" loading="lazy" width="600" height="400">
+        <div class="tile-body">
+          <h3><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="8" height="8" rx="1"></rect><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"></path></svg></span>Electronics</h3>
+          <ul><li>EMI-shielding housings (conductive CF variants)</li><li>Structural enclosures</li></ul>
+        </div>
+      </div>
+      <div class="app-tile has-img" data-od-id="app-sports">
+        <img class="tile-img" src="sports-performance-part.jpg" alt="Black FDM 3D printed functional part for sports and performance equipment" loading="lazy" width="600" height="400">
+        <div class="tile-body">
+          <h3><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"></circle><circle cx="18.5" cy="17.5" r="3.5"></circle><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm-9.5 11.5 4-5 3 2 2.5-4"></path><path d="M18.5 17.5 15 9l-2 1"></path></svg></span>Sports &amp; Performance</h3>
+          <ul><li>Bicycle components</li><li>Equipment frames</li><li>Protective gear</li></ul>
+        </div>
+      </div>
+      <div class="app-tile has-img" data-od-id="app-rnd">
+        <img class="tile-img" src="rnd-prototyping-hero.png" alt="Carbon-fiber nylon 3D printed parts for R&amp;D prototyping and engineering applications" loading="lazy" width="600" height="400">
+        <div class="tile-body">
+          <h3><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6.5L5.5 18a2 2 0 0 0 1.8 3h9.4a2 2 0 0 0 1.8-3L14 9.5V3"></path><path d="M8 15h8"></path></svg></span>R&amp;D / Prototyping</h3>
+          <ul><li>Functional prototypes validated in the final operating environment</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TENSILE COMPARISON BAR CHART ===================== -->
+<section class="section" id="tensile-comparison" style="background:var(--dark);color:#fff;" data-od-id="tensile-comparison">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="overline">Benchmark</span>
+      <h2 style="color:#fff;">Tensile Strength — FDM Materials (MPa)</h2>
+    </div>
+    <svg viewBox="0 0 600 330" role="img" aria-label="Horizontal bar chart comparing tensile strength of eleven Fracktal FDM materials in megapascals">
+      <g font-family="Montserrat, sans-serif">
+        <!-- gridlines at 20,40,60,80 MPa (scale 5.412 px/MPa from x=100) -->
+        <g stroke="rgba(255,255,255,0.12)" stroke-width="1">
+          <line x1="208.2" y1="10" x2="208.2" y2="300"></line>
+          <line x1="316.5" y1="10" x2="316.5" y2="300"></line>
+          <line x1="424.7" y1="10" x2="424.7" y2="300"></line>
+          <line x1="532.9" y1="10" x2="532.9" y2="300"></line>
+        </g>
+        <g fill="rgba(255,255,255,0.5)" font-size="10" font-weight="500" text-anchor="middle">
+          <text x="208.2" y="314">20</text>
+          <text x="316.5" y="314">40</text>
+          <text x="424.7" y="314">60</text>
+          <text x="532.9" y="314">80</text>
+        </g>
+        <!-- rows -->
+        <g font-size="11" font-weight="600">
+          <!-- CF-PA -->
+          <text x="94" y="22" text-anchor="end" fill="#ffffff">CF-PA</text>
+          <rect x="100" y="13" width="443.4" height="18" rx="2" fill="#f25e50"></rect>
+          <text x="548" y="23" text-anchor="start" fill="#ffffff">82</text>
+          <!-- Polycarbonate -->
+          <text x="94" y="51" text-anchor="end" fill="rgba(255,255,255,0.78)">Polycarbonate</text>
+          <rect x="100" y="42" width="335.4" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="441" y="52" text-anchor="start" fill="rgba(255,255,255,0.78)">62</text>
+          <!-- CF-PETG -->
+          <text x="94" y="80" text-anchor="end" fill="rgba(255,255,255,0.78)">CF-PETG</text>
+          <rect x="100" y="71" width="314" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="418" y="81" text-anchor="start" fill="rgba(255,255,255,0.78)">58</text>
+          <!-- Nylon PA12 -->
+          <text x="94" y="109" text-anchor="end" fill="rgba(255,255,255,0.78)">Nylon PA12</text>
+          <rect x="100" y="100" width="270.6" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="376" y="110" text-anchor="start" fill="rgba(255,255,255,0.78)">50</text>
+          <!-- PC-ABS -->
+          <text x="94" y="138" text-anchor="end" fill="rgba(255,255,255,0.78)">PC-ABS</text>
+          <rect x="100" y="129" width="259.8" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="365" y="139" text-anchor="start" fill="rgba(255,255,255,0.78)">48</text>
+          <!-- PETG -->
+          <text x="94" y="167" text-anchor="end" fill="rgba(255,255,255,0.78)">PETG</text>
+          <rect x="100" y="158" width="259.8" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="365" y="168" text-anchor="start" fill="rgba(255,255,255,0.78)">48</text>
+          <!-- PLA -->
+          <text x="94" y="196" text-anchor="end" fill="rgba(255,255,255,0.78)">PLA</text>
+          <rect x="100" y="187" width="303.1" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="409" y="197" text-anchor="start" fill="rgba(255,255,255,0.78)">56</text>
+          <!-- ASA -->
+          <text x="94" y="225" text-anchor="end" fill="rgba(255,255,255,0.78)">ASA</text>
+          <rect x="100" y="216" width="227.1" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="333" y="226" text-anchor="start" fill="rgba(255,255,255,0.78)">42</text>
+          <!-- ABS -->
+          <text x="94" y="254" text-anchor="end" fill="rgba(255,255,255,0.78)">ABS</text>
+          <rect x="100" y="245" width="205.7" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="311" y="255" text-anchor="start" fill="rgba(255,255,255,0.78)">38</text>
+          <!-- TPU 95A -->
+          <text x="94" y="283" text-anchor="end" fill="rgba(255,255,255,0.78)">TPU 95A</text>
+          <rect x="100" y="274" width="151.5" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="257" y="284" text-anchor="start" fill="rgba(255,255,255,0.78)">28</text>
+        </g>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<!-- ===================== MATERIAL COMPARISON SCATTER ===================== -->
+<section class="section" id="material-scatter" data-od-id="material-scatter">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="overline">Performance Map</span>
+      <h2>Heat Deflection vs Impact Strength</h2>
+    </div>
+    <style>
+      #scatter-container{display:flex;gap:20px;align-items:flex-start;}
+      #scatter-left-panel{flex:0 0 220px;display:flex;flex-direction:column;gap:16px;}
+      #scatter-chart-wrapper{flex:1;overflow:visible;}
+      #scatter-chart svg{display:block;width:100%;height:auto;max-width:100%;}
+      #scatter-materials{background:var(--surface-soft);border:1px solid var(--border);border-radius:var(--radius);padding:16px;overflow-y:auto;max-height:400px;}
+      #material-desc{padding:16px;background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius);font-size:12px;line-height:1.4;color:var(--muted);}
+      .mat-btn{min-height:44px;-webkit-user-select:none;-webkit-touch-callout:none;}
+      @media(max-width:768px){
+        #scatter-container{flex-direction:column;align-items:stretch;}
+        #scatter-left-panel{flex:1;flex-direction:row;gap:16px;}
+        #scatter-chart-wrapper{width:100%;overflow:visible;}
+        #scatter-chart svg{width:100%;}
+        #scatter-materials{flex:0 0 160px;max-height:200px;}
+        #material-desc{flex:1;padding:12px!important;font-size:11px!important;min-width:auto;}
+      }
+      @media(max-width:640px){
+        #scatter-left-panel{flex-direction:column;}
+        #scatter-materials{flex:1;max-height:180px;}
+        .scatter-label{font-size:10px!important;}
+        #material-desc{font-size:11px!important;}
+      }
+      @media(max-width:480px){
+        #scatter-materials{max-height:150px;min-width:auto;}
+        #material-desc{min-width:auto;}
+        #material-list{gap:4px!important;}
+        .mat-btn{padding:8px 10px!important;font-size:11px!important;min-height:40px!important;}
+        .mat-btn span{font-size:9px!important;}
+        .scatter-label{font-size:9px!important;}
+      }
+    </style>
+    <div id="scatter-container">
+      <div id="scatter-left-panel">
+        <div id="scatter-materials">
+          <h3 style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin:0 0 12px;font-weight:600;">Available Materials</h3>
+          <div style="display:flex;flex-direction:column;gap:6px;" id="material-list">
+            <button class="mat-btn mat-active" data-material="cf-pa" style="background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-family:var(--font);font-size:12px;font-weight:600;color:var(--dark);cursor:pointer;text-align:left;transition:all .12s ease;">CF-PA<br><span style="font-size:10px;font-weight:400;color:var(--muted);">Carbon Fiber</span></button>
+            <button class="mat-btn" data-material="nylon-pa12" style="background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-family:var(--font);font-size:12px;font-weight:600;color:var(--dark);cursor:pointer;text-align:left;transition:all .12s ease;">Nylon PA12<br><span style="font-size:10px;font-weight:400;color:var(--muted);">Unfilled</span></button>
+            <button class="mat-btn" data-material="polycarbonate" style="background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-family:var(--font);font-size:12px;font-weight:600;color:var(--dark);cursor:pointer;text-align:left;transition:all .12s ease;">PC<br><span style="font-size:10px;font-weight:400;color:var(--muted);">Polycarbonate</span></button>
+            <button class="mat-btn" data-material="petg" style="background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-family:var(--font);font-size:12px;font-weight:600;color:var(--dark);cursor:pointer;text-align:left;transition:all .12s ease;">PETG<br><span style="font-size:10px;font-weight:400;color:var(--muted);">Versatile</span></button>
+            <button class="mat-btn" data-material="abs" style="background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-family:var(--font);font-size:12px;font-weight:600;color:var(--dark);cursor:pointer;text-align:left;transition:all .12s ease;">ABS<br><span style="font-size:10px;font-weight:400;color:var(--muted);">Impact Resist</span></button>
+            <button class="mat-btn" data-material="pla" style="background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-family:var(--font);font-size:12px;font-weight:600;color:var(--dark);cursor:pointer;text-align:left;transition:all .12s ease;">PLA<br><span style="font-size:10px;font-weight:400;color:var(--muted);">Biodegradable</span></button>
+            <button class="mat-btn" data-material="tpu-95a" style="background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-family:var(--font);font-size:12px;font-weight:600;color:var(--dark);cursor:pointer;text-align:left;transition:all .12s ease;">TPU 95A<br><span style="font-size:10px;font-weight:400;color:var(--muted);">Flexible</span></button>
+            <button class="mat-btn" data-material="cf-petg" style="background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-family:var(--font);font-size:12px;font-weight:600;color:var(--dark);cursor:pointer;text-align:left;transition:all .12s ease;">CF-PETG<br><span style="font-size:10px;font-weight:400;color:var(--muted);">Carbon Fiber</span></button>
+            <button class="mat-btn" data-material="asa" style="background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-family:var(--font);font-size:12px;font-weight:600;color:var(--dark);cursor:pointer;text-align:left;transition:all .12s ease;">ASA<br><span style="font-size:10px;font-weight:400;color:var(--muted);">Weather Resist</span></button>
+            <button class="mat-btn" data-material="pc-abs" style="background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-family:var(--font);font-size:12px;font-weight:600;color:var(--dark);cursor:pointer;text-align:left;transition:all .12s ease;">PC-ABS<br><span style="font-size:10px;font-weight:400;color:var(--muted);">Hybrid</span></button>
+            <button class="mat-btn" data-material="pp" style="background:var(--canvas);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-family:var(--font);font-size:12px;font-weight:600;color:var(--dark);cursor:pointer;text-align:left;transition:all .12s ease;">PP<br><span style="font-size:10px;font-weight:400;color:var(--muted);">Polypropylene</span></button>
+          </div>
+        </div>
+        <div id="material-desc">Carbon fiber reinforced nylon optimized for high strength to weight ratio, stiffness, and heat resistance. Best for structural applications requiring thermal stability above 80°C.</div>
+      </div>
+      <div id="scatter-chart-wrapper">
+        <svg viewBox="0 0 680 560" style="height:auto;width:100%;display:block;" role="img" aria-label="2D scatter plot of materials comparing heat deflection and tensile strength">
+          <defs>
+            <style>
+              .scatter-grid { stroke:rgba(60,60,60,0.15); stroke-width:1; }
+              .scatter-label { font-family:Montserrat,system-ui,-apple-system,sans-serif; }
+              .scatter-circle { cursor:pointer; transition:all .2s ease; touch-action:manipulation; }
+              .scatter-circle:hover, .scatter-circle:active { opacity:0.9; }
+              .scatter-circle.active { filter:drop-shadow(0 0 10px #f25e50); }
+            </style>
+          </defs>
+          <!-- Grid -->
+          <g class="scatter-grid">
+            <line x1="80" y1="50" x2="80" y2="480"></line>
+            <line x1="80" y1="480" x2="640" y2="480"></line>
+            <line x1="80" y1="420" x2="640" y2="420"></line>
+            <line x1="80" y1="360" x2="640" y2="360"></line>
+            <line x1="80" y1="300" x2="640" y2="300"></line>
+            <line x1="80" y1="240" x2="640" y2="240"></line>
+            <line x1="80" y1="180" x2="640" y2="180"></line>
+            <line x1="80" y1="120" x2="640" y2="120"></line>
+            <line x1="160" y1="50" x2="160" y2="480"></line>
+            <line x1="240" y1="50" x2="240" y2="480"></line>
+            <line x1="320" y1="50" x2="320" y2="480"></line>
+            <line x1="400" y1="50" x2="400" y2="480"></line>
+            <line x1="480" y1="50" x2="480" y2="480"></line>
+            <line x1="560" y1="50" x2="560" y2="480"></line>
+          </g>
+          <!-- Axis labels -->
+          <text class="scatter-label" x="360" y="530" text-anchor="middle" font-weight="600">Tensile Strength ASTM D638 [MPa]</text>
+          <text class="scatter-label" x="20" y="260" text-anchor="middle" font-weight="600" transform="rotate(-90 20 260)">Heat Deflection [°C]</text>
+          <!-- Y-axis tick labels (0-180°C) -->
+          <text class="scatter-label" x="70" y="485" text-anchor="end">0</text>
+          <text class="scatter-label" x="70" y="425" text-anchor="end">60</text>
+          <text class="scatter-label" x="70" y="365" text-anchor="end">120</text>
+          <text class="scatter-label" x="70" y="305" text-anchor="end">180</text>
+          <!-- X-axis tick labels (0-90 MPa for tensile strength) -->
+          <text class="scatter-label" x="80" y="500" text-anchor="middle">0</text>
+          <text class="scatter-label" x="150" y="500" text-anchor="middle">15</text>
+          <text class="scatter-label" x="220" y="500" text-anchor="middle">30</text>
+          <text class="scatter-label" x="290" y="500" text-anchor="middle">45</text>
+          <text class="scatter-label" x="360" y="500" text-anchor="middle">60</text>
+          <text class="scatter-label" x="430" y="500" text-anchor="middle">75</text>
+          <text class="scatter-label" x="500" y="500" text-anchor="middle">90</text>
+          <!-- Material circles: x = Tensile strength (MPa), y = heat deflection (°C) -->
+          <!-- CF-PA: 82 MPa tensile, 145°C heat deflection -->
+          <circle class="scatter-circle mat-cf-pa active" cx="591" cy="65" r="28" fill="#f25e50" data-material="cf-pa"></circle>
+          <text class="scatter-label" x="591" y="70" text-anchor="middle" font-weight="600" fill="#fff" pointer-events="none" font-size="9">CF-PA</text>
+
+          <!-- Nylon PA12: 50 MPa tensile, 78°C heat deflection -->
+          <circle class="scatter-circle mat-nylon-pa12" cx="359" cy="281" r="26" fill="rgba(150,150,150,0.7)" data-material="nylon-pa12"></circle>
+          <text class="scatter-label" x="359" y="286" text-anchor="middle" font-weight="600" fill="#fff" pointer-events="none" font-size="8">Nylon</text>
+
+          <!-- Polycarbonate: 62 MPa tensile, 134°C heat deflection -->
+          <circle class="scatter-circle mat-polycarbonate" cx="433" cy="96" r="26" fill="rgba(150,150,150,0.7)" data-material="polycarbonate"></circle>
+          <text class="scatter-label" x="433" y="101" text-anchor="middle" font-weight="600" fill="#fff" pointer-events="none" font-size="8">PC</text>
+
+          <!-- PETG: 48 MPa tensile, 70°C heat deflection -->
+          <circle class="scatter-circle mat-petg" cx="344" cy="320" r="24" fill="rgba(150,150,150,0.7)" data-material="petg"></circle>
+          <text class="scatter-label" x="344" y="325" text-anchor="middle" font-weight="600" fill="#fff" pointer-events="none" font-size="8">PETG</text>
+
+          <!-- ABS: 38 MPa tensile, 96°C heat deflection -->
+          <circle class="scatter-circle mat-abs" cx="296" cy="251" r="24" fill="rgba(150,150,150,0.7)" data-material="abs"></circle>
+          <text class="scatter-label" x="296" y="256" text-anchor="middle" font-weight="600" fill="#fff" pointer-events="none" font-size="8">ABS</text>
+
+          <!-- PLA: 56 MPa tensile, 53°C heat deflection -->
+          <circle class="scatter-circle mat-pla" cx="393" cy="349" r="20" fill="rgba(150,150,150,0.7)" data-material="pla"></circle>
+          <text class="scatter-label" x="393" y="354" text-anchor="middle" font-weight="600" fill="#fff" pointer-events="none" font-size="8">PLA</text>
+
+          <!-- TPU 95A: 28 MPa tensile, 60°C heat deflection -->
+          <circle class="scatter-circle mat-tpu-95a" cx="266" cy="336" r="28" fill="rgba(150,150,150,0.7)" data-material="tpu-95a"></circle>
+          <text class="scatter-label" x="266" y="341" text-anchor="middle" font-weight="600" fill="#fff" pointer-events="none" font-size="8">TPU</text>
+
+          <!-- CF-PETG: 58 MPa tensile, 80°C heat deflection -->
+          <circle class="scatter-circle mat-cf-petg" cx="409" cy="273" r="24" fill="rgba(150,150,150,0.7)" data-material="cf-petg"></circle>
+          <text class="scatter-label" x="409" y="278" text-anchor="middle" font-weight="600" fill="#fff" pointer-events="none" font-size="7">CF-PETG</text>
+
+          <!-- ASA: 42 MPa tensile, 98°C heat deflection -->
+          <circle class="scatter-circle mat-asa" cx="319" cy="245" r="24" fill="rgba(150,150,150,0.7)" data-material="asa"></circle>
+          <text class="scatter-label" x="319" y="250" text-anchor="middle" font-weight="600" fill="#fff" pointer-events="none" font-size="8">ASA</text>
+
+          <!-- PC-ABS: 48 MPa tensile, 108°C heat deflection -->
+          <circle class="scatter-circle mat-pc-abs" cx="344" cy="204" r="26" fill="rgba(150,150,150,0.7)" data-material="pc-abs"></circle>
+          <text class="scatter-label" x="344" y="209" text-anchor="middle" font-weight="600" fill="#fff" pointer-events="none" font-size="7">PC-ABS</text>
+
+          <!-- PP: 28 MPa tensile, 92°C heat deflection -->
+          <circle class="scatter-circle mat-pp" cx="266" cy="367" r="28" fill="rgba(150,150,150,0.7)" data-material="pp"></circle>
+          <text class="scatter-label" x="266" y="372" text-anchor="middle" font-weight="600" fill="#fff" pointer-events="none" font-size="8">PP</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== WHEN TO USE / AVOID ===================== -->
+<section class="section" id="decision-guide" data-od-id="decision-guide">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="overline">Decision Guide</span>
+      <h2>When to Use CF-PA — and When Not To</h2>
+    </div>
+    <div class="card-flex">
+      <div class="decide-col decide--use" data-od-id="decide-use">
+        <div class="decide-head">
+          <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f25e50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span>
+          <h3>Use CF-PA when</h3>
+        </div>
+        <div class="decide-body">
+          <ul>
+            <li><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span>Part operates above 80 °C continuously.</li>
+            <li><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span>High stiffness-to-weight ratio is required (e.g. EOAT, structural brackets).</li>
+            <li><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span>Dimensional stability over temperature cycles is critical.</li>
+            <li><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span>Part will be machined or drilled after printing.</li>
+            <li><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span>You need to replace metal in low-to-medium load applications.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="decide-col decide--avoid" data-od-id="decide-avoid">
+        <div class="decide-head">
+          <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></span>
+          <h3>Avoid CF-PA when</h3>
+        </div>
+        <div class="decide-body">
+          <ul>
+            <li><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></span>Part requires high impact / ductile failure — use unfilled Nylon or TPU instead.</li>
+            <li><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></span>Surface aesthetics are primary — CF-PA has a matte, slightly rough finish.</li>
+            <li><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></span>Your machine lacks an all-metal hot-end.</li>
+            <li><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></span>Part contacts food, drinking water, or medical fluids (not certified).</li>
+            <li><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></span>You need tight tolerances without post-machining (moisture variability ±0.3 %).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== DfAM TIPS ===================== -->
+<section class="section" id="dfam" style="background:var(--surface-soft);" data-od-id="dfam">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="overline">Design for Additive</span>
+      <h2>DfAM Tips for CF-PA</h2>
+      <p>Design rules that turn a printable part into a structural one.</p>
+    </div>
+    <div class="card-flex">
+      <div class="tip-card has-img" data-od-id="tip-wall">
+        <img class="tip-img" src="fracktal-cf-pa-design-tip-wall-thickness.png" alt="Technical diagram indicating minimum wall thickness for CF-PA structural parts" loading="lazy">
+        <div class="tip-body">
+          <h3><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="7" x2="21" y2="7"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="17" x2="21" y2="17"></line><line x1="12" y1="3" x2="12" y2="21"></line></svg></span>Wall thickness ≥ 1.5 mm</h3>
+          <p>CF fibre reinforcement needs a minimum of 3 perimeters to align correctly. Thinner walls print but lose their structural benefit.</p>
+        </div>
+      </div>
+      <div class="tip-card has-img" data-od-id="tip-min-hole">
+        <img class="tip-img" src="fracktal-cf-pa-design-tip-hole-diameter.png" alt="Technical diagram showing the minimum printable hole diameter for carbon fibre nylon parts" loading="lazy">
+        <div class="tip-body">
+          <h3><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"></circle><circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.3"></circle></svg></span>Min. hole diameter: 2 mm</h3>
+          <p>Fibre loading stiffens the melt flow around small internal features. Design holes at ≥2 mm diameter for clean, accurate printing without closing over.</p>
+        </div>
+      </div>
+      <div class="tip-card has-img" data-od-id="tip-corners">
+        <img class="tip-img" src="fracktal-cf-pa-design-tip-corner-fillet.png" alt="Technical diagram comparing a sharp internal corner with stress concentration versus a filleted corner" loading="lazy">
+        <div class="tip-body">
+          <h3><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11a8 8 0 0 0-8-8"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path></svg></span>Avoid sharp internal corners</h3>
+          <p>Stress concentrations amplify at 90° interior corners in stiff composites. Use fillets of ≥1 mm radius.</p>
+        </div>
+      </div>
+      <div class="tip-card has-img" data-od-id="tip-anneal">
+        <img class="tip-img" src="fracktal-cf-pa-design-tip-heat-treatment.png" alt="Technical diagram of post-anneal heat treatment cycle for CF-PA parts" loading="lazy">
+        <div class="tip-body">
+          <h3><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 8c2-3-2-3 0-6"></path><path d="M15.5 8c2-3-2-3 0-6"></path><path d="M6 10h.01"></path><path d="M6 14h.01"></path><path d="M10 16v-4"></path><path d="M14 16v-4"></path><path d="M18 16v-4"></path><path d="M20 6a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3"></path><path d="M5 20v2"></path><path d="M19 20v2"></path></svg></span>Post-anneal for best results</h3>
+          <p>90 minutes at 80 °C in an oven reduces residual stress by ~40%. It also improves interlayer bond strength.</p>
+        </div>
+      </div>
+      <div class="tip-card has-img" data-od-id="tip-tolerance">
+        <img class="tip-img" src="fracktal-cf-pa-design-tip-shrinkage-tolerance.png" alt="Technical diagram of caliper measuring shrinkage tolerance on a CF-PA 3D printed part for assembly fit" loading="lazy">
+        <div class="tip-body">
+          <h3><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"></path><path d="M3 8v8M21 8v8"></path><path d="M10 12h4"></path></svg></span>Budget shrinkage in tight-fit assemblies</h3>
+          <p>CF-PA parts shrink 0.2–0.5% depending on geometry and infill density. Add clearance on mating features rather than machining to nominal.</p>
+        </div>
+      </div>
+      <div class="tip-card has-img" data-od-id="tip-clearance">
+        <img class="tip-img" src="fracktal-cf-pa-design-tip-clearance-gap.png" alt="Technical diagram showing minimum 0.5 mm clearance gap between two moving or mating CF-PA 3D printed parts" loading="lazy">
+        <div class="tip-body">
+          <h3><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="8" height="12" rx="1"></rect><rect x="14" y="6" width="8" height="12" rx="1"></rect><path d="M10 12h4" stroke-dasharray="2 2"></path></svg></span>Clearance ≥ 0.5 mm on moving parts</h3>
+          <p>Reinforced fibre limits elastic give at joints. Keep at least 0.5 mm gap between moving or connecting features to avoid binding after cooling.</p>
+        </div>
+      </div>
+      <div class="tip-card has-img" data-od-id="tip-overhang">
+        <img class="tip-img" src="fracktal-cf-pa-design-tip-overhang-angle.png" alt="Technical diagram showing the maximum 40 degree self-supporting overhang angle from vertical for CF-PA 3D printed walls" loading="lazy">
+        <div class="tip-body">
+          <h3><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="18" y2="20"></line><line x1="6" y1="20" x2="12" y2="8"></line><path d="M6 16a4 4 0 0 1 4-4" stroke-dasharray="2 2"></path></svg></span>Max self-supporting angle: 40° from vertical</h3>
+          <p>CF-PA walls print clean up to 40° from vertical without support. Beyond that, add supports or reorient the part to avoid sagging and layer tearing.</p>
+        </div>
+      </div>
+      <div class="tip-card has-img" data-od-id="tip-bridging">
+        <img class="tip-img" src="fracktal-cf-pa-design-tip-bridge-span.png" alt="Technical diagram showing the maximum 10 mm unsupported horizontal bridge span for CF-PA 3D printed parts" loading="lazy">
+        <div class="tip-body">
+          <h3><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="5" height="5" rx="0.5"></rect><rect x="16" y="6" width="5" height="5" rx="0.5"></rect><path d="M8 8.5h8" stroke-dasharray="2 2"></path></svg></span>Max horizontal bridge: 10 mm</h3>
+          <p>CF-PA filament doesn't stretch like unreinforced nylon, so bridging capability is reduced. Keep unsupported horizontal spans at 10 mm or less, or add supports for longer gaps.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== COMPATIBLE FRACKTAL PRINTERS ===================== -->
+<section class="section" id="compatible-printers" style="background:var(--surface-soft);" data-od-id="compatible-printers">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="overline">Fracktal Printers</span>
+      <h2>Printers Compatible with CF-PA</h2>
+      <p>CF-PA requires an all-metal hot-end, an enclosed chamber, and direct-drive extrusion. These Fracktal machines meet every requirement out of the box.</p>
+    </div>
+    <div class="printer-scroll-wrap">
+      <div class="printer-scroll">
+        <a class="printer-card" href="https://fracktal.in/dragon/" data-od-id="printer-dragon">
+          <img class="printer-card__img" src="dragon-3-4-view-2.png" alt="Fracktal Dragon" loading="lazy" width="800" height="800">
+          <div class="printer-card__body">
+            <div class="printer-card__name">Dragon</div>
+            <div class="printer-card__note">Enclosed single-extrusion FDM printer with all-metal hot-end. Runs CF-PA reliably with a hardened steel nozzle.</div>
+            <div class="printer-card__compat">
+              <span class="compat-tag">Enclosed</span>
+              <span class="compat-tag">300 °C</span>
+              <span class="compat-tag">Direct drive</span>
+              <span class="compat-tag">Large format</span>
+            </div>
+            <span class="printer-card__link">View Specs</span>
+          </div>
+        </a>
+        <a class="printer-card" href="https://fracktal.in/twin-dragon/" data-od-id="printer-twin-dragon">
+          <img class="printer-card__img" src="twin-dragon-3-4-view-2.png" alt="Fracktal Twin Dragon" loading="lazy" width="800" height="800">
+          <div class="printer-card__body">
+            <div class="printer-card__name">Twin Dragon</div>
+            <div class="printer-card__note">Dual-chamber enclosed FDM printer with dual direct-drive extruders. Supports CF-PA + support prints.</div>
+            <div class="printer-card__compat">
+              <span class="compat-tag">Enclosed</span>
+              <span class="compat-tag">300 °C</span>
+              <span class="compat-tag">IDEX</span>
+            </div>
+            <span class="printer-card__link">View Specs</span>
+          </div>
+        </a>
+        <a class="printer-card" href="https://fracktal.in/julia-advanced/" data-od-id="printer-julia">
+          <img class="printer-card__img" src="Julia-3-4-view.png" alt="Fracktal Julia" loading="lazy" width="800" height="800">
+          <div class="printer-card__body">
+            <div class="printer-card__name">Julia</div>
+            <div class="printer-card__note">Fully enclosed FDM printer with all-metal hot-end and active heated chamber.</div>
+            <div class="printer-card__compat">
+              <span class="compat-tag">Enclosed</span>
+              <span class="compat-tag">300 °C</span>
+              <span class="compat-tag">Direct drive</span>
+              <span class="compat-tag">Large format</span>
+            </div>
+            <span class="printer-card__link">View Specs</span>
+          </div>
+        </a>
+        <a class="printer-card" href="https://fracktal.in/volterra/" data-od-id="printer-volterra">
+          <img class="printer-card__img" src="volterra-3-4-view-1.png" alt="Fracktal Volterra" loading="lazy" width="800" height="800">
+          <div class="printer-card__body">
+            <div class="printer-card__name">Volterra</div>
+            <div class="printer-card__note">High-temperature FDM printer with nozzle up to 500°C and chamber up to 100°C. Engineered for advanced materials and demanding applications.</div>
+            <div class="printer-card__compat">
+              <span class="compat-tag">Enclosed</span>
+              <span class="compat-tag">500 °C</span>
+              <span class="compat-tag">Large format</span>
+            </div>
+            <span class="printer-card__link">View Specs</span>
+          </div>
+        </a>
+        <!-- Duplicates for infinite scroll -->
+        <a class="printer-card" href="https://fracktal.in/dragon/">
+          <img class="printer-card__img" src="dragon-3-4-view-2.png" alt="Fracktal Dragon" loading="lazy" width="800" height="800">
+          <div class="printer-card__body">
+            <div class="printer-card__name">Dragon</div>
+            <div class="printer-card__note">Enclosed single-extrusion FDM printer with all-metal hot-end. Runs CF-PA reliably with a hardened steel nozzle.</div>
+            <div class="printer-card__compat">
+              <span class="compat-tag">Enclosed</span>
+              <span class="compat-tag">300 °C</span>
+              <span class="compat-tag">Direct drive</span>
+              <span class="compat-tag">Large format</span>
+            </div>
+            <span class="printer-card__link">View Specs</span>
+          </div>
+        </a>
+        <a class="printer-card" href="https://fracktal.in/twin-dragon/">
+          <img class="printer-card__img" src="twin-dragon-3-4-view-2.png" alt="Fracktal Twin Dragon" loading="lazy" width="800" height="800">
+          <div class="printer-card__body">
+            <div class="printer-card__name">Twin Dragon</div>
+            <div class="printer-card__note">Dual-chamber enclosed FDM printer with dual direct-drive extruders. Supports CF-PA + support prints.</div>
+            <div class="printer-card__compat">
+              <span class="compat-tag">Enclosed</span>
+              <span class="compat-tag">300 °C</span>
+              <span class="compat-tag">IDEX</span>
+            </div>
+            <span class="printer-card__link">View Specs</span>
+          </div>
+        </a>
+        <a class="printer-card" href="https://fracktal.in/julia-advanced/">
+          <img class="printer-card__img" src="Julia-3-4-view.png" alt="Fracktal Julia" loading="lazy" width="800" height="800">
+          <div class="printer-card__body">
+            <div class="printer-card__name">Julia</div>
+            <div class="printer-card__note">Fully enclosed FDM printer with all-metal hot-end and active heated chamber.</div>
+            <div class="printer-card__compat">
+              <span class="compat-tag">Enclosed</span>
+              <span class="compat-tag">300 °C</span>
+              <span class="compat-tag">Direct drive</span>
+              <span class="compat-tag">Large format</span>
+            </div>
+            <span class="printer-card__link">View Specs</span>
+          </div>
+        </a>
+        <a class="printer-card" href="https://fracktal.in/volterra/">
+          <img class="printer-card__img" src="volterra-3-4-view-1.png" alt="Fracktal Volterra" loading="lazy" width="800" height="800">
+          <div class="printer-card__body">
+            <div class="printer-card__name">Volterra</div>
+            <div class="printer-card__note">High-temperature FDM printer with nozzle up to 500°C and chamber up to 100°C. Engineered for advanced materials and demanding applications.</div>
+            <div class="printer-card__compat">
+              <span class="compat-tag">Enclosed</span>
+              <span class="compat-tag">500 °C</span>
+              <span class="compat-tag">Large format</span>
+            </div>
+            <span class="printer-card__link">View Specs</span>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="printer-not-compat">
+      <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg></span>
+      <p><strong>Not compatible:</strong> Snowflake and other open-frame printers with PTFE-lined hot-ends cannot safely reach the 260–280 °C required for CF-PA. Attempting to print CF-PA on an incompatible machine damages the hot-end and produces unreliable parts.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== RELATED MATERIALS ===================== -->
+<section class="section" id="related-materials" data-od-id="related-materials">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="overline">Compare</span>
+      <h2>Related Materials</h2>
+    </div>
+    <div class="related-scroll-wrap">
+      <nav class="related-scroll" aria-label="Related material pages">
+        <div class="mat-card has-img" data-od-id="mat-nylon" data-material="nylon"><img class="mat-img" src="nylon_whitebg.png" alt="Nylon PA12 3D printed filament spool with cream-colored part" loading="lazy"><div class="mat-body"><div class="name">Nylon PA12</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('nylon-pa12')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/nylon/">View Material</a></div></div></div>
+        <div class="mat-card has-img" data-od-id="mat-pc" data-material="pc"><img class="mat-img" src="pc_whitebg.png" alt="Polycarbonate PC 3D printed filament spool with transparent lens part" loading="lazy"><div class="mat-body"><div class="name">Polycarbonate (PC)</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('polycarbonate')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/polycarbonate/">View Material</a></div></div></div>
+        <div class="mat-card has-img" data-od-id="mat-pla" data-material="pla"><img class="mat-img" src="pla_whitebg.png" alt="PLA 3D printed filament spool with bright orange vase part" loading="lazy"><div class="mat-body"><div class="name">PLA</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('pla')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/pla/">View Material</a></div></div></div>
+        <div class="mat-card has-img" data-od-id="mat-abs" data-material="abs"><img class="mat-img" src="abs_whitebg.png" alt="ABS 3D printed filament spool with grey/white automotive bracket part" loading="lazy"><div class="mat-body"><div class="name">ABS</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('abs')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/abs-acrylonitrile-butadiene-styrene/">View Material</a></div></div></div>
+        <div class="mat-card has-img" data-od-id="mat-petg" data-material="petg"><img class="mat-img" src="petg_whitebg.png" alt="PETG 3D printed filament spool with cyan translucent enclosure part" loading="lazy"><div class="mat-body"><div class="name">PETG</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('petg')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/pet-g-polyethylene-terephthalate-glycol/">View Material</a></div></div></div>
+        <div class="mat-card has-img" data-od-id="mat-tpu" data-material="tpu"><img class="mat-img" src="tpu_whitebg.png" alt="TPU 95A 3D printed filament spool with flexible black gasket part" loading="lazy"><div class="mat-body"><div class="name">TPU 95A</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('tpu-95a')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/tpu/">View Material</a></div></div></div>
+        <div class="mat-card has-img" data-od-id="mat-cf-petg" data-material="cf-petg"><img class="mat-img" src="cf-petg_whitebg.png" alt="CF-PETG 3D printed filament spool with amber-colored composite bracket part" loading="lazy"><div class="mat-body"><div class="name">CF-PETG</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('cf-petg')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/cf-petg/">View Material</a></div></div></div>
+        <div class="mat-card has-img" data-od-id="mat-pc-abs" data-material="pc-abs"><img class="mat-img" src="pc-abs_whitebg.png" alt="PC-ABS 3D printed filament spool with durable engineering plastic part" loading="lazy"><div class="mat-body"><div class="name">PC-ABS</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('pc-abs')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/pc-abs/">View Material</a></div></div></div>
+        <div class="mat-card has-img" data-od-id="mat-asa" data-material="asa"><img class="mat-img" src="asa_whitebg.png" alt="ASA 3D printed filament spool with weather-resistant outdoor part" loading="lazy"><div class="mat-body"><div class="name">ASA</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('asa')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/asa/">View Material</a></div></div></div>
+        <!-- Duplicates for infinite scroll -->
+        <div class="mat-card has-img" data-material="nylon"><img class="mat-img" src="nylon_whitebg.png" alt="Nylon PA12 3D printed filament spool with cream-colored part" loading="lazy"><div class="mat-body"><div class="name">Nylon PA12</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('nylon-pa12')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/nylon/">View Material</a></div></div></div>
+        <div class="mat-card has-img" data-material="pc"><img class="mat-img" src="pc_whitebg.png" alt="Polycarbonate PC 3D printed filament spool with transparent lens part" loading="lazy"><div class="mat-body"><div class="name">Polycarbonate (PC)</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('polycarbonate')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/polycarbonate/">View Material</a></div></div></div>
+        <div class="mat-card has-img" data-material="pla"><img class="mat-img" src="pla_whitebg.png" alt="PLA 3D printed filament spool with bright orange vase part" loading="lazy"><div class="mat-body"><div class="name">PLA</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('pla')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/pla/">View Material</a></div></div></div>
+        <div class="mat-card has-img" data-material="abs"><img class="mat-img" src="abs_whitebg.png" alt="ABS 3D printed filament spool with grey/white automotive bracket part" loading="lazy"><div class="mat-body"><div class="name">ABS</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('abs')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/abs-acrylonitrile-butadiene-styrene/">View Material</a></div></div></div>
+        <div class="mat-card has-img" data-material="petg"><img class="mat-img" src="petg_whitebg.png" alt="PETG 3D printed filament spool with cyan translucent enclosure part" loading="lazy"><div class="mat-body"><div class="name">PETG</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('petg')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/pet-g-polyethylene-terephthalate-glycol/">View Material</a></div></div></div>
+        <div class="mat-card has-img" data-material="tpu"><img class="mat-img" src="tpu_whitebg.png" alt="TPU 95A 3D printed filament spool with flexible black gasket part" loading="lazy"><div class="mat-body"><div class="name">TPU 95A</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('tpu-95a')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/tpu/">View Material</a></div></div></div>
+        <div class="mat-card has-img" data-material="cf-petg"><img class="mat-img" src="cf-petg_whitebg.png" alt="CF-PETG 3D printed filament spool with amber-colored composite bracket part" loading="lazy"><div class="mat-body"><div class="name">CF-PETG</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('cf-petg')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/cf-petg/">View Material</a></div></div></div>
+        <div class="mat-card has-img" data-material="pc-abs"><img class="mat-img" src="pc-abs_whitebg.png" alt="PC-ABS 3D printed filament spool with durable engineering plastic part" loading="lazy"><div class="mat-body"><div class="name">PC-ABS</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('pc-abs')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/pc-abs/">View Material</a></div></div></div>
+        <div class="mat-card has-img" data-material="asa"><img class="mat-img" src="asa_whitebg.png" alt="ASA 3D printed filament spool with weather-resistant outdoor part" loading="lazy"><div class="mat-body"><div class="name">ASA</div><div class="mat-card__btns"><button class="mat-card__btn mat-card__btn--compare" onclick="compareMaterial('asa')">Compare</button><a class="mat-card__btn mat-card__btn--view" href="/asa/">View Material</a></div></div></div>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CTA ===================== -->
+<section class="cta" id="cta" data-od-id="cta">
+  <div class="wrap">
+    <h2>Ready to print in CF-PA?</h2>
+    <p>Talk specs, tolerances and lead time with our applications engineers.</p>
+    <div class="cta__btns">
+      <a class="btn btn--primary" href="/get-a-quote/">Get a Quote</a>
+      <a class="btn btn--outline" href="/consulting-services/">Talk to an Engineer</a>
+    </div>
+    
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="footer-min">Built in Bangalore. Fracktal Works — India's premier 3D printer manufacturer since 2013.</div>
+</div>
+
+<!-- ===================== STRUCTURED DATA ===================== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "Carbon Fiber Nylon (CF-PA) Filament",
+  "category": "3D Printing Filament",
+  "description": "Short-fiber reinforced PA12 composite for high-strength structural FDM printing. High strength, heat resistant and dimensionally stable carbon fiber nylon filament from Fracktal Works, India.",
+  "brand": {
+    "@type": "Brand",
+    "name": "Fracktal Works"
+  },
+  "manufacturer": {
+    "@type": "Organization",
+    "name": "Fracktal Works",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Bangalore",
+      "addressCountry": "IN"
+    }
+  },
+  "material": "Carbon fibre reinforced Polyamide 12 (PA12)",
+  "offers": {
+    "@type": "Offer",
+    "availability": "https://schema.org/InStock",
+    "priceCurrency": "INR",
+    "url": "/get-a-quote/",
+    "seller": { "@type": "Organization", "name": "Fracktal Works" }
+  },
+  "additionalProperty": [
+    { "@type": "PropertyValue", "name": "Base Polymer", "value": "Polyamide 12 (PA12)" },
+    { "@type": "PropertyValue", "name": "Filler", "value": "Short chopped carbon fibre" },
+    { "@type": "PropertyValue", "name": "Print Process", "value": "FDM / FFF" },
+    { "@type": "PropertyValue", "name": "Tensile Strength", "value": "82", "unitText": "MPa" },
+    { "@type": "PropertyValue", "name": "Heat Deflection Temperature", "value": "145", "unitText": "CEL" },
+    { "@type": "PropertyValue", "name": "Density", "value": "1.1", "unitText": "g/cm3" },
+    { "@type": "PropertyValue", "name": "Layer Bond Strength", "value": "35", "unitText": "MPa" },
+    { "@type": "PropertyValue", "name": "Specific Stiffness", "value": "5.9", "unitText": "GPa·cm3/g" },
+    { "@type": "PropertyValue", "name": "Moisture Absorption", "value": "1.1", "unitText": "P1" },
+    { "@type": "PropertyValue", "name": "Print Temperature", "value": "260-280", "unitText": "CEL" },
+    { "@type": "PropertyValue", "name": "Recommended Print Speed", "value": "40-70", "unitText": "mm/s" },
+    { "@type": "PropertyValue", "name": "Nozzle Material", "value": "Hardened steel, minimum 0.4 mm" }
+  ]
+}
+</script>
+
+<script>
+function compareMaterial(materialKey) {
+  const select = document.getElementById('compare-material');
+  if (select) {
+    select.value = materialKey;
+    select.dispatchEvent(new Event('change'));
+  }
+  const radarSection = document.getElementById('property-profile');
+  if (radarSection) {
+    radarSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+// Carousel: step one card at a time (auto-measures card width)
+(function() {
+  function initCarousel(trackSelector, interval) {
+    const track = document.querySelector(trackSelector);
+    if (!track || track.children.length === 0) return;
+
+    const firstCard = track.children[0];
+    const style = getComputedStyle(track);
+    const gap = parseFloat(style.gap) || 16;
+    const cardWidth = firstCard.offsetWidth;
+    const stepSize = cardWidth + gap;
+    const totalCards = track.children.length / 2;
+
+    let index = 0;
+    let paused = false;
+
+    track.addEventListener('mouseenter', () => paused = true);
+    track.addEventListener('mouseleave', () => paused = false);
+
+    setInterval(() => {
+      if (paused) return;
+      index++;
+      if (index >= totalCards) {
+        track.style.transition = 'none';
+        track.style.transform = 'translateX(0)';
+        index = 0;
+        void track.offsetHeight;
+        setTimeout(() => {
+          track.style.transition = 'transform 0.5s ease';
+          index = 1;
+          track.style.transform = `translateX(-${stepSize * index}px)`;
+        }, 50);
+      } else {
+        track.style.transform = `translateX(-${stepSize * index}px)`;
+      }
+    }, interval);
+  }
+
+  // Wait for images to load so card dimensions are correct
+  window.addEventListener('load', () => {
+    initCarousel('.printer-scroll', 3000);
+    initCarousel('.related-scroll', 3500);
+
+    // Material scatter plot interaction
+    const materials = {
+      'cf-pa': {
+        name: 'CF-PA',
+        desc: 'Carbon fiber reinforced nylon optimized for high strength to weight ratio, stiffness, and heat resistance. Best for structural applications requiring thermal stability above 80°C.'
+      },
+      'nylon-pa12': {
+        name: 'Nylon PA12',
+        desc: 'Unfilled nylon offers excellent impact resistance and flexibility. Ideal for parts requiring durability, low friction surfaces, and good abrasion resistance.'
+      },
+      'polycarbonate': {
+        name: 'Polycarbonate (PC)',
+        desc: 'High-impact engineering plastic with excellent clarity and thermal resistance. Ideal for protective shields, optical components, and applications requiring impact toughness.'
+      },
+      'petg': {
+        name: 'PETG',
+        desc: 'Versatile amorphous polymer balancing strength and printability. Excellent chemical resistance and moderate heat deflection. Great for general-purpose engineering parts.'
+      },
+      'abs': {
+        name: 'ABS',
+        desc: 'Impact-resistant engineering plastic with good dimensional stability and machinability. Suitable for functional parts requiring moderate toughness and post-processing.'
+      },
+      'pla': {
+        name: 'PLA',
+        desc: 'Biodegradable thermoplastic with lower heat deflection but good stiffness. Best for prototyping, non-structural parts, and aesthetic applications requiring sustainability.'
+      },
+      'tpu-95a': {
+        name: 'TPU 95A',
+        desc: 'Flexible elastomer offering exceptional impact absorption and flexibility. Perfect for gaskets, seals, flexible joints, and shock-absorbing applications.'
+      },
+      'cf-petg': {
+        name: 'CF-PETG',
+        desc: 'Carbon fiber reinforced PETG combining superior heat resistance with excellent printability. Ideal for reinforced engineering parts requiring higher stiffness than standard PETG.'
+      },
+      'asa': {
+        name: 'ASA',
+        desc: 'Weather-resistant alternative to ABS with outstanding outdoor durability. Maintains color and mechanical properties in UV exposure. Perfect for outdoor applications and aesthetic parts.'
+      },
+      'pc-abs': {
+        name: 'PC-ABS',
+        desc: 'Hybrid blend combining polycarbonate toughness with ABS processability. Excellent impact resistance and dimensional stability. Ideal for parts requiring both strength and machinability.'
+      },
+      'pp': {
+        name: 'PP',
+        desc: 'Lightweight polypropylene with chemical resistance and low cost. Good fatigue resistance and snap-fit capabilities. Suitable for consumer products and chemical-resistant parts.'
+      }
+    };
+
+    const selectMaterial = (matId) => {
+      document.querySelectorAll('.mat-btn').forEach(b => b.classList.remove('mat-active'));
+      document.querySelectorAll('.scatter-circle').forEach(c => c.classList.remove('active'));
+      document.querySelector('[data-material="' + matId + '"].mat-btn').classList.add('mat-active');
+      const circleClass = matId.replace(/-/g, '-');
+      const circle = document.querySelector('.mat-' + circleClass);
+      if (circle) circle.classList.add('active');
+      if (materials[matId]) {
+        document.getElementById('material-desc').textContent = materials[matId].desc;
+      }
+    };
+
+    document.querySelectorAll('.mat-btn').forEach(btn => {
+      const handleSelect = (e) => {
+        e.preventDefault();
+        const matId = btn.getAttribute('data-material');
+        selectMaterial(matId);
+      };
+      btn.addEventListener('click', handleSelect);
+      btn.addEventListener('touchend', handleSelect);
+    });
+
+    document.querySelectorAll('.scatter-circle').forEach(circle => {
+      const handleSelect = (e) => {
+        e.preventDefault();
+        const matId = circle.getAttribute('data-material');
+        selectMaterial(matId);
+      };
+      circle.addEventListener('click', handleSelect);
+      circle.addEventListener('touchend', handleSelect);
+    });
+  });
+})();
+</script>
+
+<script>
+// Material card navigation
+(function() {
+  const matCardMap = {
+    'nylon': '/nylon/',
+    'pc': '/polycarbonate/',
+    'pla': '/pla/',
+    'abs': '/abs-acrylonitrile-butadiene-styrene/',
+    'petg': '/pet-g-polyethylene-terephthalate-glycol/',
+    'tpu': '/tpu/',
+    'cf-petg': '/cf-petg/',
+    'pc-abs': '/pc-abs/',
+    'asa': '/asa/'
+  };
+
+  document.querySelectorAll('.mat-card.has-img').forEach(card => {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', function(e) {
+      const button = e.target.closest('.mat-card__btn, button');
+      if (button) {
+        e.stopPropagation();
+        return;
+      }
+      const material = this.getAttribute('data-material');
+      if (material && matCardMap[material]) {
+        window.location.href = matCardMap[material];
+      }
+    });
+  });
+})();
+</script>
+
+</body></html>

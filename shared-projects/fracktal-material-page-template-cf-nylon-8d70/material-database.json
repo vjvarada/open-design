@@ -1,0 +1,874 @@
+{
+  "_meta": {
+    "description": "Fracktal Materials Database — Single source of truth for ALL material pages. 12 materials — 7 core + 5 new.",
+    "version": "3.0.0",
+    "lastUpdated": "2026-07-14",
+    "totalMaterials": 12,
+    "standards": {
+      "tensile": "ASTM D638 (FDM XY, ultimate tensile strength)",
+      "flexural": "ASTM D790 (FDM XY, 3-point bend)",
+      "impact": "ASTM D256 (Izod notched, FDM XY)",
+      "hdt": "ASTM D648 @ 0.455 MPa (66 psi)",
+      "density": "g/cm³ at 23°C",
+      "hardness": "Shore D unless noted Shore A for flexibles"
+    },
+    "radarAxes": [
+      "tensileStrength",
+      "flexuralModulus",
+      "impactResistance",
+      "heatResistance",
+      "chemicalResistance",
+      "dimensionalStability",
+      "surfaceFinish",
+      "easeOfPrinting",
+      "costEfficiency"
+    ],
+    "radarAxisLabels": [
+      "Tensile Strength",
+      "Flexural Modulus",
+      "Impact Resistance",
+      "Heat Resistance",
+      "Chemical Resistance",
+      "Dimensional Stability",
+      "Surface Finish",
+      "Ease of Printing",
+      "Cost Efficiency"
+    ],
+    "radarNote": "All scores 0–10. Cost 10 = most affordable (₹/kg inverted). Values derived from measured ASTM data and documented print behaviour.",
+    "googleTrends": {
+      "batchA_worldwide_12m": {
+        "pla_filament": 56,
+        "petg_filament": 26,
+        "tpu_filament": 15,
+        "abs_filament": 12,
+        "nylon_filament": 7
+      },
+      "batchB_worldwide_12m": {
+        "asa_filament": 64,
+        "carbon_fiber_nylon": 27,
+        "carbon_fiber_petg": 9,
+        "polycarbonate_filament": 8,
+        "pp_filament": 8
+      }
+    }
+  },
+
+  "materials": {
+
+    "cf-pa": {
+      "name": "Carbon Fiber Nylon (CF-PA)",
+      "shortName": "CF-PA",
+      "category": "Engineering Composite",
+      "basePolymer": "Polyamide 12 (PA12)",
+      "filler": "Short chopped carbon fibre (15–20% wt)",
+      "printProcess": "FDM / FFF",
+      "color": "#f25e50",
+      "isPrimary": true,
+      "url": "/cf-nylon/",
+      "tier": 1,
+      "radar": [9, 9, 4, 9, 8, 9, 4, 4, 3],
+      "specs": {
+        "tensileStrength":       { "value": 82,  "unit": "MPa",    "range": [78, 88],   "standard": "ASTM D638" },
+        "flexuralStrength":      { "value": 130, "unit": "MPa",    "range": [120, 140], "standard": "ASTM D790" },
+        "flexuralModulus":       { "value": 6.5, "unit": "GPa",    "range": [5.8, 7.2], "standard": "ASTM D790" },
+        "specificStiffness":     { "value": 5.9, "unit": "GPa·cm³/g", "note": "Flex modulus / density. Does NOT exceed Al 6061 (25.6)" },
+        "izodImpact":            { "value": 4.5, "unit": "kJ/m²",  "range": [3.5, 6.0], "standard": "ASTM D256", "testType": "Izod notched" },
+        "elongationAtBreak":     { "value": 3.5, "unit": "%",      "range": [2.0, 5.0], "standard": "ASTM D638" },
+        "hardness":              { "value": 80,  "unit": "Shore D", "range": [78, 82] },
+        "heatDeflection":        { "value": 145, "unit": "°C",      "range": [138, 155], "standard": "ASTM D648 @ 0.455 MPa" },
+        "hdtHighLoad":           { "value": 112, "unit": "°C",      "range": [100, 125], "standard": "ASTM D648 @ 1.82 MPa" },
+        "glassTransition":       { "value": 50,  "unit": "°C",      "range": [45, 55],   "note": "PA12 matrix", "standard": "DSC" },
+        "meltingPoint":          { "value": 178, "unit": "°C",      "range": [175, 180], "standard": "DSC" },
+        "density":               { "value": 1.10,"unit": "g/cm³",   "range": [1.08, 1.12] },
+        "layerBondStrength":     { "value": 35,  "unit": "MPa",     "note": "Representative Z-strength, print-parameter dependent" },
+        "moistureAbsorption24h": { "value": 1.1, "unit": "%",       "range": [0.8, 1.4],  "note": "23°C / 50% RH" },
+        "moistureAbsorptionSat": { "value": 2.0, "unit": "%",       "range": [1.5, 2.5] },
+        "cte":                   { "value": 42,  "unit": "µm/m·°C", "range": [35, 50],    "note": "Low CTE due to carbon fibre" },
+        "shrinkage":             { "value": 0.35,"unit": "%",       "range": [0.2, 0.5] },
+        "pricePerKg":            { "value": 5000,"unit": "₹/kg",    "range": [4500, 5500], "note": "Indian market, approximate" }
+      },
+      "printParams": {
+        "nozzleTemp":       { "min": 260, "max": 285, "recommended": [270, 280], "unit": "°C" },
+        "bedTemp":          { "min": 80,  "max": 110, "recommended": [100, 110], "unit": "°C" },
+        "chamberTemp":      { "min": 0,   "max": 60,  "recommended": [45, 60],   "unit": "°C", "note": "If available" },
+        "printSpeed":       { "min": 30,  "max": 70,  "recommended": [40, 60],   "unit": "mm/s" },
+        "nozzleDiameter":   { "min": 0.4, "recommended": 0.8, "unit": "mm", "note": "≥0.6 mm required; 0.8 mm preferred to avoid clogging" },
+        "nozzleMaterial":   { "required": "Hardened steel", "options": ["Hardened steel", "Ruby", "Tungsten carbide"] },
+        "bedSurface":       { "recommended": "Garolite G10", "alternatives": ["PEI + PVA glue stick"] },
+        "enclosure":        { "required": true, "level": "Fully enclosed + temperature-controlled recommended" },
+        "drying":           { "temp": 80, "durationHours": 8, "mandatory": true, "note": "Re-dry if exposed to ambient air >4 hours" },
+        "retractionDD":     { "min": 0.5, "max": 1.0, "unit": "mm", "note": "Direct drive extruder" },
+        "partCoolingFan":   { "value": 0, "unit": "%", "note": "OFF — any cooling reduces layer adhesion" }
+      },
+      "designGuidelines": {
+        "minWallThickness":      { "value": 1.5, "unit": "mm", "note": "3+ perimeters needed for fibre alignment" },
+        "minHoleDiameter":       { "value": 2.0, "unit": "mm", "note": "Fibre loading stiffens melt around small features" },
+        "minInternalFillet":     { "value": 1.0, "unit": "mm", "note": "Stress concentrations amplify at sharp corners in stiff composites" },
+        "maxOverhangAngle":      { "value": 40,  "unit": "° from vertical" },
+        "maxBridgeSpan":         { "value": 10,  "unit": "mm", "note": "CF-PA does not stretch like unreinforced nylon" },
+        "clearanceMovingParts":  { "value": 0.5, "unit": "mm", "note": "Minimum gap for mating/moving features" },
+        "postAnneal":            { "temp": 80, "durationMin": 90, "benefit": "~40% residual stress reduction; improved interlayer bond" }
+      },
+      "compatibleFracktalPrinters": ["Dragon", "Twin Dragon", "Julia Advanced", "Volterra"],
+      "incompatiblePrinters": ["Snowflake"],
+      "applications": {
+        "aerospace":    ["Jigs & fixtures", "Structural brackets", "Tooling inserts"],
+        "automotive":   ["Under-hood components", "Sensor housings", "Intake manifolds"],
+        "industrial":   ["End-of-arm tooling", "Robotic grippers", "Drill guides"],
+        "electronics":  ["EMI-shielding housings", "Structural enclosures"],
+        "sports":       ["Bicycle components", "Equipment frames", "Protective gear"],
+        "rnd":          ["Functional prototypes validated in operating environment"]
+      },
+      "useWhen": [
+        "Part operates above 80 °C continuously",
+        "High stiffness-to-weight ratio required (EOAT, structural brackets)",
+        "Dimensional stability over temperature cycles is critical",
+        "Part will be machined or drilled after printing",
+        "Replacing metal in low-to-medium load applications"
+      ],
+      "avoidWhen": [
+        "Part requires high impact / ductile failure — use unfilled Nylon or TPU",
+        "Surface aesthetics are primary — CF-PA has matte, slightly rough finish",
+        "Machine lacks all-metal hot-end",
+        "Part contacts food, drinking water, or medical fluids (not certified)",
+        "Tight tolerances needed without post-machining (moisture variability ±0.3%)"
+      ]
+    },
+
+    "nylon-pa12": {
+      "name": "Nylon PA12",
+      "shortName": "Nylon PA12",
+      "category": "Engineering",
+      "basePolymer": "Polyamide 12 (PA12)",
+      "filler": "None (unfilled)",
+      "printProcess": "FDM / FFF",
+      "color": "#111111",
+      "url": "/nylon/",
+      "tier": 1,
+      "radar": [6, 5, 8, 5, 7, 5, 5, 5, 5],
+      "specs": {
+        "tensileStrength":       { "value": 50,  "unit": "MPa",   "range": [46, 54],   "standard": "ASTM D638" },
+        "flexuralStrength":      { "value": 62,  "unit": "MPa",   "range": [55, 70],   "standard": "ASTM D790" },
+        "flexuralModulus":       { "value": 1.6, "unit": "GPa",   "range": [1.3, 1.8], "standard": "ASTM D790" },
+        "specificStiffness":     { "value": 1.5, "unit": "GPa·cm³/g" },
+        "izodImpact":            { "value": 8.0, "unit": "kJ/m²", "range": [5.0, 12.0], "standard": "ASTM D256", "testType": "Izod notched" },
+        "elongationAtBreak":     { "value": 30,  "unit": "%",     "range": [15, 45],   "standard": "ASTM D638" },
+        "hardness":              { "value": 72,  "unit": "Shore D","range": [70, 75] },
+        "heatDeflection":        { "value": 78,  "unit": "°C",    "range": [72, 85],   "standard": "ASTM D648 @ 0.455 MPa" },
+        "hdtHighLoad":           { "value": 53,  "unit": "°C",    "range": [48, 58],   "standard": "ASTM D648 @ 1.82 MPa" },
+        "glassTransition":       { "value": 46,  "unit": "°C",    "range": [42, 50],   "standard": "DSC" },
+        "meltingPoint":          { "value": 178, "unit": "°C",    "range": [175, 180], "standard": "DSC" },
+        "density":               { "value": 1.01,"unit": "g/cm³", "range": [1.00, 1.03] },
+        "moistureAbsorption24h": { "value": 1.4, "unit": "%",     "range": [1.0, 1.8], "note": "Highly hygroscopic — dry before printing" },
+        "moistureAbsorptionSat": { "value": 3.2, "unit": "%",     "range": [2.5, 4.0] },
+        "shrinkage":             { "value": 0.5, "unit": "%",     "range": [0.3, 0.8] },
+        "pricePerKg":            { "value": 3150,"unit": "₹/kg",  "range": [2800, 3500], "note": "Indian market, approximate" }
+      },
+      "printParams": {
+        "nozzleTemp":     { "min": 240, "max": 270, "recommended": [250, 265], "unit": "°C" },
+        "bedTemp":        { "min": 60,  "max": 100, "recommended": [80, 95],   "unit": "°C" },
+        "printSpeed":     { "min": 30,  "max": 65,  "recommended": [40, 55],   "unit": "mm/s" },
+        "nozzleDiameter": { "min": 0.4, "recommended": 0.4, "unit": "mm" },
+        "nozzleMaterial": { "required": "Any", "options": ["Brass", "Hardened steel (optional, no abrasive filler)"] },
+        "bedSurface":     { "recommended": "Garolite G10", "alternatives": ["PEI + PVA glue stick"] },
+        "enclosure":      { "required": false, "note": "Recommended for warp control on large parts" },
+        "drying":         { "temp": 80, "durationHours": 8, "mandatory": true, "note": "Highly hygroscopic — must dry before every print" },
+        "retractionDD":   { "min": 0.8, "max": 1.5, "unit": "mm" }
+      },
+      "designGuidelines": {
+        "minWallThickness": { "value": 1.2, "unit": "mm" },
+        "minHoleDiameter":  { "value": 1.5, "unit": "mm" },
+        "maxOverhangAngle": { "value": 45,  "unit": "° from vertical" },
+        "maxBridgeSpan":    { "value": 15,  "unit": "mm" }
+      }
+    },
+
+    "pla": {
+      "name": "PLA",
+      "shortName": "PLA",
+      "category": "Basic",
+      "basePolymer": "Polylactic Acid",
+      "filler": "None",
+      "printProcess": "FDM / FFF",
+      "color": "#5a5a5a",
+      "url": "/pla/",
+      "tier": 1,
+      "radar": [5, 6, 2, 2, 3, 8, 9, 10, 9],
+      "specs": {
+        "tensileStrength":       { "value": 56,  "unit": "MPa",   "range": [50, 62],   "standard": "ASTM D638" },
+        "flexuralStrength":      { "value": 88,  "unit": "MPa",   "range": [80, 97],   "standard": "ASTM D790" },
+        "flexuralModulus":       { "value": 3.2, "unit": "GPa",   "range": [2.8, 3.5], "standard": "ASTM D790" },
+        "specificStiffness":     { "value": 2.5, "unit": "GPa·cm³/g" },
+        "izodImpact":            { "value": 3.5, "unit": "kJ/m²", "range": [2.5, 4.5], "standard": "ASTM D256", "testType": "Izod notched" },
+        "elongationAtBreak":     { "value": 4,   "unit": "%",     "range": [3, 6],     "standard": "ASTM D638" },
+        "hardness":              { "value": 83,  "unit": "Shore D","range": [80, 85] },
+        "heatDeflection":        { "value": 53,  "unit": "°C",    "range": [50, 56],   "standard": "ASTM D648 @ 0.455 MPa" },
+        "hdtHighLoad":           { "value": 48,  "unit": "°C",    "range": [45, 52],   "standard": "ASTM D648 @ 1.82 MPa" },
+        "glassTransition":       { "value": 58,  "unit": "°C",    "range": [55, 62],   "standard": "DSC" },
+        "meltingPoint":          { "value": 158, "unit": "°C",    "range": [150, 165], "standard": "DSC" },
+        "density":               { "value": 1.24,"unit": "g/cm³", "range": [1.23, 1.25] },
+        "moistureAbsorption24h": { "value": 0.35,"unit": "%",     "range": [0.2, 0.5] },
+        "shrinkage":             { "value": 0.1, "unit": "%",     "range": [0.05, 0.2], "note": "Very low — easiest to print" },
+        "pricePerKg":            { "value": 1250,"unit": "₹/kg",  "range": [1000, 1500], "note": "Indian market, approximate" }
+      },
+      "printParams": {
+        "nozzleTemp":     { "min": 190, "max": 220, "recommended": [200, 215], "unit": "°C" },
+        "bedTemp":        { "min": 0,   "max": 60,  "recommended": [50, 60],   "unit": "°C", "note": "Unheated bed is acceptable" },
+        "printSpeed":     { "min": 40,  "max": 80,  "recommended": [50, 70],   "unit": "mm/s" },
+        "nozzleDiameter": { "min": 0.2, "recommended": 0.4, "unit": "mm" },
+        "nozzleMaterial": { "required": "Any", "options": ["Brass"] },
+        "bedSurface":     { "recommended": "PEI", "alternatives": ["Glass + glue stick", "Blue painter's tape"] },
+        "enclosure":      { "required": false, "note": "Open frame is fine" },
+        "drying":         { "temp": 45, "durationHours": 4, "mandatory": false, "note": "Only if filament has become brittle" },
+        "partCoolingFan": { "value": 100, "unit": "%", "note": "Essential for overhangs and bridges" }
+      },
+      "designGuidelines": {
+        "minWallThickness": { "value": 0.8, "unit": "mm" },
+        "minHoleDiameter":  { "value": 1.0, "unit": "mm" },
+        "maxOverhangAngle": { "value": 55,  "unit": "° from vertical" },
+        "maxBridgeSpan":    { "value": 30,  "unit": "mm" }
+      }
+    },
+
+    "petg": {
+      "name": "PETG",
+      "shortName": "PETG",
+      "category": "General Purpose",
+      "basePolymer": "Polyethylene Terephthalate Glycol",
+      "filler": "None",
+      "printProcess": "FDM / FFF",
+      "color": "#5a5a5a",
+      "url": "/pet-g-polyethylene-terephthalate-glycol/",
+      "tier": 1,
+      "radar": [5, 5, 7, 4, 7, 6, 7, 8, 8],
+      "specs": {
+        "tensileStrength":       { "value": 48,  "unit": "MPa",   "range": [44, 52],   "standard": "ASTM D638" },
+        "flexuralStrength":      { "value": 70,  "unit": "MPa",   "range": [65, 76],   "standard": "ASTM D790" },
+        "flexuralModulus":       { "value": 2.0, "unit": "GPa",   "range": [1.8, 2.2], "standard": "ASTM D790" },
+        "specificStiffness":     { "value": 1.6, "unit": "GPa·cm³/g" },
+        "izodImpact":            { "value": 8.0, "unit": "kJ/m²", "range": [6.0, 10.0], "standard": "ASTM D256", "testType": "Izod notched" },
+        "elongationAtBreak":     { "value": 18,  "unit": "%",     "range": [12, 25],   "standard": "ASTM D638" },
+        "hardness":              { "value": 75,  "unit": "Shore D","range": [72, 78] },
+        "heatDeflection":        { "value": 70,  "unit": "°C",    "range": [65, 74],   "standard": "ASTM D648 @ 0.455 MPa" },
+        "hdtHighLoad":           { "value": 63,  "unit": "°C",    "range": [60, 66],   "standard": "ASTM D648 @ 1.82 MPa" },
+        "glassTransition":       { "value": 79,  "unit": "°C",    "range": [76, 82],   "standard": "DSC" },
+        "density":               { "value": 1.27,"unit": "g/cm³", "range": [1.26, 1.28] },
+        "moistureAbsorption24h": { "value": 0.45,"unit": "%",     "range": [0.3, 0.6] },
+        "shrinkage":             { "value": 0.2, "unit": "%",     "range": [0.1, 0.4] },
+        "pricePerKg":            { "value": 1700,"unit": "₹/kg",  "range": [1400, 2000], "note": "Indian market, approximate" }
+      },
+      "printParams": {
+        "nozzleTemp":     { "min": 225, "max": 250, "recommended": [235, 245], "unit": "°C" },
+        "bedTemp":        { "min": 60,  "max": 85,  "recommended": [70, 80],   "unit": "°C" },
+        "printSpeed":     { "min": 30,  "max": 65,  "recommended": [40, 55],   "unit": "mm/s" },
+        "nozzleDiameter": { "min": 0.4, "recommended": 0.4, "unit": "mm" },
+        "nozzleMaterial": { "required": "Any", "options": ["Brass"] },
+        "bedSurface":     { "recommended": "PEI", "alternatives": ["Glass + glue stick (as release agent)"], "note": "PETG can bond too well to bare glass/PEI — use release agent" },
+        "enclosure":      { "required": false },
+        "drying":         { "temp": 65, "durationHours": 4, "mandatory": false, "note": "Moderately hygroscopic — dry if stringing occurs" },
+        "retractionDD":   { "min": 1.0, "max": 2.5, "unit": "mm" },
+        "partCoolingFan": { "value": 50, "unit": "%", "note": "Partial cooling — too much reduces layer adhesion" }
+      },
+      "designGuidelines": {
+        "minWallThickness": { "value": 0.8, "unit": "mm" },
+        "minHoleDiameter":  { "value": 1.2, "unit": "mm" },
+        "maxOverhangAngle": { "value": 50,  "unit": "° from vertical" },
+        "maxBridgeSpan":    { "value": 20,  "unit": "mm" }
+      }
+    },
+
+    "abs": {
+      "name": "ABS",
+      "shortName": "ABS",
+      "category": "General Purpose",
+      "basePolymer": "Acrylonitrile Butadiene Styrene",
+      "filler": "None",
+      "printProcess": "FDM / FFF",
+      "color": "#5a5a5a",
+      "url": "/abs-acrylonitrile-butadiene-styrene/",
+      "tier": 1,
+      "radar": [4, 5, 7, 6, 5, 4, 6, 5, 8],
+      "specs": {
+        "tensileStrength":       { "value": 38,  "unit": "MPa",   "range": [33, 42],   "standard": "ASTM D638" },
+        "flexuralStrength":      { "value": 65,  "unit": "MPa",   "range": [58, 72],   "standard": "ASTM D790" },
+        "flexuralModulus":       { "value": 2.1, "unit": "GPa",   "range": [1.8, 2.4], "standard": "ASTM D790" },
+        "specificStiffness":     { "value": 2.0, "unit": "GPa·cm³/g" },
+        "izodImpact":            { "value": 20,  "unit": "kJ/m²", "range": [15, 25],   "standard": "ASTM D256", "testType": "Izod notched" },
+        "elongationAtBreak":     { "value": 15,  "unit": "%",     "range": [5, 25],    "standard": "ASTM D638" },
+        "hardness":              { "value": 71,  "unit": "Shore D","range": [68, 74] },
+        "heatDeflection":        { "value": 96,  "unit": "°C",    "range": [93, 100],  "standard": "ASTM D648 @ 0.455 MPa" },
+        "hdtHighLoad":           { "value": 87,  "unit": "°C",    "range": [82, 92],   "standard": "ASTM D648 @ 1.82 MPa" },
+        "glassTransition":       { "value": 105, "unit": "°C",    "range": [100, 110], "standard": "DSC" },
+        "density":               { "value": 1.05,"unit": "g/cm³", "range": [1.03, 1.07] },
+        "moistureAbsorption24h": { "value": 0.55,"unit": "%",     "range": [0.3, 0.8] },
+        "shrinkage":             { "value": 0.6, "unit": "%",     "range": [0.4, 0.9], "note": "Significant warp without enclosure" },
+        "pricePerKg":            { "value": 1500,"unit": "₹/kg",  "range": [1200, 1800], "note": "Indian market, approximate" }
+      },
+      "printParams": {
+        "nozzleTemp":     { "min": 220, "max": 250, "recommended": [235, 245], "unit": "°C" },
+        "bedTemp":        { "min": 95,  "max": 110, "recommended": [100, 110], "unit": "°C" },
+        "printSpeed":     { "min": 30,  "max": 60,  "recommended": [40, 50],   "unit": "mm/s" },
+        "nozzleDiameter": { "min": 0.4, "recommended": 0.4, "unit": "mm" },
+        "nozzleMaterial": { "required": "Any", "options": ["Brass"] },
+        "bedSurface":     { "recommended": "PEI / Kapton + ABS slurry", "alternatives": ["Kapton tape"] },
+        "enclosure":      { "required": true, "note": "Strongly recommended — ABS warps severely without enclosure" },
+        "drying":         { "temp": 70, "durationHours": 4, "mandatory": false },
+        "partCoolingFan": { "value": 0, "unit": "%", "note": "OFF — cooling causes warping and delamination" }
+      },
+      "designGuidelines": {
+        "minWallThickness": { "value": 1.0, "unit": "mm" },
+        "minHoleDiameter":  { "value": 1.5, "unit": "mm" },
+        "maxOverhangAngle": { "value": 45,  "unit": "° from vertical" },
+        "maxBridgeSpan":    { "value": 15,  "unit": "mm" }
+      }
+    },
+
+    "tpu-95a": {
+      "name": "TPU 95A",
+      "shortName": "TPU 95A",
+      "category": "Flexible",
+      "basePolymer": "Thermoplastic Polyurethane",
+      "filler": "None",
+      "printProcess": "FDM / FFF",
+      "color": "#5a5a5a",
+      "url": "/tpu/",
+      "tier": 1,
+      "radar": [3, 1, 10, 3, 8, 3, 6, 4, 6],
+      "specs": {
+        "tensileStrength":       { "value": 28,   "unit": "MPa",     "range": [24, 34],     "standard": "ASTM D638" },
+        "flexuralModulus":       { "value": 0.05, "unit": "GPa",     "range": [0.03, 0.08],  "standard": "ASTM D790", "note": "Essentially zero flexural rigidity — rubber-like" },
+        "specificStiffness":     { "value": 0.04, "unit": "GPa·cm³/g" },
+        "izodImpact":            { "value": "NB", "unit": "No Break", "standard": "ASTM D256", "testType": "Izod notched", "note": "Too tough to measure — use 100 kJ/m² for chart visualization" },
+        "izodImpactNumeric":     { "value": 100,  "unit": "kJ/m²",   "note": "Visualization proxy only — actual result is No Break" },
+        "elongationAtBreak":     { "value": 500,  "unit": "%",       "range": [400, 650],    "standard": "ASTM D638" },
+        "hardness":              { "value": 95,   "unit": "Shore A",  "range": [93, 97] },
+        "abrasionResistance":    { "value": 30,   "unit": "mm³",     "range": [25, 35],      "standard": "ISO 4649" },
+        "heatDeflection":        { "value": 60,   "unit": "°C",      "range": [55, 68],      "standard": "ASTM D648 @ 0.455 MPa" },
+        "glassTransition":       { "value": -35,  "unit": "°C",      "range": [-40, -30],    "standard": "DSC" },
+        "density":               { "value": 1.21, "unit": "g/cm³",   "range": [1.19, 1.23] },
+        "moistureAbsorption24h": { "value": 1.0,  "unit": "%",       "range": [0.5, 1.5] },
+        "shrinkage":             { "value": 0.3,  "unit": "%",       "range": [0.1, 0.5] },
+        "pricePerKg":            { "value": 2400, "unit": "₹/kg",    "range": [2000, 2800],  "note": "Indian market, approximate" }
+      },
+      "printParams": {
+        "nozzleTemp":     { "min": 215, "max": 240, "recommended": [225, 235], "unit": "°C" },
+        "bedTemp":        { "min": 0,   "max": 60,  "recommended": [40, 55],   "unit": "°C", "note": "Unheated bed is acceptable" },
+        "printSpeed":     { "min": 15,  "max": 35,  "recommended": [20, 30],   "unit": "mm/s", "note": "Slow — flexible filament buckles at high speed" },
+        "nozzleDiameter": { "min": 0.4, "recommended": 0.4, "unit": "mm" },
+        "nozzleMaterial": { "required": "Any", "options": ["Brass"] },
+        "bedSurface":     { "recommended": "PEI", "alternatives": ["Glass + glue stick", "Blue tape"] },
+        "enclosure":      { "required": false },
+        "drying":         { "temp": 65, "durationHours": 4, "mandatory": true, "note": "Hygroscopic — dry before printing to avoid steam bubbles" },
+        "retractionDD":   { "value": 0, "unit": "mm", "note": "Disable retraction or keep ≤0.5 mm. Direct drive extruder required." }
+      },
+      "designGuidelines": {
+        "minWallThickness": { "value": 1.2, "unit": "mm" },
+        "minHoleDiameter":  { "value": 1.5, "unit": "mm" },
+        "maxOverhangAngle": { "value": 50,  "unit": "° from vertical" },
+        "maxBridgeSpan":    { "value": 8,   "unit": "mm", "note": "Poor bridging due to filament flexibility" }
+      }
+    },
+
+    "polycarbonate": {
+      "name": "Polycarbonate (PC)",
+      "shortName": "PC",
+      "category": "Engineering",
+      "basePolymer": "Polycarbonate",
+      "filler": "None",
+      "printProcess": "FDM / FFF",
+      "color": "#5a5a5a",
+      "url": "/polycarbonate/",
+      "tier": 1,
+      "radar": [6, 6, 9, 8, 5, 5, 5, 3, 4],
+      "specs": {
+        "tensileStrength":       { "value": 62,  "unit": "MPa",   "range": [55, 70],   "standard": "ASTM D638" },
+        "flexuralStrength":      { "value": 92,  "unit": "MPa",   "range": [85, 100],  "standard": "ASTM D790" },
+        "flexuralModulus":       { "value": 2.3, "unit": "GPa",   "range": [2.1, 2.5], "standard": "ASTM D790" },
+        "specificStiffness":     { "value": 1.9, "unit": "GPa·cm³/g" },
+        "izodImpact":            { "value": 65,  "unit": "kJ/m²", "range": [50, 85],   "standard": "ASTM D256", "testType": "Izod notched", "note": "Exceptionally tough — among highest of all FDM materials" },
+        "elongationAtBreak":     { "value": 10,  "unit": "%",     "range": [5, 15],    "standard": "ASTM D638" },
+        "hardness":              { "value": 80,  "unit": "Shore D","range": [78, 83] },
+        "heatDeflection":        { "value": 134, "unit": "°C",    "range": [128, 140], "standard": "ASTM D648 @ 0.455 MPa" },
+        "hdtHighLoad":           { "value": 125, "unit": "°C",    "range": [120, 130], "standard": "ASTM D648 @ 1.82 MPa" },
+        "glassTransition":       { "value": 147, "unit": "°C",    "range": [143, 150], "standard": "DSC" },
+        "density":               { "value": 1.20,"unit": "g/cm³", "range": [1.18, 1.22] },
+        "moistureAbsorption24h": { "value": 0.25,"unit": "%",     "range": [0.15, 0.35], "note": "Very low moisture uptake" },
+        "shrinkage":             { "value": 0.5, "unit": "%",     "range": [0.3, 0.7] },
+        "pricePerKg":            { "value": 3850,"unit": "₹/kg",  "range": [3200, 4500], "note": "Indian market, approximate" }
+      },
+      "printParams": {
+        "nozzleTemp":     { "min": 265, "max": 310, "recommended": [280, 300], "unit": "°C" },
+        "bedTemp":        { "min": 80,  "max": 120, "recommended": [100, 115], "unit": "°C" },
+        "chamberTemp":    { "min": 60,  "max": 80,  "recommended": [65, 75],   "unit": "°C", "note": "Critical for layer adhesion — without heated chamber, PC delaminates" },
+        "printSpeed":     { "min": 25,  "max": 50,  "recommended": [30, 40],   "unit": "mm/s" },
+        "nozzleDiameter": { "min": 0.4, "recommended": 0.4, "unit": "mm" },
+        "nozzleMaterial": { "required": "Any", "options": ["Brass", "Hardened steel (optional)"] },
+        "bedSurface":     { "recommended": "PEI + high-temp adhesive", "alternatives": ["BuildTak"] },
+        "enclosure":      { "required": true, "level": "Fully enclosed + actively heated chamber required" },
+        "drying":         { "temp": 120, "durationHours": 4, "mandatory": true, "note": "MANDATORY — PC hydrolyses if printed wet, causing brittleness and bubbles" },
+        "retractionDD":   { "min": 0.8, "max": 1.5, "unit": "mm" },
+        "partCoolingFan": { "value": 0, "unit": "%", "note": "OFF — any cooling causes immediate delamination" }
+      },
+      "designGuidelines": {
+        "minWallThickness": { "value": 1.0, "unit": "mm" },
+        "minHoleDiameter":  { "value": 1.5, "unit": "mm" },
+        "maxOverhangAngle": { "value": 40,  "unit": "° from vertical" },
+        "maxBridgeSpan":    { "value": 10,  "unit": "mm" }
+      }
+    },
+
+    "cf-petg": {
+      "name": "Carbon Fiber PETG (CF-PETG)",
+      "shortName": "CF-PETG",
+      "category": "Engineering Composite",
+      "basePolymer": "PETG (Polyethylene Terephthalate Glycol)",
+      "filler": "Short chopped carbon fibre (10–15% wt)",
+      "printProcess": "FDM / FFF",
+      "color": "#e8963e",
+      "url": "/cf-petg/",
+      "tier": 2,
+      "radar": [7, 7, 5, 5, 7, 7, 5, 7, 6],
+      "specs": {
+        "tensileStrength":       { "value": 58,  "unit": "MPa",   "range": [55, 65],   "standard": "ASTM D638" },
+        "flexuralStrength":      { "value": 90,  "unit": "MPa",   "range": [80, 100],  "standard": "ASTM D790" },
+        "flexuralModulus":       { "value": 5.2, "unit": "GPa",   "range": [4.5, 6.0], "standard": "ASTM D790" },
+        "specificStiffness":     { "value": 3.9, "unit": "GPa·cm³/g" },
+        "izodImpact":            { "value": 5.5, "unit": "kJ/m²", "range": [4.0, 7.0], "standard": "ASTM D256", "testType": "Izod notched", "note": "CF reduces PETG's ductility — less tough than unfilled PETG" },
+        "elongationAtBreak":     { "value": 5,   "unit": "%",     "range": [3, 8],     "standard": "ASTM D638" },
+        "hardness":              { "value": 78,  "unit": "Shore D","range": [75, 81] },
+        "heatDeflection":        { "value": 80,  "unit": "°C",    "range": [75, 85],   "standard": "ASTM D648 @ 0.455 MPa", "note": "+10°C over unfilled PETG" },
+        "glassTransition":       { "value": 80,  "unit": "°C",    "range": [77, 83],   "standard": "DSC" },
+        "density":               { "value": 1.32,"unit": "g/cm³", "range": [1.30, 1.35] },
+        "moistureAbsorption24h": { "value": 0.45,"unit": "%",     "range": [0.3, 0.6] },
+        "shrinkage":             { "value": 0.15,"unit": "%",     "range": [0.1, 0.25], "note": "Lower than unfilled PETG due to CF" },
+        "pricePerKg":            { "value": 3000,"unit": "₹/kg",  "range": [2500, 3500], "note": "Indian market, approximate" }
+      },
+      "printParams": {
+        "nozzleTemp":     { "min": 240, "max": 265, "recommended": [245, 260], "unit": "°C" },
+        "bedTemp":        { "min": 70,  "max": 85,  "recommended": [75, 80],   "unit": "°C" },
+        "printSpeed":     { "min": 30,  "max": 60,  "recommended": [40, 50],   "unit": "mm/s" },
+        "nozzleDiameter": { "min": 0.4, "recommended": 0.6, "unit": "mm", "note": "≥0.5 mm recommended" },
+        "nozzleMaterial": { "required": "Hardened steel", "options": ["Hardened steel", "Ruby"] },
+        "bedSurface":     { "recommended": "PEI + glue stick", "alternatives": ["Glass + glue stick (release agent)"] },
+        "enclosure":      { "required": false, "note": "Optional — CF-PETG warps less than unfilled PETG" },
+        "drying":         { "temp": 65, "durationHours": 6, "mandatory": true, "note": "Dry before printing — CF-PETG is moderately hygroscopic" },
+        "retractionDD":   { "min": 1.0, "max": 2.0, "unit": "mm" },
+        "partCoolingFan": { "value": 40, "unit": "%", "note": "Moderate cooling — too much hurts layer adhesion" }
+      },
+      "designGuidelines": {
+        "minWallThickness": { "value": 1.2, "unit": "mm", "note": "3+ perimeters for structural benefit" },
+        "minHoleDiameter":  { "value": 1.5, "unit": "mm" },
+        "maxOverhangAngle": { "value": 45,  "unit": "° from vertical" },
+        "maxBridgeSpan":    { "value": 18,  "unit": "mm" }
+      },
+      "compatibleFracktalPrinters": ["Dragon", "Twin Dragon", "Julia Advanced", "Volterra"],
+      "applications": {
+        "tooling":      ["Jigs & fixtures", "Assembly aids", "Inspection gauges"],
+        "automotive":   ["Interior trim components", "Mounting brackets"],
+        "consumer":     ["Sports equipment", "Drone frames", "Robot chassis"],
+        "rnd":          ["Functional prototypes requiring stiffness", "Fit-check parts"]
+      },
+      "useWhen": [
+        "You need stiffer PETG for structural parts",
+        "Part requires better dimensional stability than unfilled PETG",
+        "Surface finish is acceptable as matte/textured",
+        "You want CF stiffness without CF-PA's drying/enclosure requirements"
+      ],
+      "avoidWhen": [
+        "High impact toughness is required — use unfilled PETG",
+        "Glossy surface finish is needed",
+        "Part requires high elongation / flexibility"
+      ]
+    },
+
+    "asa": {
+      "name": "ASA (Acrylonitrile Styrene Acrylate)",
+      "shortName": "ASA",
+      "category": "Engineering",
+      "basePolymer": "Acrylonitrile Styrene Acrylate",
+      "filler": "None",
+      "printProcess": "FDM / FFF",
+      "color": "#4a90d9",
+      "url": "/asa/",
+      "tier": 2,
+      "radar": [4, 5, 7, 6, 6, 5, 6, 5, 7],
+      "specs": {
+        "tensileStrength":       { "value": 42,  "unit": "MPa",   "range": [38, 45],   "standard": "ASTM D638" },
+        "flexuralStrength":      { "value": 68,  "unit": "MPa",   "range": [60, 75],   "standard": "ASTM D790" },
+        "flexuralModulus":       { "value": 2.2, "unit": "GPa",   "range": [2.0, 2.4], "standard": "ASTM D790" },
+        "specificStiffness":     { "value": 2.1, "unit": "GPa·cm³/g" },
+        "izodImpact":            { "value": 18,  "unit": "kJ/m²", "range": [15, 25],   "standard": "ASTM D256", "testType": "Izod notched" },
+        "elongationAtBreak":     { "value": 12,  "unit": "%",     "range": [5, 20],    "standard": "ASTM D638" },
+        "hardness":              { "value": 73,  "unit": "Shore D","range": [70, 76] },
+        "heatDeflection":        { "value": 98,  "unit": "°C",    "range": [95, 102],  "standard": "ASTM D648 @ 0.455 MPa" },
+        "hdtHighLoad":           { "value": 90,  "unit": "°C",    "range": [85, 95],   "standard": "ASTM D648 @ 1.82 MPa" },
+        "glassTransition":       { "value": 108, "unit": "°C",    "range": [104, 112], "standard": "DSC" },
+        "density":               { "value": 1.06,"unit": "g/cm³", "range": [1.05, 1.07] },
+        "moistureAbsorption24h": { "value": 0.45,"unit": "%",     "range": [0.3, 0.6] },
+        "shrinkage":             { "value": 0.5, "unit": "%",     "range": [0.3, 0.7], "note": "Similar to ABS — enclosure recommended" },
+        "uvResistance":          { "value": "Excellent", "note": "10× better UV resistance than ABS — key differentiator" },
+        "pricePerKg":            { "value": 2200,"unit": "₹/kg",  "range": [1800, 2500], "note": "Indian market, approximate" }
+      },
+      "printParams": {
+        "nozzleTemp":     { "min": 240, "max": 260, "recommended": [245, 255], "unit": "°C" },
+        "bedTemp":        { "min": 95,  "max": 110, "recommended": [100, 110], "unit": "°C" },
+        "printSpeed":     { "min": 30,  "max": 60,  "recommended": [40, 50],   "unit": "mm/s" },
+        "nozzleDiameter": { "min": 0.4, "recommended": 0.4, "unit": "mm" },
+        "nozzleMaterial": { "required": "Any", "options": ["Brass", "Hardened steel (optional)"] },
+        "bedSurface":     { "recommended": "PEI / Kapton + ASA slurry", "alternatives": ["Kapton tape"] },
+        "enclosure":      { "required": true, "note": "Strongly recommended — ASA warps similarly to ABS" },
+        "drying":         { "temp": 70, "durationHours": 4, "mandatory": false },
+        "partCoolingFan": { "value": 10, "unit": "%", "note": "Minimal cooling — ASA needs slow cooling for layer adhesion" }
+      },
+      "designGuidelines": {
+        "minWallThickness": { "value": 1.0, "unit": "mm" },
+        "minHoleDiameter":  { "value": 1.5, "unit": "mm" },
+        "maxOverhangAngle": { "value": 45,  "unit": "° from vertical" },
+        "maxBridgeSpan":    { "value": 15,  "unit": "mm" }
+      },
+      "compatibleFracktalPrinters": ["Dragon", "Twin Dragon", "Julia Advanced", "Volterra"],
+      "applications": {
+        "outdoor":      ["Garden equipment", "Outdoor enclosures", "Signage", "Automotive exterior trim"],
+        "automotive":   ["Mirror housings", "Grille components", "Exterior sensor brackets"],
+        "marine":       ["Boat fittings", "Deck hardware"],
+        "industrial":   ["Weather-resistant housings", "Outdoor junction boxes"]
+      },
+      "useWhen": [
+        "Part will be exposed to sunlight/UV outdoors",
+        "You need ABS-like mechanical properties with weather resistance",
+        "Outdoor signage or automotive exterior parts",
+        "Part requires better colour stability than ABS over time"
+      ],
+      "avoidWhen": [
+        "Indoor-only application — use cheaper ABS",
+        "Very tight tolerances without post-processing (similar warp to ABS)",
+        "High chemical resistance needed — ASA attacked by ketones and esters"
+      ]
+    },
+
+    "pc-abs": {
+      "name": "PC-ABS Blend",
+      "shortName": "PC-ABS",
+      "category": "Engineering Blend",
+      "basePolymer": "Polycarbonate + ABS alloy",
+      "filler": "None",
+      "printProcess": "FDM / FFF",
+      "color": "#6c5ce7",
+      "url": "/pc-abs/",
+      "tier": 2,
+      "radar": [5, 6, 8, 7, 6, 6, 5, 4, 5],
+      "specs": {
+        "tensileStrength":       { "value": 48,  "unit": "MPa",   "range": [42, 52],   "standard": "ASTM D638" },
+        "flexuralStrength":      { "value": 78,  "unit": "MPa",   "range": [70, 85],   "standard": "ASTM D790" },
+        "flexuralModulus":       { "value": 2.5, "unit": "GPa",   "range": [2.2, 2.8], "standard": "ASTM D790" },
+        "specificStiffness":     { "value": 2.2, "unit": "GPa·cm³/g" },
+        "izodImpact":            { "value": 40,  "unit": "kJ/m²", "range": [30, 50],   "standard": "ASTM D256", "testType": "Izod notched", "note": "Excellent — better than either PC or ABS alone" },
+        "elongationAtBreak":     { "value": 20,  "unit": "%",     "range": [10, 30],   "standard": "ASTM D638" },
+        "hardness":              { "value": 76,  "unit": "Shore D","range": [73, 79] },
+        "heatDeflection":        { "value": 108, "unit": "°C",    "range": [100, 115], "standard": "ASTM D648 @ 0.455 MPa" },
+        "hdtHighLoad":           { "value": 98,  "unit": "°C",    "range": [92, 105],  "standard": "ASTM D648 @ 1.82 MPa" },
+        "glassTransition":       { "value": 120, "unit": "°C",    "note": "Two Tg peaks — PC phase ~145°C, ABS phase ~105°C", "standard": "DSC" },
+        "density":               { "value": 1.12,"unit": "g/cm³", "range": [1.10, 1.15] },
+        "moistureAbsorption24h": { "value": 0.35,"unit": "%",     "range": [0.2, 0.5] },
+        "shrinkage":             { "value": 0.5, "unit": "%",     "range": [0.3, 0.7] },
+        "pricePerKg":            { "value": 2700,"unit": "₹/kg",  "range": [2200, 3200], "note": "Indian market, approximate" }
+      },
+      "printParams": {
+        "nozzleTemp":     { "min": 250, "max": 275, "recommended": [260, 270], "unit": "°C" },
+        "bedTemp":        { "min": 100, "max": 115, "recommended": [105, 110], "unit": "°C" },
+        "chamberTemp":    { "min": 50,  "max": 70,  "recommended": [55, 65],   "unit": "°C", "note": "Recommended — improves layer adhesion significantly" },
+        "printSpeed":     { "min": 30,  "max": 55,  "recommended": [35, 45],   "unit": "mm/s" },
+        "nozzleDiameter": { "min": 0.4, "recommended": 0.4, "unit": "mm" },
+        "nozzleMaterial": { "required": "Any", "options": ["Brass", "Hardened steel (optional)"] },
+        "bedSurface":     { "recommended": "PEI + adhesive", "alternatives": ["BuildTak", "Kapton + slurry"] },
+        "enclosure":      { "required": true, "note": "Required — PC component needs controlled cooling" },
+        "drying":         { "temp": 90, "durationHours": 4, "mandatory": true, "note": "PC component absorbs moisture — dry before printing" },
+        "retractionDD":   { "min": 0.8, "max": 1.5, "unit": "mm" },
+        "partCoolingFan": { "value": 10, "unit": "%", "note": "Minimal — PC component delaminates with cooling" }
+      },
+      "designGuidelines": {
+        "minWallThickness": { "value": 1.0, "unit": "mm" },
+        "minHoleDiameter":  { "value": 1.5, "unit": "mm" },
+        "maxOverhangAngle": { "value": 40,  "unit": "° from vertical" },
+        "maxBridgeSpan":    { "value": 12,  "unit": "mm" }
+      },
+      "compatibleFracktalPrinters": ["Dragon", "Twin Dragon", "Julia Advanced", "Volterra"],
+      "applications": {
+        "automotive":   ["Interior structural components", "Dashboard frames", "Centre console parts"],
+        "electronics":  ["Laptop housings", "Device enclosures", "Connector bodies"],
+        "industrial":   ["Power tool housings", "Machine guards", "Structural brackets"]
+      },
+      "useWhen": [
+        "Part needs high impact + moderate heat resistance",
+        "Automotive interior applications (industry standard material)",
+        "You need better toughness than ABS with better printability than pure PC",
+        "Electronic enclosures requiring durability"
+      ],
+      "avoidWhen": [
+        "Outdoor UV exposure — PC component yellows (use ASA)",
+        "Very high temperature >105°C continuous — use pure PC or CF-PA",
+        "Chemical resistance needed — PC component attacked by many chemicals"
+      ]
+    },
+
+    "pp": {
+      "name": "PP (Polypropylene)",
+      "shortName": "PP",
+      "category": "Engineering",
+      "basePolymer": "Polypropylene",
+      "filler": "None",
+      "printProcess": "FDM / FFF",
+      "color": "#00b894",
+      "url": "/pp-polypropylene/",
+      "tier": 2,
+      "radar": [3, 3, 10, 7, 9, 4, 5, 4, 7],
+      "specs": {
+        "tensileStrength":       { "value": 28,  "unit": "MPa",     "range": [25, 32],     "standard": "ASTM D638" },
+        "flexuralStrength":      { "value": 40,  "unit": "MPa",     "range": [35, 48],     "standard": "ASTM D790" },
+        "flexuralModulus":       { "value": 1.2, "unit": "GPa",     "range": [1.0, 1.4],   "standard": "ASTM D790" },
+        "specificStiffness":     { "value": 1.3, "unit": "GPa·cm³/g" },
+        "izodImpact":            { "value": "NB","unit": "No Break", "standard": "ASTM D256", "testType": "Izod notched", "note": "Extremely tough — use 100 kJ/m² for chart visualization" },
+        "izodImpactNumeric":     { "value": 100, "unit": "kJ/m²",   "note": "Visualization proxy only — actual result is No Break" },
+        "elongationAtBreak":     { "value": 100, "unit": "%",       "range": [50, 200],    "standard": "ASTM D638" },
+        "hardness":              { "value": 65,  "unit": "Shore D",  "range": [60, 70] },
+        "heatDeflection":        { "value": 92,  "unit": "°C",      "range": [85, 100],    "standard": "ASTM D648 @ 0.455 MPa" },
+        "glassTransition":       { "value": -10, "unit": "°C",      "range": [-20, 0],     "standard": "DSC" },
+        "meltingPoint":          { "value": 165, "unit": "°C",      "range": [160, 170],   "standard": "DSC" },
+        "density":               { "value": 0.90,"unit": "g/cm³",   "range": [0.89, 0.92], "note": "Lightest FDM material — floats on water" },
+        "moistureAbsorption24h": { "value": 0.02,"unit": "%",       "note": "Essentially zero — excellent moisture barrier" },
+        "chemicalResistance":    { "value": "Excellent", "note": "Resists acids, bases, solvents — best chemical resistance of any FDM material" },
+        "shrinkage":             { "value": 1.0, "unit": "%",       "range": [0.8, 1.5],   "note": "High — challenging warping; needs excellent bed adhesion" },
+        "pricePerKg":            { "value": 2200,"unit": "₹/kg",    "range": [1800, 2500], "note": "Indian market, approximate" }
+      },
+      "printParams": {
+        "nozzleTemp":     { "min": 220, "max": 245, "recommended": [230, 240], "unit": "°C" },
+        "bedTemp":        { "min": 80,  "max": 100, "recommended": [85, 95],   "unit": "°C" },
+        "printSpeed":     { "min": 25,  "max": 50,  "recommended": [30, 40],   "unit": "mm/s" },
+        "nozzleDiameter": { "min": 0.4, "recommended": 0.4, "unit": "mm" },
+        "nozzleMaterial": { "required": "Any", "options": ["Brass"] },
+        "bedSurface":     { "recommended": "PP-specific bed / Packing tape", "alternatives": ["PP sheet"], "note": "PP only sticks to PP — use PP tape or dedicated PP build plate" },
+        "enclosure":      { "required": true, "note": "Recommended — PP warps significantly" },
+        "drying":         { "temp": 60, "durationHours": 3, "mandatory": false, "note": "PP absorbs almost no moisture — drying rarely needed" },
+        "retractionDD":   { "min": 1.0, "max": 2.0, "unit": "mm" },
+        "partCoolingFan": { "value": 30, "unit": "%", "note": "Moderate — PP crystallises slowly, too much cooling causes warping" }
+      },
+      "designGuidelines": {
+        "minWallThickness": { "value": 1.0, "unit": "mm" },
+        "minHoleDiameter":  { "value": 1.5, "unit": "mm" },
+        "maxOverhangAngle": { "value": 45,  "unit": "° from vertical" },
+        "maxBridgeSpan":    { "value": 12,  "unit": "mm" }
+      },
+      "compatibleFracktalPrinters": ["Dragon", "Twin Dragon", "Julia Advanced", "Volterra"],
+      "applications": {
+        "chemical":     ["Chemical tanks", "Laboratory equipment", "Fluid handling components"],
+        "medical":      ["Prosthetic components", "Orthotic devices", "Medical device housings"],
+        "consumer":     ["Living hinges", "Containers with snap-fit lids", "Waterproof enclosures"],
+        "industrial":   ["Acid-resistant components", "Battery housings", "Chemical-resistant gaskets"]
+      },
+      "useWhen": [
+        "Part needs a living hinge (PP is the only FDM material that does this well)",
+        "Chemical resistance is critical (acids, bases, solvents)",
+        "Lightest possible weight is needed (density 0.90 g/cm³)",
+        "Part will be in constant contact with water/moisture"
+      ],
+      "avoidWhen": [
+        "High stiffness is required — PP is flexible/ductile",
+        "You can't achieve good PP bed adhesion (needs PP-specific surface)",
+        "Tight tolerances — PP has high and variable shrinkage",
+        "Part needs painting or bonding — PP has very low surface energy"
+      ]
+    },
+
+    "pva": {
+      "name": "PVA (Polyvinyl Alcohol)",
+      "shortName": "PVA",
+      "category": "Support Material",
+      "basePolymer": "Polyvinyl Alcohol",
+      "filler": "None",
+      "printProcess": "FDM / FFF (dual extrusion support)",
+      "color": "#fdcb6e",
+      "url": "/pva/",
+      "tier": 2,
+      "radar": [2, 1, 2, 1, 2, 2, 8, 5, 2],
+      "specs": {
+        "tensileStrength":       { "value": 25,  "unit": "MPa",   "range": [20, 30],   "standard": "ASTM D638", "note": "Support material — not intended for structural parts" },
+        "flexuralModulus":       { "value": 0.7, "unit": "GPa",   "range": [0.5, 1.0], "standard": "ASTM D790" },
+        "specificStiffness":     { "value": 0.6, "unit": "GPa·cm³/g" },
+        "izodImpact":            { "value": 4.0, "unit": "kJ/m²", "range": [3.0, 5.0], "standard": "ASTM D256", "testType": "Izod notched" },
+        "elongationAtBreak":     { "value": 10,  "unit": "%",     "range": [5, 15],    "standard": "ASTM D638" },
+        "heatDeflection":        { "value": 50,  "unit": "°C",    "range": [45, 55],   "standard": "ASTM D648 @ 0.455 MPa" },
+        "glassTransition":       { "value": 60,  "unit": "°C",    "range": [55, 65],   "standard": "DSC" },
+        "density":               { "value": 1.25,"unit": "g/cm³", "range": [1.23, 1.27] },
+        "waterSolubility":       { "value": "Fully soluble", "note": "Dissolves completely in warm water (25–30°C) — primary function" },
+        "moistureAbsorption24h": { "value": 5.0, "unit": "%",     "note": "EXTREMELY hygroscopic — must be stored in sealed container with desiccant at all times" },
+        "shrinkage":             { "value": 0.1, "unit": "%",     "note": "Very low — designed to match build material dimensions" },
+        "pricePerKg":            { "value": 4250,"unit": "₹/kg",  "range": [3500, 5000], "note": "Indian market, approximate — expensive support material" }
+      },
+      "printParams": {
+        "nozzleTemp":     { "min": 190, "max": 215, "recommended": [195, 210], "unit": "°C" },
+        "bedTemp":        { "min": 45,  "max": 60,  "recommended": [50, 60],   "unit": "°C" },
+        "printSpeed":     { "min": 25,  "max": 50,  "recommended": [30, 40],   "unit": "mm/s" },
+        "nozzleDiameter": { "min": 0.4, "recommended": 0.4, "unit": "mm" },
+        "nozzleMaterial": { "required": "Any", "options": ["Brass"] },
+        "bedSurface":     { "recommended": "PEI / Glass + glue stick", "note": "Standard surfaces work" },
+        "enclosure":      { "required": false },
+        "drying":         { "temp": 45, "durationHours": 6, "mandatory": true, "note": "MANDATORY — PVA absorbs moisture from air within hours. Store in sealed container with desiccant. Print directly from dry box." },
+        "retractionDD":   { "min": 1.0, "max": 2.0, "unit": "mm" },
+        "partCoolingFan": { "value": 100, "unit": "%", "note": "Full cooling — similar to PLA" }
+      },
+      "designGuidelines": {
+        "minWallThickness": { "value": 0.8, "unit": "mm", "note": "Support only — thinner sections dissolve faster" },
+        "supportDensity":   { "value": "15-25%", "note": "Lower density = faster dissolution; higher = better support" },
+        "dissolutionTime":  { "note": "2–24 hours depending on part geometry, water temperature, and agitation" }
+      },
+      "compatibleFracktalPrinters": ["Twin Dragon"],
+      "note": "PVA is a dedicated support material for dual-extrusion printers. It is not a standalone build material. The Twin Dragon with its dual direct-drive extruders is the only Fracktal printer that can run PVA + build material simultaneously."
+    }
+  },
+
+  "barCharts": {
+    "tensileStrength": {
+      "label": "Tensile Strength (MPa) — ASTM D638",
+      "data": {
+        "cf-pa": 82, "nylon-pa12": 50, "pla": 56, "petg": 48, "abs": 38, "tpu-95a": 28, "polycarbonate": 62,
+        "cf-petg": 58, "asa": 42, "pc-abs": 48, "pp": 28, "pva": 25
+      }
+    },
+    "heatDeflection": {
+      "label": "Heat Deflection Temperature (°C) — ASTM D648 @ 0.455 MPa",
+      "data": {
+        "cf-pa": 145, "nylon-pa12": 78, "pla": 53, "petg": 70, "abs": 96, "tpu-95a": 60, "polycarbonate": 134,
+        "cf-petg": 80, "asa": 98, "pc-abs": 108, "pp": 92, "pva": 50
+      }
+    },
+    "flexuralModulus": {
+      "label": "Flexural Modulus (GPa) — ASTM D790",
+      "data": {
+        "cf-pa": 6.5, "nylon-pa12": 1.6, "pla": 3.2, "petg": 2.0, "abs": 2.1, "tpu-95a": 0.05, "polycarbonate": 2.3,
+        "cf-petg": 5.2, "asa": 2.2, "pc-abs": 2.5, "pp": 1.2, "pva": 0.7
+      }
+    },
+    "izodImpact": {
+      "label": "Izod Impact Strength (kJ/m²) — ASTM D256 Notched",
+      "note": "TPU 95A and PP show No Break — plotted at 100 kJ/m² for visualization",
+      "data": {
+        "cf-pa": 4.5, "nylon-pa12": 8.0, "pla": 3.5, "petg": 8.0, "abs": 20, "tpu-95a": 100, "polycarbonate": 65,
+        "cf-petg": 5.5, "asa": 18, "pc-abs": 40, "pp": 100, "pva": 4.0
+      }
+    }
+  },
+
+  "scatterPlots": {
+    "hdtVsImpact": {
+      "xLabel": "Izod Impact Strength (kJ/m²) — ASTM D256 Notched",
+      "yLabel": "Heat Deflection Temperature (°C) — ASTM D648 @ 0.455 MPa",
+      "xRange": [0, 80],
+      "yRange": [0, 180],
+      "note": "TPU 95A and PP = No Break; plotted at 100 kJ/m² (off-scale) with NB marker. PVA omitted — support material.",
+      "data": {
+        "cf-pa":          { "hdt": 145, "impact": 4.5,  "bubble": "large" },
+        "nylon-pa12":     { "hdt": 78,  "impact": 8.0,  "bubble": "medium" },
+        "pla":            { "hdt": 53,  "impact": 3.5,  "bubble": "small" },
+        "petg":           { "hdt": 70,  "impact": 8.0,  "bubble": "medium" },
+        "abs":            { "hdt": 96,  "impact": 20,   "bubble": "large" },
+        "tpu-95a":        { "hdt": 60,  "impact": 100,  "bubble": "large", "note": "No Break — off-scale proxy" },
+        "polycarbonate":  { "hdt": 134, "impact": 65,   "bubble": "medium" },
+        "cf-petg":        { "hdt": 80,  "impact": 5.5,  "bubble": "medium" },
+        "asa":            { "hdt": 98,  "impact": 18,   "bubble": "medium" },
+        "pc-abs":         { "hdt": 108, "impact": 40,   "bubble": "medium" },
+        "pp":             { "hdt": 92,  "impact": 100,  "bubble": "large", "note": "No Break — off-scale proxy" }
+      }
+    },
+    "hdtVsTensile": {
+      "xLabel": "Tensile Strength (MPa) — ASTM D638",
+      "yLabel": "Heat Deflection Temperature (°C) — ASTM D648 @ 0.455 MPa",
+      "xRange": [0, 90],
+      "yRange": [0, 180],
+      "data": {
+        "cf-pa":          { "hdt": 145, "tensile": 82 },
+        "nylon-pa12":     { "hdt": 78,  "tensile": 50 },
+        "pla":            { "hdt": 53,  "tensile": 56 },
+        "petg":           { "hdt": 70,  "tensile": 48 },
+        "abs":            { "hdt": 96,  "tensile": 38 },
+        "tpu-95a":        { "hdt": 60,  "tensile": 28 },
+        "polycarbonate":  { "hdt": 134, "tensile": 62 },
+        "cf-petg":        { "hdt": 80,  "tensile": 58 },
+        "asa":            { "hdt": 98,  "tensile": 42 },
+        "pc-abs":         { "hdt": 108, "tensile": 48 },
+        "pp":             { "hdt": 92,  "tensile": 28 },
+        "pva":            { "hdt": 50,  "tensile": 25 }
+      }
+    }
+  },
+
+  "radarMatrix": {
+    "description": "9-axis radar scores [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]. All scores 0–10.",
+    "scores": {
+      "cf-pa":          [9, 9, 4, 9, 8, 9, 4, 4, 3],
+      "nylon-pa12":     [6, 5, 8, 5, 7, 5, 5, 5, 5],
+      "pla":            [5, 6, 2, 2, 3, 8, 9, 10, 9],
+      "petg":           [5, 5, 7, 4, 7, 6, 7, 8, 8],
+      "abs":            [4, 5, 7, 6, 5, 4, 6, 5, 8],
+      "tpu-95a":        [3, 1, 10, 3, 8, 3, 6, 4, 6],
+      "polycarbonate":  [6, 6, 9, 8, 5, 5, 5, 3, 4],
+      "cf-petg":        [7, 7, 5, 5, 7, 7, 5, 7, 6],
+      "asa":            [4, 5, 7, 6, 6, 5, 6, 5, 7],
+      "pc-abs":         [5, 6, 8, 7, 6, 6, 5, 4, 5],
+      "pp":             [3, 3, 10, 7, 9, 4, 5, 4, 7],
+      "pva":            [2, 1, 2, 1, 2, 2, 8, 5, 2]
+    }
+  },
+
+  "heroSpecs": {
+    "description": "Top-4 hero specs shown on each material page header.",
+    "data": {
+      "cf-pa":          { "tensile": 82, "hdt": 145, "density": 1.10, "printTemp": "270–280 °C" },
+      "nylon-pa12":     { "tensile": 50, "hdt": 78,  "density": 1.01, "printTemp": "250–265 °C" },
+      "pla":            { "tensile": 56, "hdt": 53,  "density": 1.24, "printTemp": "200–215 °C" },
+      "petg":           { "tensile": 48, "hdt": 70,  "density": 1.27, "printTemp": "235–245 °C" },
+      "abs":            { "tensile": 38, "hdt": 96,  "density": 1.05, "printTemp": "235–245 °C" },
+      "tpu-95a":        { "tensile": 28, "hdt": 60,  "density": 1.21, "printTemp": "225–235 °C" },
+      "polycarbonate":  { "tensile": 62, "hdt": 134, "density": 1.20, "printTemp": "280–300 °C" },
+      "cf-petg":        { "tensile": 58, "hdt": 80,  "density": 1.32, "printTemp": "245–260 °C" },
+      "asa":            { "tensile": 42, "hdt": 98,  "density": 1.06, "printTemp": "245–255 °C" },
+      "pc-abs":         { "tensile": 48, "hdt": 108, "density": 1.12, "printTemp": "260–270 °C" },
+      "pp":             { "tensile": 28, "hdt": 92,  "density": 0.90, "printTemp": "230–240 °C" },
+      "pva":            { "tensile": 25, "hdt": 50,  "density": 1.25, "printTemp": "195–210 °C" }
+    }
+  },
+
+  "quickReference": {
+    "description": "Machine-readable quick reference fields shown below the hero on each page.",
+    "cf-pa": {
+      "materialName": "Carbon Fiber Nylon (CF-PA)",
+      "category": "Engineering composite",
+      "basePolymer": "Polyamide 12 (PA12)",
+      "filler": "Short chopped carbon fibre (15–20% wt)",
+      "printProcess": "FDM / FFF",
+      "tensileStrength": "82 MPa",
+      "heatDeflection": "145 °C (ASTM D648 @ 0.455 MPa)",
+      "density": "1.10 g/cm³",
+      "layerBondStrength": "35 MPa (Z-strength, print-dependent)",
+      "moistureAbsorption": "1.1% (24h, 23°C / 50% RH)",
+      "nozzleTemp": "270–280 °C",
+      "nozzleDiameter": "≥0.6 mm (0.8 mm recommended)",
+      "nozzleMaterial": "Hardened steel (≥0.4 mm)"
+    }
+  },
+
+  "materialOrder": {
+    "description": "Build priority order for material pages. Tier 1 = already built. Tier 2 = build next.",
+    "tier1": ["cf-pa", "nylon-pa12", "pla", "petg", "abs", "tpu-95a", "polycarbonate"],
+    "tier2": ["cf-petg", "asa", "pc-abs", "pp", "pva"],
+    "tier3": ["cf-pla", "gf-nylon", "hips"]
+  },
+
+  "compatibilityMatrix": {
+    "description": "Which Fracktal printers can print each material.",
+    "dragon":           ["cf-pa", "nylon-pa12", "pla", "petg", "abs", "tpu-95a", "polycarbonate", "cf-petg", "asa", "pc-abs", "pp"],
+    "twinDragon":       ["cf-pa", "nylon-pa12", "pla", "petg", "abs", "tpu-95a", "polycarbonate", "cf-petg", "asa", "pc-abs", "pp", "pva"],
+    "juliaAdvanced":    ["cf-pa", "nylon-pa12", "pla", "petg", "abs", "tpu-95a", "polycarbonate", "cf-petg", "asa", "pc-abs", "pp"],
+    "volterra":         ["cf-pa", "nylon-pa12", "pla", "petg", "abs", "tpu-95a", "polycarbonate", "cf-petg", "asa", "pc-abs", "pp"],
+    "snowflake":        ["pla", "petg", "tpu-95a"]
+  }
+}
