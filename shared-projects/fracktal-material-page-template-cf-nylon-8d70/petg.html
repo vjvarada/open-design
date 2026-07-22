@@ -456,6 +456,8 @@ svg{display:block;width:100%;height:auto;}
               <option value="cf-petg">CF-PETG</option>
               <option value="asa">ASA</option>
               <option value="pc-abs">PC-ABS</option>
+              <option value="pp">PP (Polypropylene)</option>
+              <option value="pva">PVA</option>
               </select>
         </div>
         <div class="legend" id="radar-legend">
@@ -605,6 +607,81 @@ const FRACKTAL_MATERIALS = {
       pricePerKg: { value: 3500, unit: '₹/kg', note: 'approximate' }
     },
     url: '/polycarbonate/'
+  },
+  'asa': {
+    name: 'ASA (Acrylonitrile Styrene Acrylate)',
+    shortName: 'ASA',
+    color: '#4a90d9',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [4, 5, 7, 6, 6, 5, 6, 5, 7],
+    specs: {
+      tensileStrength: { value: 42, unit: 'MPa' },
+      heatDeflection: { value: 98, unit: '°C' },
+      density: { value: 1.06, unit: 'g/cm³' },
+      printTemp: { min: 220, max: 250, unit: '°C' },
+      pricePerKg: { value: 2200, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/asa/'
+  },
+  'cf-petg': {
+    name: 'Carbon Fiber PETG (CF-PETG)',
+    shortName: 'CF-PETG',
+    color: '#e8963e',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [7, 7, 5, 5, 7, 7, 5, 7, 6],
+    specs: {
+      tensileStrength: { value: 58, unit: 'MPa' },
+      heatDeflection: { value: 80, unit: '°C' },
+      density: { value: 1.32, unit: 'g/cm³' },
+      printTemp: { min: 230, max: 260, unit: '°C' },
+      pricePerKg: { value: 3000, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/cf-petg/'
+  },
+  'pc-abs': {
+    name: 'PC-ABS Blend',
+    shortName: 'PC-ABS',
+    color: '#6c5ce7',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [5, 6, 8, 7, 6, 6, 5, 4, 5],
+    specs: {
+      tensileStrength: { value: 48, unit: 'MPa' },
+      heatDeflection: { value: 108, unit: '°C' },
+      density: { value: 1.12, unit: 'g/cm³' },
+      printTemp: { min: 240, max: 270, unit: '°C' },
+      pricePerKg: { value: 2700, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/pc-abs/'
+  },
+  'pp': {
+    name: 'PP (Polypropylene)',
+    shortName: 'PP',
+    color: '#00b894',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [3, 3, 10, 7, 9, 4, 5, 4, 7],
+    specs: {
+      tensileStrength: { value: 28, unit: 'MPa' },
+      heatDeflection: { value: 92, unit: '°C' },
+      density: { value: 0.9, unit: 'g/cm³' },
+      printTemp: { min: 200, max: 240, unit: '°C' },
+      pricePerKg: { value: 2200, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/pp-polypropylene/'
+  },
+  'pva': {
+    name: 'PVA (Polyvinyl Alcohol)',
+    shortName: 'PVA',
+    color: '#fdcb6e',
+    // [Tensile, Flexural, Impact, Heat, Chemical, Dimensional, Surface, Ease, Cost]
+    radar: [2, 1, 2, 1, 2, 2, 8, 5, 2],
+    specs: {
+      tensileStrength: { value: 25, unit: 'MPa' },
+      heatDeflection: { value: 50, unit: '°C' },
+      density: { value: 1.25, unit: 'g/cm³' },
+      printTemp: { min: 180, max: 210, unit: '°C' },
+      pricePerKg: { value: 4250, unit: '₹/kg', note: 'approximate' }
+    },
+    url: '/pva/'
   }
 };
 
@@ -728,42 +805,48 @@ const RADAR_AXIS_LABELS = [
       <p>Engineering values with context that decides whether PETG is the right choice for your application.</p>
     </div>
     <div class="card-flex">
-      <div class="prop-card" data-od-id="prop-tensile">
+      <div class="prop-card has-img" data-od-id="prop-tensile">
+        <img class="prop-img" src="https://d8j0ntlcm91z4.cloudfront.net/user_3FgPPk8oMuj8SYTxnyelClUUvq8/hf_20260712_154213_6544ebe2-beb3-4396-af2d-4990293b0459.png" alt="PETG tensile test specimen in stainless steel grips" loading="lazy">
         <div class="prop-body">
           <div class="name">Tensile Strength</div>
           <div class="val">48 MPa</div>
           <div class="ctx">Comparable to ABS with far better layer adhesion.</div>
         </div>
       </div>
-      <div class="prop-card" data-od-id="prop-hdt">
+      <div class="prop-card has-img" data-od-id="prop-hdt">
+        <img class="prop-img" src="https://d8j0ntlcm91z4.cloudfront.net/user_3FgPPk8oMuj8SYTxnyelClUUvq8/hf_20260712_151326_189f8f0f-7d8e-4f9e-81f6-fd1a7c9e33c6.png" alt="Torch flame test on PETG demonstrating heat resistance" loading="lazy">
         <div class="prop-body">
           <div class="name">Heat Deflection</div>
           <div class="val">70 °C</div>
           <div class="ctx">Suitable for most indoor applications; avoids hot car interiors.</div>
         </div>
       </div>
-      <div class="prop-card" data-od-id="prop-density">
+      <div class="prop-card has-img" data-od-id="prop-density">
+        <img class="prop-img" src="mri3eu7u-hf_20260712_175314_ca1578a8-fe85-466b-9f87-2b3dd272140a.png" alt="PETG filament spool with 3D printed structural parts" loading="lazy">
         <div class="prop-body">
           <div class="name">Density</div>
           <div class="val">1.27 g/cm³</div>
           <div class="ctx">Mid-range density — heavier than PLA, lighter than PC.</div>
         </div>
       </div>
-      <div class="prop-card" data-od-id="prop-chem">
+      <div class="prop-card has-img" data-od-id="prop-chem">
+        <img class="prop-img" src="fracktal-petg-hero-spool.png" alt="PETG filament demonstrating chemical resistance properties" loading="lazy">
         <div class="prop-body">
           <div class="name">Chemical Resistance</div>
           <div class="val">Good</div>
           <div class="ctx">Resists dilute acids, alkalis, and most common solvents.</div>
         </div>
       </div>
-      <div class="prop-card" data-od-id="prop-elongation">
+      <div class="prop-card has-img" data-od-id="prop-elongation">
+        <img class="prop-img" src="mrhy7thd-hf_20260712_152004_2011de7e-94dd-4225-b44a-23da53abb061.png" alt="FDM printer creating PETG part showing ductile material properties" loading="lazy">
         <div class="prop-body">
           <div class="name">Elongation at Break</div>
           <div class="val">20–30 %</div>
           <div class="ctx">Ductile failure mode — bends before snapping.</div>
         </div>
       </div>
-      <div class="prop-card" data-od-id="prop-moisture">
+      <div class="prop-card has-img" data-od-id="prop-moisture">
+        <img class="prop-img" src="fracktal-cf-pa-dry-box-humidity.png" alt="PETG filament dry box with hygrometer showing low moisture absorption" loading="lazy">
         <div class="prop-body">
           <div class="name">Moisture Absorption</div>
           <div class="val">0.2 % (sat.)</div>
@@ -812,27 +895,31 @@ const RADAR_AXIS_LABELS = [
       <h2>Applications — By Industry</h2>
     </div>
     <div class="card-flex">
-      <div class="app-tile" data-od-id="app-mech">
-        <div class="tile-body">
-          <h3>Mechanical / Structural</h3>
+      <div class="app-tile has-img" data-od-id="app-mech">
+        <img class="tile-img" src="automotive-end-use-part.jpg" alt="3D printed mechanical and structural components" loading="lazy" width="600" height="400">
+<div class="tile-body">
+<h3>Mechanical / Structural</h3>
           <ul><li>General-purpose brackets</li><li>Enclosure panels</li><li>Structural supports</li></ul>
         </div>
       </div>
-      <div class="app-tile" data-od-id="app-chem">
-        <div class="tile-body">
-          <h3>Chemical / Lab</h3>
+      <div class="app-tile has-img" data-od-id="app-chem">
+        <img class="tile-img" src="fracktal-cf-pa-electronics-enclosure.png" alt="3D printed chemical-resistant lab equipment" loading="lazy" width="600" height="400">
+<div class="tile-body">
+<h3>Chemical / Lab</h3>
           <ul><li>Chemical-resistant containers</li><li>Lab equipment components</li><li>Fluid contact parts</li></ul>
         </div>
       </div>
-      <div class="app-tile" data-od-id="app-elec">
-        <div class="tile-body">
-          <h3>Electronics</h3>
+      <div class="app-tile has-img" data-od-id="app-elec">
+        <img class="tile-img" src="fracktal-cf-pa-electronics-enclosure.png" alt="Black 3D printed structural electronics enclosure with internal circuit board" loading="lazy" width="600" height="400">
+<div class="tile-body">
+<h3>Electronics</h3>
           <ul><li>Translucent housings</li><li>Cable management clips</li><li>PCB enclosures</li></ul>
         </div>
       </div>
-      <div class="app-tile" data-od-id="app-rd">
-        <div class="tile-body">
-          <h3>R&amp;D / Prototyping</h3>
+      <div class="app-tile has-img" data-od-id="app-rd">
+        <img class="tile-img" src="rnd-prototyping-hero.png" alt="3D printed parts for R&D prototyping and engineering applications" loading="lazy" width="600" height="400">
+<div class="tile-body">
+<h3>R&amp;D / Prototyping</h3>
           <ul><li>Functional fit-check models</li><li>Rapid iteration parts</li><li>Test fixtures</li></ul>
         </div>
       </div>
@@ -841,47 +928,72 @@ const RADAR_AXIS_LABELS = [
 </section>
 
 <!-- ===================== TENSILE COMPARISON BAR CHART ===================== -->
-<section class="section" id="tensile-chart" style="background:var(--dark);" data-od-id="tensile-chart">
+<section class="section" id="tensile-comparison" style="background:var(--dark);color:#fff;" data-od-id="tensile-comparison">
   <div class="wrap">
     <div class="sec-head">
-      <span class="overline">Comparison</span>
-      <h2>Tensile Strength vs Other Materials</h2>
-      <p>ISO 527 / ASTM D638 values. Printed specimens at recommended settings.</p>
+      <span class="overline">Benchmark</span>
+      <h2 style="color:#fff;">Tensile Strength — FDM Materials (MPa)</h2>
     </div>
-    <div style="overflow-x:auto;">
-      <svg viewBox="0 0 650 450" style="width:100%;max-width:650px;height:auto;display:block;" aria-label="Tensile strength bar chart" role="img">
-  <text x="10" y="37" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">CF-PA</text>
-  <rect x="170" y="20" width="410" height="28" rx="3" fill="#5a5a5a"/>
-  <text x="588" y="37" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">82 MPa</text>
-  <text x="10" y="79" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">Polycarbonate (PC)</text>
-  <rect x="170" y="62" width="310" height="28" rx="3" fill="#5a5a5a"/>
-  <text x="488" y="79" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">62 MPa</text>
-  <text x="10" y="121" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">CF-PETG</text>
-  <rect x="170" y="104" width="290" height="28" rx="3" fill="#5a5a5a"/>
-  <text x="468" y="121" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">58 MPa</text>
-  <text x="10" y="163" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">PLA</text>
-  <rect x="170" y="146" width="280" height="28" rx="3" fill="#5a5a5a"/>
-  <text x="458" y="163" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">56 MPa</text>
-  <text x="10" y="205" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">Nylon PA12</text>
-  <rect x="170" y="188" width="250" height="28" rx="3" fill="#5a5a5a"/>
-  <text x="428" y="205" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">50 MPa</text>
-  <text x="10" y="247" fill="#ffffff" font-size="13" font-family="inherit">PETG</text>
-  <rect x="170" y="230" width="240" height="28" rx="3" fill="#f25e50"/>
-  <text x="418" y="247" fill="#ffffff" font-size="13" font-family="inherit">48 MPa</text>
-  <text x="10" y="289" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">PC-ABS</text>
-  <rect x="170" y="272" width="240" height="28" rx="3" fill="#5a5a5a"/>
-  <text x="418" y="289" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">48 MPa</text>
-  <text x="10" y="331" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">ABS</text>
-  <rect x="170" y="314" width="190" height="28" rx="3" fill="#5a5a5a"/>
-  <text x="368" y="331" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">38 MPa</text>
-  <text x="10" y="373" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">ASA</text>
-  <rect x="170" y="356" width="210" height="28" rx="3" fill="#5a5a5a"/>
-  <text x="388" y="373" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">42 MPa</text>
-  <text x="10" y="415" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">TPU 95A</text>
-  <rect x="170" y="398" width="140" height="28" rx="3" fill="#5a5a5a"/>
-  <text x="318" y="415" fill="rgba(255,255,255,0.78)" font-size="13" font-family="inherit">28 MPa</text>
-      </svg>
-    </div>
+    <svg viewBox="0 0 600 330" role="img" aria-label="Horizontal bar chart comparing tensile strength of FDM materials in megapascals">
+      <g font-family="Montserrat, sans-serif">
+        <!-- gridlines at 20,40,60,80 MPa (scale 5.412 px/MPa from x=100) -->
+        <g stroke="rgba(255,255,255,0.12)" stroke-width="1">
+          <line x1="208.2" y1="10" x2="208.2" y2="300"></line>
+          <line x1="316.5" y1="10" x2="316.5" y2="300"></line>
+          <line x1="424.7" y1="10" x2="424.7" y2="300"></line>
+          <line x1="533.0" y1="10" x2="533.0" y2="300"></line>
+        </g>
+        <g fill="rgba(255,255,255,0.5)" font-size="10" font-weight="500" text-anchor="middle">
+          <text x="208.2" y="314">20</text>
+          <text x="316.5" y="314">40</text>
+          <text x="424.7" y="314">60</text>
+          <text x="533.0" y="314">80</text>
+        </g>
+        <!-- rows -->
+        <g font-size="11" font-weight="600">
+          <!-- CF-PA -->
+          <text x="94" y="22" text-anchor="end" fill="rgba(255,255,255,0.78)">CF-PA</text>
+          <rect x="100" y="13" width="443.8" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="549" y="23" text-anchor="start" fill="rgba(255,255,255,0.78)">82</text>
+          <!-- Polycarbonate -->
+          <text x="94" y="51" text-anchor="end" fill="rgba(255,255,255,0.78)">Polycarbonate</text>
+          <rect x="100" y="42" width="335.5" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="441" y="52" text-anchor="start" fill="rgba(255,255,255,0.78)">62</text>
+          <!-- CF-PETG -->
+          <text x="94" y="80" text-anchor="end" fill="rgba(255,255,255,0.78)">CF-PETG</text>
+          <rect x="100" y="71" width="313.9" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="419" y="81" text-anchor="start" fill="rgba(255,255,255,0.78)">58</text>
+          <!-- PLA -->
+          <text x="94" y="109" text-anchor="end" fill="rgba(255,255,255,0.78)">PLA</text>
+          <rect x="100" y="100" width="303.1" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="408" y="110" text-anchor="start" fill="rgba(255,255,255,0.78)">56</text>
+          <!-- Nylon PA12 -->
+          <text x="94" y="138" text-anchor="end" fill="rgba(255,255,255,0.78)">Nylon PA12</text>
+          <rect x="100" y="129" width="270.6" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="376" y="139" text-anchor="start" fill="rgba(255,255,255,0.78)">50</text>
+          <!-- PC-ABS -->
+          <text x="94" y="167" text-anchor="end" fill="rgba(255,255,255,0.78)">PC-ABS</text>
+          <rect x="100" y="158" width="259.8" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="365" y="168" text-anchor="start" fill="rgba(255,255,255,0.78)">48</text>
+          <!-- PETG -->
+          <text x="94" y="196" text-anchor="end" fill="#ffffff">PETG</text>
+          <rect x="100" y="187" width="259.8" height="18" rx="2" fill="#f25e50"></rect>
+          <text x="365" y="197" text-anchor="start" fill="#ffffff">48</text>
+          <!-- ASA -->
+          <text x="94" y="225" text-anchor="end" fill="rgba(255,255,255,0.78)">ASA</text>
+          <rect x="100" y="216" width="227.3" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="332" y="226" text-anchor="start" fill="rgba(255,255,255,0.78)">42</text>
+          <!-- ABS -->
+          <text x="94" y="254" text-anchor="end" fill="rgba(255,255,255,0.78)">ABS</text>
+          <rect x="100" y="245" width="205.7" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="311" y="255" text-anchor="start" fill="rgba(255,255,255,0.78)">38</text>
+          <!-- TPU 95A -->
+          <text x="94" y="283" text-anchor="end" fill="rgba(255,255,255,0.78)">TPU 95A</text>
+          <rect x="100" y="274" width="151.5" height="18" rx="2" fill="#5a5a5a"></rect>
+          <text x="257" y="284" text-anchor="start" fill="rgba(255,255,255,0.78)">28</text>
+        </g>
+      </g>
+    </svg>
   </div>
 </section>
 
@@ -1072,25 +1184,29 @@ const RADAR_AXIS_LABELS = [
       <p>Design rules that get the best performance from PETG.</p>
     </div>
     <div class="card-flex">
-      <div class="tip-card" data-od-id="tip-wall">
+      <div class="tip-card has-img" data-od-id="tip-wall">
+        <img class="tip-img" src="fracktal-cf-pa-design-tip-wall-thickness.png" alt="Technical diagram indicating minimum wall thickness for PETG structural parts" loading="lazy">
         <div class="tip-body">
           <h3>Wall Thickness ≥ 0.8 mm</h3>
           <p>PETG layers bond well — 2 perimeters give a solid wall. Use 3+ for structural parts.</p>
         </div>
       </div>
-      <div class="tip-card" data-od-id="tip-holes">
+      <div class="tip-card has-img" data-od-id="tip-holes">
+        <img class="tip-img" src="fracktal-cf-pa-design-tip-hole-diameter.png" alt="Technical diagram showing the minimum printable hole diameter for PETG parts" loading="lazy">
         <div class="tip-body">
           <h3>Min Hole Diameter: 1.2 mm</h3>
           <p>PETG expands slightly on cooling. Add 0.1 mm clearance on precision fits.</p>
         </div>
       </div>
-      <div class="tip-card" data-od-id="tip-overhang">
+      <div class="tip-card has-img" data-od-id="tip-overhang">
+        <img class="tip-img" src="fracktal-cf-pa-design-tip-overhang-angle.png" alt="Technical diagram showing the maximum self-supporting overhang angle from vertical for PETG 3D printed walls" loading="lazy">
         <div class="tip-body">
           <h3>Max Overhang: 50°</h3>
           <p>PETG bridges better than ABS. Use supports at 50° or beyond for critical surfaces.</p>
         </div>
       </div>
-      <div class="tip-card" data-od-id="tip-bed">
+      <div class="tip-card has-img" data-od-id="tip-bed">
+        <img class="tip-img" src="fracktal-cf-pa-design-tip-clearance-gap.png" alt="Technical diagram showing PETG adhesion to print bed surface" loading="lazy">
         <div class="tip-body">
           <h3>PEI Bed — Use Glue Stick</h3>
           <p>PETG sticks too aggressively to bare PEI. A thin layer of glue stick prevents tearing when removing prints.</p>
